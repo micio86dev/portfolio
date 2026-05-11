@@ -5,10 +5,11 @@
 #   docker compose -f docker-compose.prod.yml up -d --remove-orphans
 #
 # Self-contained: passing `-f docker-compose.prod.yml` does NOT auto-load
-# docker-compose.yml, so there is no build context to worry about — images are
-# pulled from GHCR. Runtime secrets (RESEND_API_KEY, CONTACT_TO_EMAIL,
-# CONTACT_FROM_EMAIL) live in ./.env on the VPS — never committed, never
-# passed through CI. This file is also the *base* for docker-compose.stage.yml.
+# docker-compose.yml, so there is no build context — images are pulled from
+# GHCR. `${PROD_PB_URL}` is read from a `./.env` file in this directory on the
+# VPS (the deploy workflow writes it from the PROD_PB_URL repo secret). It is a
+# public hostname, not a secret. This file is also the *base* for
+# docker-compose.stage.yml.
 
 services:
   astro:
@@ -16,8 +17,9 @@ services:
     container_name: portfolio-astro
     ports:
       - "3000:4321"
-    env_file:
-      - .env
+    environment:
+      # Reached by the browser (contact form) AND by the SSR server.
+      - PUBLIC_PB_URL=${PROD_PB_URL}
     restart: unless-stopped
     depends_on:
       - pocketbase
@@ -26,7 +28,7 @@ services:
     image: ghcr.io/micio86dev/portfolio-pb:latest
     container_name: portfolio-pocketbase
     ports:
-      # Bound to loopback — reverse-proxied by host nginx (see nginx/portfolio.conf).
+      # Loopback only — host nginx reverse-proxies pb.micio86dev.it → here.
       - "127.0.0.1:8090:8090"
     volumes:
       - /var/www/portfolio/pb_data:/pb/pb_data

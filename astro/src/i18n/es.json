@@ -119,27 +119,23 @@
       "email": "Email",
       "emailPlaceholder": "maria@empresa.com",
       "subject": "Asunto",
-      "subjectOptions": {
-        "general": "Consulta general",
-        "estimate": "Presupuesto de un proyecto",
-        "consulting": "Consultoría",
-        "other": "Otra cosa"
-      },
+      "subjectPlaceholder": "¿De qué se trata?",
       "message": "Mensaje",
       "messagePlaceholder": "¿Qué estás construyendo y dónde necesitas una mano?",
-      "charCounter": "{count} / 4000",
+      "charCounter": "{count} / 2000",
       "privacy": "Al enviar aceptas la política de privacidad.",
       "submit": "Enviar mensaje",
       "sending": "Enviando…",
-      "success": "Enviado — gracias. Te respondo en 24 horas.",
+      "success": "¡Mensaje enviado! Te respondo en 24 horas.",
       "honeypotLabel": "Sitio web",
+      "error": "Algo ha fallado. Escríbeme directamente a hello@miciodev.com.",
       "errors": {
         "name": "Escribe tu nombre.",
         "email": "Ese email no parece válido.",
-        "messageShort": "Un poco más de detalle, por favor — al menos 20 caracteres.",
-        "messageLong": "Te has pasado del límite — quédate por debajo de 4000 caracteres.",
-        "rateLimit": "Demasiados intentos. Inténtalo de nuevo en un minuto.",
-        "server": "Algo ha fallado por mi lado. Escríbeme directamente a hello@miciodev.com."
+        "subject": "Añade un asunto.",
+        "messageShort": "Un poco más de detalle, por favor — al menos 10 caracteres.",
+        "messageLong": "Te has pasado del límite — quédate por debajo de 2000 caracteres.",
+        "rateLimit": "Demasiados intentos. Inténtalo de nuevo en un minuto."
       }
     },
     "aside": {

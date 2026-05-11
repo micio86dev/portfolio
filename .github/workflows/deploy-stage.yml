@@ -44,8 +44,9 @@ jobs:
           context: ./astro
           push: true
           tags: ${{ env.IMAGE_ASTRO }}:${{ env.TAG }}
+          # PUBLIC_PB_URL is NOT a build arg — it's injected at container start
+          # (see docker-compose.stage.yml). Only the public SITE_URL is baked in.
           build-args: |
-            PB_URL=${{ secrets.STAGE_PB_URL }}
             SITE_URL=${{ env.SITE_URL }}
 
       - name: Build & push pocketbase image
@@ -67,6 +68,17 @@ jobs:
           scp -o StrictHostKeyChecking=accept-new \
             docker-compose.prod.yml docker-compose.stage.yml \
             "${SSH_TARGET}:/var/www/portfolio-stage/"
+
+      - name: Write runtime env on VPS
+        # docker-compose.stage.yml reads ${STAGE_PB_URL} from this .env. The
+        # value is piped over the SSH session — never echoed to the build log.
+        env:
+          SSH_TARGET: ${{ secrets.VPS_SSH_USER }}@${{ secrets.VPS_SSH_HOST }}
+          STAGE_PB_URL: ${{ secrets.STAGE_PB_URL }}
+        run: |
+          printf 'STAGE_PB_URL=%s\n' "$STAGE_PB_URL" \
+            | ssh -o StrictHostKeyChecking=accept-new "${SSH_TARGET}" \
+              'umask 077 && cat > /var/www/portfolio-stage/.env'
 
       - name: Deploy on VPS
         env:

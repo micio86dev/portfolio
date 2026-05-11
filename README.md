@@ -22,8 +22,8 @@ Your task: recreate them in the target stack (Astro 5 + Vue 3 islands + Tailwind
 | Interactive islands | Vue 3 | `client:visible` for form, nav, theme toggle; `client:load` only for nav |
 | Styling | Tailwind v4 | `@theme` block in `app.css`; tokens below map 1:1 to Tailwind variables |
 | i18n | Astro built-in i18n | `astro.config.mjs` `i18n: { defaultLocale: 'it', locales: ['it','en','es'] }`. astro-i18next is an alternative if you want runtime translations |
-| Data | PocketBase | REST: `GET /api/collections/projects/records`, `services/records`. Build-time fetch in Astro for static gen; revalidate via webhook → rebuild |
-| Email | Resend | API route at `src/pages/api/contact.ts` (or Vue island POST). Honeypot + rate-limit |
+| Data | PocketBase | REST: `GET /api/collections/projects/records`, `services/records`. Per-request fetch in Astro (SSR) — always fresh, no rebuild |
+| Contact | PocketBase | The Vue island POSTs straight to `POST /api/collections/contacts/records`. Honeypot (client-side) + PocketBase built-in rate limiting. No email service. |
 
 ---
 
@@ -128,9 +128,7 @@ src/
 │  ├─ index.astro            # IT (default)
 │  ├─ en/index.astro
 │  ├─ es/index.astro
-│  ├─ projects/[slug].astro  # case-study detail
-│  └─ api/
-│     └─ contact.ts          # Resend POST handler
+│  └─ projects/[slug].astro  # case-study detail
 ├─ layouts/
 │  └─ Base.astro             # html lang, meta, font preload, theme bootstrap, Nav, Footer slot
 ├─ components/
@@ -145,7 +143,7 @@ src/
 │     ├─ Nav.vue             # mobile drawer + theme toggle + lang switch
 │     ├─ ThemeToggle.vue
 │     ├─ LangSwitch.vue
-│     └─ ContactForm.vue     # validation + Resend POST + aria-live feedback
+│     └─ ContactForm.vue     # validation + direct POST to PocketBase + aria-live feedback
 ├─ i18n/
 │  ├─ it.json
 │  ├─ en.json
@@ -170,7 +168,7 @@ src/
 | Services | Astro static | Card grid; data from PocketBase at build. Icons are inline SVG (`design_refs/services.jsx` has the 5 line icons). |
 | Projects | Astro static | Featured + grid. Data from PocketBase. Hover state = CSS only. |
 | Skills | Astro static | Pure list. No JS. Three pill weights: `primary` / `daily` / `default` — class-driven. |
-| **ContactForm** | Vue island | `client:visible`. Live validation, char counter, `aria-live="polite"` region for submit feedback, honeypot field, POSTs to `/api/contact`. |
+| **ContactForm** | Vue island | `client:visible`. Live validation, char counter, `aria-live="polite"` region for submit feedback, honeypot field, POSTs to `${PUBLIC_PB_URL}/api/collections/contacts/records`. |
 | Footer | Astro static | Always-dark surface. Social icons inline SVG. Lang switch is a duplicate of Nav's — extract `LangSwitch.vue` once. |
 | SectionDivider | Astro static | The `§ NN — name` hairline between sections. Aria-hidden. |
 
@@ -310,12 +308,21 @@ Expected outcome: text is paint-blocked for < 50 ms, italic display swaps in by 
 
 ## Contact form
 
-- POST to `/api/contact` (Astro endpoint) from `ContactForm.vue`.
-- Fields: `name`, `email`, `subject` (enum: `general`/`estimate`/`consulting`/`other`), `message`, plus a honeypot `website` field that must be empty.
-- Validate on the server: required, email format, message length 20–4000, honeypot empty, rate-limit by IP (5/min).
-- On success: Resend `emails.send({ from: 'MicioDev <hello@miciodev.com>', to: 'alessandro@…', reply_to: <email>, subject: ${subject}, html, text })`. Return JSON `{ok: true}`; Vue island flips to success state.
-- Surface success/error in an `aria-live="polite"` region above the submit button.
-- Environment: `RESEND_API_KEY`, `CONTACT_TO_EMAIL`, `PB_URL`, `PB_ADMIN_TOKEN` (optional, if you write submissions back to PocketBase as a `messages` collection — recommended for backup).
+- `ContactForm.vue` POSTs JSON `{ name, email, subject, message }` straight to
+  `${PUBLIC_PB_URL}/api/collections/contacts/records` from the browser — no Astro
+  API route. Submissions land in the PocketBase `contacts` collection; read them
+  in the admin dashboard at `${PUBLIC_PB_URL}/_/`.
+- Fields: `name`, `email`, `subject` (free-text), `message`, plus a honeypot
+  `website` field that must be empty (a filled honeypot short-circuits to a fake
+  success and sends nothing).
+- Client-side validation: all required, email format, message length 10–2000.
+  PocketBase re-enforces the same bounds server-side via the collection schema.
+- Spam: enable PocketBase rate limiting (Settings → Rate limits) on
+  `POST /api/collections/contacts/records`.
+- On failure the form shows a generic message only — PocketBase's response body
+  is never surfaced. Success/error appear in an `aria-live="polite"` region
+  above the submit button.
+- Environment: `PUBLIC_PB_URL` (runtime).
 
 ---
 
@@ -401,7 +408,7 @@ JSX files are **references for layout and intent**, not files to port directly. 
 5. Build Hero, Services, Skills as Astro static — content from i18n JSON (no PocketBase yet).
 6. Stand up PocketBase locally with `projects` and `services` collections; seed with the placeholder data in `projects-data.js`.
 7. Wire build-time fetch helpers; swap Services + Projects to read from PocketBase.
-8. Build ContactForm.vue + `/api/contact.ts` + Resend integration.
+8. Build ContactForm.vue posting directly to the PocketBase `contacts` collection.
 9. Footer.
 10. SEO + sitemap + analytics (Plausible recommended).
 11. Lighthouse + axe pass.
@@ -416,15 +423,21 @@ Aim for Lighthouse 100 / 100 / 100 / 100 on the IT landing page before launching
 > `develop` deploy to staging and merges to `main` deploy to production
 > (git-flow). Images are built and pushed to GitHub Container Registry, then a
 > short SSH step rolls the stack on the VPS.
+>
+> The Astro app runs **SSR** (`output: 'server'`), so every page re-reads
+> PocketBase on each request — content (projects, services) is live without a
+> redeploy. The contact form POSTs straight from the browser to PocketBase's
+> REST API; submissions land in a `contacts` collection the admin reads at
+> `pb.micio86dev.it/_/`. No email service is involved.
 
 ```
 portfolio/
-├── astro/                      Astro 5 frontend (static client + @astrojs/node SSR server)
+├── astro/                      Astro 5 SSR frontend (@astrojs/node standalone server)
 │   ├── Dockerfile              multi-stage: node build → node:20-alpine standalone runtime
 │   └── .dockerignore
 ├── pb/                         PocketBase backend
 │   ├── Dockerfile              debian:bookworm-slim; downloads the pinned PB linux release
-│   ├── pb_migrations/          versioned schema migrations — committed, applied with `migrate up`
+│   ├── pb_migrations/          versioned schema migrations — committed, auto-applied on start
 │   ├── pocketbase              local (macOS) binary — gitignored
 │   └── pb_data/                SQLite data — gitignored
 ├── docker-compose.yml          local dev (builds from source)
@@ -439,44 +452,53 @@ portfolio/
 
 ## Why a Node container (not nginx-static)
 
-This Astro app isn't pure SSG: `src/pages/api/contact.ts` is server-rendered
-(`prerender = false`) via `@astrojs/node` (standalone). The runtime image runs
-`node ./dist/server/entry.mjs`, which serves the prerendered `dist/client`
-assets **and** the `/api/contact` endpoint. Host nginx sits in front of it for
-TLS, gzip, security headers, and asset caching.
+The app is SSR (`output: 'server'` + `@astrojs/node` standalone). The runtime
+image runs `node ./dist/server/entry.mjs`, which renders pages on demand **and**
+serves the static client assets (`dist/client`). Host nginx sits in front for
+TLS, gzip, security headers, and asset caching, and exposes PocketBase on a
+`pb.` subdomain.
 
-## Build-time vs runtime configuration
+## Configuration: build-time vs runtime
 
 | Variable | When | Where it comes from |
 |---|---|---|
-| `PB_URL` | build (`astro build` fetches projects/services; falls back to seed data) | Docker build arg ← `STAGE_PB_URL` / `PROD_PB_URL` repo secret |
-| `SITE_URL` | build (canonical / hreflang / sitemap) | Docker build arg ← hardcoded per env in the deploy workflow |
-| `RESEND_API_KEY`, `CONTACT_TO_EMAIL`, `CONTACT_FROM_EMAIL`, `PB_ADMIN_TOKEN` | runtime (Node server / contact endpoint) | VPS `.env` referenced by `env_file:` in the prod/stage compose — **not** a GitHub secret, never echoed in CI |
+| `PUBLIC_PB_URL` | **runtime** — read by the SSR server (`process.env`) for projects/services, and by the browser for the contact-form POST | container `environment:` in `docker-compose.{prod,stage}.yml`, interpolated from `${PROD_PB_URL}` / `${STAGE_PB_URL}` in the VPS `.env` (written by the deploy workflow from the repo secret). Falls back to `http://localhost:8090`. **Not** a build arg. |
+| `SITE_URL` | build — canonical / hreflang / sitemap | Docker build arg ← hardcoded per env in the deploy workflow |
+
+Because the contact form runs in the browser, `PUBLIC_PB_URL` must be a URL the
+browser can reach (e.g. `https://pb.micio86dev.it`). PocketBase serves
+permissive CORS on `/api/*`, so the cross-subdomain POST from the site works.
 
 ## Local development
 
 ```bash
-cp .env.example .env.local        # fill in RESEND_API_KEY etc.
 docker compose up --build
 # site:        http://localhost:4321
-# PocketBase:  http://localhost:8090/_/
+# PocketBase:  http://localhost:8090/_/   (create the first superuser here)
 ```
+
+`docker-compose.yml` hardcodes `PUBLIC_PB_URL=http://localhost:8090` (browser-
+reachable via the port map). Inside the astro container, SSR-side fetches resolve
+`localhost` to the container itself, so projects/services fall back to seed data;
+for live local PocketBase data in SSR run `npm run dev` in `astro/` on the host
+(it reads `astro/.env`).
 
 ## VPS layout
 
-Two independent stacks, one directory each. Each holds an `.env` (runtime
-secrets, created by hand from `.env.example`, never committed) and a `pb_data/`
-directory the PocketBase container mounts. The deploy workflows `scp` the
-compose files in on every run, so they stay in sync with the repo.
+Two independent stacks, one directory each. Each holds a `.env` (just the
+PocketBase URL — written by the deploy workflow from the `PROD_PB_URL` /
+`STAGE_PB_URL` repo secret; not a real secret, but never committed) and a
+`pb_data/` directory the PocketBase container mounts. The deploy workflows
+`scp` the compose files in on every run, so they stay in sync with the repo.
 
 ```
 /var/www/portfolio/            ← production  (compose: -f docker-compose.prod.yml)
-├── .env
+├── .env                       ← PROD_PB_URL=https://pb.micio86dev.it   (CI writes this)
 ├── pb_data/                   ← chown to uid 1001 (the container's pocketbase user)
 └── docker-compose.prod.yml
 
 /var/www/portfolio-stage/      ← staging     (compose: -f docker-compose.prod.yml -f docker-compose.stage.yml)
-├── .env
+├── .env                       ← STAGE_PB_URL=https://pb.stage.micio86dev.it   (CI writes this)
 ├── pb_data/
 ├── docker-compose.prod.yml
 └── docker-compose.stage.yml
@@ -486,21 +508,41 @@ compose files in on every run, so they stay in sync with the repo.
 # one-time per stack, on the VPS:
 sudo mkdir -p /var/www/portfolio/pb_data
 sudo chown -R 1001:1001 /var/www/portfolio/pb_data
-sudo install -m 600 /dev/stdin /var/www/portfolio/.env   # then paste the runtime vars
+# .env is created by the first deploy; nothing to paste by hand.
 ```
 
 Host nginx: copy `nginx/portfolio.conf` → `/etc/nginx/sites-available/portfolio`,
 symlink into `sites-enabled/`, `nginx -t && systemctl reload nginx`, then run
-Certbot (`certbot --nginx -d micio86dev.it -d www.micio86dev.it -d stage.micio86dev.it`).
+Certbot:
 
-## PocketBase migrations
+```bash
+certbot --nginx -d micio86dev.it -d www.micio86dev.it \
+                -d stage.micio86dev.it \
+                -d pb.micio86dev.it -d pb.stage.micio86dev.it
+```
+
+## PocketBase: `contacts` collection & migrations
 
 Schema changes are versioned as migration files under `pb/pb_migrations/`
-(committed). Generate them locally after editing collections in the admin UI —
-PocketBase auto-creates a migration file on schema change when run with
-`--dev`/`--automigrate`, or run `./pocketbase migrate collections` to snapshot
-the current schema. The deploy workflows run `pocketbase migrate up` inside the
-container after each release.
+(committed). PocketBase auto-applies pending migrations on startup, and the
+deploy workflows also run `pocketbase migrate up` after each release. The
+initial migration `…_created_contacts.js` creates the `contacts` collection:
+
+- fields: `name` (2–100), `email`, `subject` (≤200), `message` (10–2000),
+  `read` (bool), `ip` (text)
+- API rules: `createRule = ""` (public — anyone can submit); `list` / `view` /
+  `update` / `delete` require an authenticated admin (`@request.auth.id != ""`)
+
+Submissions land here; read and mark them in the admin dashboard at
+`https://pb.micio86dev.it/_/`. There is no email delivery. **Spam:** enable
+PocketBase's built-in rate limiting (Settings → Rate limits) with a rule on
+`POST /api/collections/contacts/records`; the form also carries a `website`
+honeypot dropped client-side.
+
+To add more schema changes later: edit collections in the admin UI with the
+server running with `--dev` (auto-generates a migration file), or run
+`./pocketbase migrate collections` to snapshot the current schema, then commit
+the new file in `pb/pb_migrations/`.
 
 ## ESLint
 
@@ -518,12 +560,14 @@ Add these under **Settings → Secrets and variables → Actions → New reposit
 | `VPS_SSH_PRIVATE_KEY` | ED25519 **private** key the workflows use to SSH into the VPS | `-----BEGIN OPENSSH PRIVATE KEY-----`<br>`b3BlbnNzaC1rZXkt...`<br>`-----END OPENSSH PRIVATE KEY-----` | deploy-stage, deploy-prod |
 | `VPS_SSH_HOST` | VPS IP address or hostname | `203.0.113.10` or `vps.micio86dev.it` | deploy-stage, deploy-prod |
 | `VPS_SSH_USER` | SSH user on the VPS (a dedicated low-privilege deploy user, in the `docker` group) | `deploy` | deploy-stage, deploy-prod |
-| `STAGE_PB_URL` | PocketBase base URL used **at build time** for the staging image | `https://stage.micio86dev.it/api` | deploy-stage |
-| `PROD_PB_URL` | PocketBase base URL used **at build time** for the production image | `https://micio86dev.it/api` (or `https://pb.micio86dev.it`) | deploy-prod |
+| `STAGE_PB_URL` | Runtime URL of the staging PocketBase. The deploy workflow writes it into `/var/www/portfolio-stage/.env`; `docker-compose.stage.yml` injects it as the astro container's `PUBLIC_PB_URL` at start — **not** at build time. | `https://pb.stage.micio86dev.it` | deploy-stage |
+| `PROD_PB_URL` | Runtime URL of the production PocketBase. The deploy workflow writes it into `/var/www/portfolio/.env`; `docker-compose.prod.yml` injects it as the astro container's `PUBLIC_PB_URL` at start — **not** at build time. | `https://pb.micio86dev.it` | deploy-prod |
 
-**Not GitHub secrets — they live in the VPS `.env`** (runtime only, kept out of
-CI logs): `RESEND_API_KEY`, `CONTACT_TO_EMAIL`, `CONTACT_FROM_EMAIL`,
-`PB_ADMIN_TOKEN`. See `.env.example`.
+These are public hostnames, not secrets — they're stored as repo secrets only so
+the deploy workflow can drop them onto the VPS without anyone editing files
+there. Contact-form submissions are stored in the PocketBase `contacts`
+collection, viewable in the admin dashboard at `/_/` — no email service, so
+there are no Resend / SMTP credentials anywhere.
 
 **`GITHUB_TOKEN` is automatic** — the deploy workflows log in to `ghcr.io` with
 the built-in `${{ secrets.GITHUB_TOKEN }}` (`permissions: packages: write`). No

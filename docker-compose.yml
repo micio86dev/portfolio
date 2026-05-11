@@ -1,22 +1,26 @@
-# Local development stack. Build images from source; secrets come from
-# .env.local (copy .env.example → .env.local and fill it in).
+# Local development stack — builds both images from source.
 #
 #   docker compose up --build
 #   → site:        http://localhost:4321
-#   → PocketBase:  http://localhost:8090/_/
+#   → PocketBase:  http://localhost:8090/_/   (create the first superuser here)
+#
+# PUBLIC_PB_URL must be reachable from the BROWSER (the contact form POSTs to it
+# directly), so it's http://localhost:8090 via the pocketbase port mapping below.
+# Note: SSR-side fetches in the astro container resolve `localhost` to the astro
+# container itself, so getProjects/getServices fall back to bundled seed data
+# here. For live local PocketBase data in SSR, run `npm run dev` in ./astro on
+# the host instead, or add an internal PB_URL override.
 
 services:
   astro:
     build:
       context: ./astro
       args:
-        PB_URL: ${PB_URL:-}
         SITE_URL: ${SITE_URL:-http://localhost:4321}
     ports:
       - "4321:4321"
-    env_file:
-      - path: .env.local
-        required: false
+    environment:
+      - PUBLIC_PB_URL=http://localhost:8090
     depends_on:
       - pocketbase
 

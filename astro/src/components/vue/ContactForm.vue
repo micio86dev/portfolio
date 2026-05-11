@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue';
 
-const MAX_MESSAGE = 4000;
-const MIN_MESSAGE = 20;
+// Limits mirror the PocketBase `contacts` collection (pb/pb_migrations).
+const MIN_MESSAGE = 10;
+const MAX_MESSAGE = 2000;
+const MAX_NAME = 100;
+const MAX_SUBJECT = 200;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 interface Messages {
@@ -13,7 +16,7 @@ interface Messages {
   email: string;
   emailPlaceholder: string;
   subject: string;
-  subjectOptions: { general: string; estimate: string; consulting: string; other: string };
+  subjectPlaceholder: string;
   message: string;
   messagePlaceholder: string;
   charCounter: string; // contains "{count}"
@@ -21,34 +24,37 @@ interface Messages {
   submit: string;
   sending: string;
   success: string;
+  /** Generic submission failure — never expose PocketBase error details. */
+  error: string;
   errors: {
     name: string;
     email: string;
+    subject: string;
     messageShort: string;
     messageLong: string;
     rateLimit: string;
-    server: string;
   };
 }
 
 const props = defineProps<{
   messages: Messages;
-  /** endpoint path; defaults to /api/contact */
-  action?: string;
+  /** Public PocketBase base URL — the form POSTs to
+   *  `${pbUrl}/api/collections/contacts/records`. Provided by Contact.astro
+   *  from process.env.PUBLIC_PB_URL at request time. */
+  pbUrl: string;
 }>();
 
-type SubjectKey = 'general' | 'estimate' | 'consulting' | 'other';
 type Status = 'idle' | 'submitting' | 'success' | 'error';
 
 const form = reactive({
   name: '',
   email: '',
-  subject: 'general' as SubjectKey,
+  subject: '',
   message: '',
-  website: '', // honeypot — must stay empty
+  website: '', // honeypot — must stay empty; never sent
 });
 
-const touched = reactive({ name: false, email: false, message: false });
+const touched = reactive({ name: false, email: false, subject: false, message: false });
 const status = ref<Status>('idle');
 const feedback = ref('');
 
@@ -56,73 +62,68 @@ const messageCount = computed(() => form.message.length);
 const counterText = computed(() => props.messages.charCounter.replace('{count}', String(messageCount.value)));
 
 const errors = computed(() => {
-  const e: Partial<Record<'name' | 'email' | 'message', string>> = {};
+  const e: Partial<Record<'name' | 'email' | 'subject' | 'message', string>> = {};
   if (!form.name.trim()) e.name = props.messages.errors.name;
   if (!EMAIL_RE.test(form.email.trim())) e.email = props.messages.errors.email;
+  if (!form.subject.trim()) e.subject = props.messages.errors.subject;
   const len = form.message.trim().length;
-  if (len > 0 && len < MIN_MESSAGE) e.message = props.messages.errors.messageShort;
+  if (len < MIN_MESSAGE) e.message = props.messages.errors.messageShort;
   else if (len > MAX_MESSAGE) e.message = props.messages.errors.messageLong;
-  else if (len === 0) e.message = props.messages.errors.messageShort;
   return e;
 });
 
 const isValid = computed(() => Object.keys(errors.value).length === 0);
 
-const subjectEntries = computed(
-  () =>
-    [
-      ['general', props.messages.subjectOptions.general],
-      ['estimate', props.messages.subjectOptions.estimate],
-      ['consulting', props.messages.subjectOptions.consulting],
-      ['other', props.messages.subjectOptions.other],
-    ] as [SubjectKey, string][],
-);
-
-function showError(field: 'name' | 'email' | 'message'): boolean {
+function showError(field: 'name' | 'email' | 'subject' | 'message'): boolean {
   return touched[field] && Boolean(errors.value[field]);
 }
 
+function resetForm() {
+  form.name = form.email = form.subject = form.message = '';
+  touched.name = touched.email = touched.subject = touched.message = false;
+}
+
 async function onSubmit() {
-  touched.name = touched.email = touched.message = true;
+  touched.name = touched.email = touched.subject = touched.message = true;
   feedback.value = '';
   if (!isValid.value) return;
-  // Honeypot tripped → pretend success, send nothing.
+
+  // Honeypot tripped → a bot. Pretend it worked; send nothing.
   if (form.website.trim() !== '') {
     status.value = 'success';
     feedback.value = props.messages.success;
+    resetForm();
     return;
   }
 
   status.value = 'submitting';
   feedback.value = props.messages.sending;
   try {
-    const res = await fetch(props.action ?? '/api/contact', {
+    const res = await fetch(`${props.pbUrl}/api/collections/contacts/records`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
         name: form.name.trim(),
         email: form.email.trim(),
-        subject: form.subject,
+        subject: form.subject.trim(),
         message: form.message.trim(),
-        website: form.website,
       }),
     });
     if (res.ok) {
       status.value = 'success';
       feedback.value = props.messages.success;
-      form.name = form.email = form.message = '';
-      form.subject = 'general';
-      touched.name = touched.email = touched.message = false;
+      resetForm();
     } else if (res.status === 429) {
       status.value = 'error';
       feedback.value = props.messages.errors.rateLimit;
     } else {
+      // Don't surface PocketBase's response body — generic message only.
       status.value = 'error';
-      feedback.value = props.messages.errors.server;
+      feedback.value = props.messages.error;
     }
   } catch {
     status.value = 'error';
-    feedback.value = props.messages.errors.server;
+    feedback.value = props.messages.error;
   }
 }
 </script>
@@ -139,6 +140,7 @@ async function onSubmit() {
           type="text"
           name="name"
           autocomplete="name"
+          :maxlength="MAX_NAME"
           :placeholder="messages.namePlaceholder"
           :data-state="showError('name') ? 'error' : undefined"
           :aria-invalid="showError('name') || undefined"
@@ -169,12 +171,20 @@ async function onSubmit() {
 
     <div class="md-field cf__field">
       <label for="cf-subject">{{ messages.subject }}</label>
-      <div class="cf__select-wrap">
-        <select id="cf-subject" v-model="form.subject" class="md-input" name="subject">
-          <option v-for="[key, label] in subjectEntries" :key="key" :value="key">{{ label }}</option>
-        </select>
-        <span class="cf__select-caret" aria-hidden="true">▾</span>
-      </div>
+      <input
+        id="cf-subject"
+        v-model="form.subject"
+        class="md-input"
+        type="text"
+        name="subject"
+        :maxlength="MAX_SUBJECT"
+        :placeholder="messages.subjectPlaceholder"
+        :data-state="showError('subject') ? 'error' : undefined"
+        :aria-invalid="showError('subject') || undefined"
+        aria-describedby="cf-subject-err"
+        @blur="touched.subject = true"
+      />
+      <span id="cf-subject-err" class="cf__err" role="alert">{{ showError('subject') ? errors.subject : '' }}</span>
     </div>
 
     <div class="md-field cf__field">
@@ -198,7 +208,7 @@ async function onSubmit() {
       <span id="cf-message-err" class="cf__err" role="alert">{{ showError('message') ? errors.message : '' }}</span>
     </div>
 
-    <!-- Honeypot — visually hidden, off-screen, not announced. Bots fill it; humans don't. -->
+    <!-- Honeypot — visually hidden, off-screen, not announced. Bots fill it; humans don't. Never sent. -->
     <div class="cf__hp" aria-hidden="true">
       <label for="cf-website">{{ messages.honeypotLabel }}</label>
       <input id="cf-website" v-model="form.website" type="text" name="website" tabindex="-1" autocomplete="off" />
@@ -261,22 +271,6 @@ async function onSubmit() {
   font-size: 11px;
   color: var(--danger);
   letter-spacing: 0.04em;
-}
-.cf__select-wrap { position: relative; }
-.cf__select-wrap select {
-  appearance: none;
-  -webkit-appearance: none;
-  padding-right: 36px;
-}
-.cf__select-caret {
-  position: absolute;
-  right: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none;
-  color: var(--text-3);
-  font-family: var(--font-mono);
-  font-size: 12px;
 }
 .cf__hp {
   position: absolute;

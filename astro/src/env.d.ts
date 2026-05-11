@@ -1,17 +1,11 @@
 /// <reference path="../.astro/types.d.ts" />
 
 interface ImportMetaEnv {
-  /** PocketBase base URL, e.g. https://pb.miciodev.com */
-  readonly PB_URL?: string;
-  /** Optional PocketBase admin token (only if writing submissions back) */
-  readonly PB_ADMIN_TOKEN?: string;
-  /** Resend API key */
-  readonly RESEND_API_KEY?: string;
-  /** Destination address for contact-form submissions */
-  readonly CONTACT_TO_EMAIL?: string;
-  /** Verified sender, e.g. "MicioDev <hello@miciodev.com>" */
-  readonly CONTACT_FROM_EMAIL?: string;
-  /** Canonical site origin */
+  /** Public PocketBase base URL, e.g. https://pb.micio86dev.it. Read at runtime
+   *  (process.env) on the SSR server and exposed to the browser for the contact
+   *  form; falls back to http://localhost:8090. */
+  readonly PUBLIC_PB_URL?: string;
+  /** Canonical site origin (build-time, read by astro.config.mjs). */
   readonly SITE_URL?: string;
 }
 

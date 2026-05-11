@@ -1,11 +1,16 @@
 /**
- * PocketBase client + build-time fetch helpers.
+ * PocketBase client + content fetch helpers (server-only — do not import from
+ * client components).
  *
  * Pages call `getProjects(locale)` / `getServices(locale)` from their Astro
- * frontmatter (prerendered at build time). If `PB_URL` is unset or the
+ * frontmatter. With `output: 'server'` those run on every request, so content
+ * is always fresh — no redeploy needed. If `PUBLIC_PB_URL` is unset or the
  * instance is unreachable, we fall back to the structural seed data so the
- * site always builds. Point a webhook from PocketBase → your host's deploy
- * hook to rebuild on content change.
+ * site still renders.
+ *
+ * `PUBLIC_PB_URL` is read at RUNTIME: `process.env.PUBLIC_PB_URL` first (set by
+ * the container's `environment:` block in prod), then `import.meta.env` as a
+ * fallback for `astro dev` reading a local `.env`.
  */
 
 import PocketBase from 'pocketbase';
@@ -18,9 +23,11 @@ import {
   type Localized,
 } from './seed-data';
 
-const PB_URL = import.meta.env.PB_URL as string | undefined;
+const PB_URL =
+  (typeof process !== 'undefined' ? process.env.PUBLIC_PB_URL : undefined) ||
+  (import.meta.env.PUBLIC_PB_URL as string | undefined);
 
-/** Singleton client. Safe to import anywhere; `null` when PB_URL is not set. */
+/** Singleton client. Server-only; `null` when PUBLIC_PB_URL is not set. */
 export const pb: PocketBase | null = PB_URL ? new PocketBase(PB_URL) : null;
 
 function localize<T extends ServiceRecord | ProjectRecord>(

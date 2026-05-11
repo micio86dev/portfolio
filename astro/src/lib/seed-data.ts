@@ -1,10 +1,10 @@
 /**
- * Build-time fallback data for Services & Projects.
+ * Fallback data for Services & Projects.
  *
  * Shapes mirror the PocketBase collections described in the design handoff
  * (README → "PocketBase collections schema") so swapping to live data is a
- * drop-in. Used by src/lib/pocketbase.ts whenever PB_URL is unset or the
- * instance is unreachable, so the site always builds.
+ * drop-in. Used by src/lib/pocketbase.ts whenever PUBLIC_PB_URL is unset or
+ * the instance is unreachable, so the site still renders.
  *
  * The service copy here mirrors the `services.items.*` strings in the i18n
  * files. Project titles/descriptions are deliberately generic — the real

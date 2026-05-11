@@ -8,14 +8,16 @@ import tailwindcss from '@tailwindcss/vite';
 // English is the default locale and is served at "/" (no prefix).
 // Italian → /it/…, Spanish → /es/….
 //
-// Rendering: SSG + SSR hybrid. Pages opt into static generation with
-// `export const prerender = true`; the contact endpoint
-// (`src/pages/api/contact.ts`) uses `export const prerender = false` and is
-// rendered on demand by the Node adapter (standalone mode). Swap the adapter
-// for `@astrojs/vercel`, `@astrojs/cloudflare`, etc. when you pick a host.
+// Rendering: SSR by default (`output: 'server'`), so pages re-read PocketBase
+// on every request — content changes are live without a redeploy. The
+// `@astrojs/node` standalone adapter outputs a self-contained Node server at
+// `dist/server/entry.mjs` (it also serves the static client assets). Truly
+// static pages (e.g. a future 404 or legal page) can opt out with
+// `export const prerender = true`. Swap the adapter for `@astrojs/vercel`,
+// `@astrojs/cloudflare`, etc. when you pick a different host.
 export default defineConfig({
   site: process.env.SITE_URL ?? 'https://micio86dev.example',
-  output: 'static',
+  output: 'server',
   adapter: node({ mode: 'standalone' }),
   i18n: {
     defaultLocale: 'en',

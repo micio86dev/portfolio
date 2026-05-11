@@ -119,27 +119,23 @@
       "email": "Email",
       "emailPlaceholder": "jane@company.com",
       "subject": "Subject",
-      "subjectOptions": {
-        "general": "General inquiry",
-        "estimate": "Project estimate",
-        "consulting": "Consulting",
-        "other": "Something else"
-      },
+      "subjectPlaceholder": "What's it about?",
       "message": "Message",
       "messagePlaceholder": "What are you building, and where do you need a hand?",
-      "charCounter": "{count} / 4000",
+      "charCounter": "{count} / 2000",
       "privacy": "By sending this you accept the privacy policy.",
       "submit": "Send message",
       "sending": "Sending…",
-      "success": "Sent — thanks. I'll reply within 24 hours.",
+      "success": "Message sent! I'll reply within 24h.",
       "honeypotLabel": "Website",
+      "error": "Something went wrong. Please email me directly at hello@miciodev.com.",
       "errors": {
         "name": "Please enter your name.",
         "email": "That doesn't look like a valid email.",
-        "messageShort": "A little more detail, please — at least 20 characters.",
-        "messageLong": "That's over the limit — keep it under 4000 characters.",
-        "rateLimit": "Too many attempts. Try again in a minute.",
-        "server": "Something broke on my end. Email me directly at hello@miciodev.com."
+        "subject": "Please add a subject.",
+        "messageShort": "A little more detail, please — at least 10 characters.",
+        "messageLong": "That's over the limit — keep it under 2000 characters.",
+        "rateLimit": "Too many attempts. Try again in a minute."
       }
     },
     "aside": {
