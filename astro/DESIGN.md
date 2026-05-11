@@ -28,10 +28,9 @@ Where this is implemented: `src/styles/tokens.css` (token surface),
   - **`§ NN` section counters** in mono, in the gutter, on every section header.
   - **Hairlines, not hard borders** between sections (1 px `--line` + a mono
     `§ NN — name` label). The nav has a (scroll-triggered) bottom hairline.
-  - **Per-language `[IT]` / `[EN]` / `[ES]` tags** in mono before strings in the
-    prototypes — in production these are just one language per route; the small
-    bracketed tag before the H1 / subhead / card copy is kept as a stylistic
-    accent (uses the active locale).
+  - **Per-language `[IT]` / `[EN]` / `[ES]` tags** in mono before strings appeared
+    in the prototypes only — production is one language per route, so these
+    bracketed tags are not rendered.
   - **Atmosphere** (hero & footer): layered soft radial gradients in brand
     green + a fine masked dot grid + faint SVG fractal-noise grain + crosshair
     corner marks + a faded mono "build stamp". All decorative / `aria-hidden`.

@@ -11,7 +11,6 @@ interface Props {
 const { lang } = Astro.props;
 const t = useTranslations(lang);
 const path = useTranslatedPath(lang);
-const langTag = lang.toUpperCase();
 const projects = await getProjects(lang);
 
 const featuredBadgeLabel = t('projects.featuredBadge');
@@ -24,9 +23,7 @@ const [first, ...rest] = projects;
 <section class="parchive" aria-labelledby="parchive-heading">
   <header class="parchive__head">
     <span class="md-eyebrow parchive__eyebrow"><span class="dot"></span>{t('projectsPage.eyebrow')}</span>
-    <h1 id="parchive-heading" class="parchive__title">
-      <span class="parchive__tag">[{langTag}]</span>{t('projectsPage.title')}
-    </h1>
+    <h1 id="parchive-heading" class="parchive__title">{t('projectsPage.title')}</h1>
     <p class="parchive__intro">{t('projectsPage.intro')}</p>
   </header>
 
@@ -38,7 +35,6 @@ const [first, ...rest] = projects;
         featuredBadgeLabel={featuredBadgeLabel}
         openCaseStudyLabel={openCaseStudyLabel}
         mockupLabel={mockupLabel}
-        langTag={langTag}
         href={path(`/projects/${first.slug}`)}
       />
     )}
@@ -49,7 +45,6 @@ const [first, ...rest] = projects;
         featuredBadgeLabel={featuredBadgeLabel}
         openCaseStudyLabel={openCaseStudyLabel}
         mockupLabel={mockupLabel}
-        langTag={langTag}
         href={path(`/projects/${p.slug}`)}
       />
     ))}
@@ -83,15 +78,6 @@ const [first, ...rest] = projects;
     text-wrap: balance;
   }
   @media (min-width: 960px) { .parchive__title { font-size: clamp(56px, 6vw, 88px); } }
-  .parchive__tag {
-    font-family: var(--font-mono);
-    font-style: normal;
-    font-size: 0.22em;
-    vertical-align: 0.7em;
-    color: var(--text-3);
-    letter-spacing: 0.14em;
-    margin-right: 0.5em;
-  }
   .parchive__intro { font-size: 16px; line-height: 1.6; color: var(--text-2); max-width: 640px; }
 
   .parchive__grid { display: grid; grid-template-columns: 1fr; gap: 14px; }

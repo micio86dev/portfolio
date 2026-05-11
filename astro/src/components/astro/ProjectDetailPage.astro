@@ -12,7 +12,6 @@ interface Props {
 const { lang, project: p } = Astro.props;
 const t = useTranslations(lang);
 const path = useTranslatedPath(lang);
-const langTag = lang.toUpperCase();
 
 // PB `desc` is plain text; treat blank lines as paragraph breaks.
 const paragraphs = p.desc.split(/\n\s*\n/).map((s) => s.trim()).filter(Boolean);
@@ -34,7 +33,7 @@ const paragraphs = p.desc.split(/\n\s*\n/).map((s) => s.trim()).filter(Boolean);
         <span class="pdetail__badge"><span class="pdetail__badge-dot"></span>{t('projects.featuredBadge')}</span>
       )}
     </div>
-    <h1 class="pdetail__title"><span class="pdetail__tag">[{langTag}]</span>{p.title}</h1>
+    <h1 class="pdetail__title">{p.title}</h1>
   </header>
 
   {p.kpis.length > 0 && (
@@ -151,15 +150,6 @@ const paragraphs = p.desc.split(/\n\s*\n/).map((s) => s.trim()).filter(Boolean);
     text-wrap: balance;
   }
   @media (min-width: 960px) { .pdetail__title { font-size: clamp(48px, 5.2vw, 76px); } }
-  .pdetail__tag {
-    font-family: var(--font-mono);
-    font-style: normal;
-    font-size: 0.22em;
-    vertical-align: 0.7em;
-    color: var(--text-3);
-    letter-spacing: 0.14em;
-    margin-right: 0.5em;
-  }
 
   .pdetail__kpis {
     display: grid; gap: 14px;
