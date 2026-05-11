@@ -9,7 +9,6 @@ interface Props {
 const { lang } = Astro.props;
 const t = useTranslations(lang);
 const path = useTranslatedPath(lang);
-const langTag = lang.toUpperCase();
 
 // Decorative trust-strip marks. Names are placeholders, not real clients.
 const clientShapes = ['circle', 'diamond', 'triangle', 'hex', 'square', 'arc', 'dot'] as const;
@@ -63,17 +62,13 @@ const clientShapes = ['circle', 'diamond', 'triangle', 'hex', 'square', 'arc', '
     </header>
 
     <h1 id="hero-heading" class="hero__headline">
-      <span class="hero__line">
-        <span class="hero__line-tag">[{langTag}]</span>{t('hero.headline.line1')}
-      </span>
+      <span class="hero__line">{t('hero.headline.line1')}</span>
       <span class="hero__line"><span class="hero__accent">{t('hero.headline.accent')}</span>,</span>
       <span class="hero__line">{t('hero.headline.line3')}</span>
     </h1>
 
     <div class="hero__side">
-      <p class="hero__subhead">
-        <span class="hero__subhead-tag">[{langTag}]</span>{t('hero.subhead')}
-      </p>
+      <p class="hero__subhead">{t('hero.subhead')}</p>
       <div class="hero__ctas">
         <a href={path('/#work')} class="md-btn hero__cta">{t('hero.ctaPrimary')} <span class="arrow">→</span></a>
         <a href={path('/#contact')} class="md-btn md-btn--secondary hero__cta">{t('hero.ctaSecondary')}</a>
@@ -273,14 +268,6 @@ const clientShapes = ['circle', 'diamond', 'triangle', 'hex', 'square', 'arc', '
     .hero__headline { grid-column: 1 / 9; font-size: clamp(72px, 8.4vw, 132px); }
   }
   .hero__line { display: block; }
-  .hero__line-tag,
-  .hero__subhead-tag {
-    font-style: normal;
-    font-family: var(--font-mono);
-    color: var(--text-3);
-    letter-spacing: 0.14em;
-  }
-  .hero__line-tag { font-size: 0.18em; vertical-align: 0.6em; margin-right: 0.4em; }
   .hero__accent { color: var(--brand); }
 
   .hero__side {
@@ -299,7 +286,6 @@ const clientShapes = ['circle', 'diamond', 'triangle', 'hex', 'square', 'arc', '
     max-width: 380px;
     text-wrap: pretty;
   }
-  .hero__subhead-tag { font-size: 11px; text-transform: uppercase; margin-right: 8px; }
   .hero__ctas { display: flex; flex-wrap: wrap; gap: 12px; }
   .hero__cta { height: 48px; padding: 0 22px; font-size: 15px; }
   .hero__avail {

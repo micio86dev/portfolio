@@ -7,7 +7,6 @@ interface Props {
 }
 const { lang } = Astro.props;
 const t = useTranslations(lang);
-const langTag = lang.toUpperCase();
 
 // Strings handed to the Vue island as a prop (the island can't read i18n itself).
 const formMessages = {
@@ -50,9 +49,7 @@ const pbUrl =
 <section class="contact" aria-labelledby="contact-heading" id="contact">
   <header class="contact__head">
     <div class="contact__eyebrow"><span class="md-eyebrow"><span class="dot"></span>{t('contact.eyebrow')}</span></div>
-    <h2 id="contact-heading" class="contact__title">
-      <span class="contact__tag">[{langTag}]</span>{t('contact.title')}
-    </h2>
+    <h2 id="contact-heading" class="contact__title">{t('contact.title')}</h2>
   </header>
 
   <div class="contact__layout">
@@ -108,15 +105,6 @@ const pbUrl =
     letter-spacing: -0.025em;
   }
   @media (min-width: 960px) { .contact__title { font-size: clamp(56px, 6vw, 84px); } }
-  .contact__tag {
-    font-family: var(--font-mono);
-    font-style: normal;
-    font-size: 0.22em;
-    vertical-align: 0.7em;
-    color: var(--text-3);
-    letter-spacing: 0.14em;
-    margin-right: 0.5em;
-  }
 
   .contact__layout {
     display: grid;
