@@ -2,6 +2,7 @@
 import '../styles/app.css';
 import { getImage } from 'astro:assets';
 import Nav from '../components/vue/Nav.vue';
+import CookieBar from '../components/vue/CookieBar.vue';
 import Footer from '../components/astro/Footer.astro';
 import logoSrc from '../assets/logo-miciodev.jpg';
 import {
@@ -74,6 +75,15 @@ const navMessages = {
 const NAV_LOGO_PX = 60;
 const navLogoImg = await getImage({ src: logoSrc, width: NAV_LOGO_PX, height: NAV_LOGO_PX, format: 'webp' });
 const navLogo = { src: navLogoImg.src, width: NAV_LOGO_PX, height: NAV_LOGO_PX };
+
+// ── Cookie-notice island props ─────────────────────────────────────────
+const cookieMessages = {
+  text: t('cookies.text'),
+  accept: t('cookies.accept'),
+  privacyLink: t('cookies.privacyLink'),
+  ariaLabel: t('cookies.ariaLabel'),
+};
+const cookiePrivacyHref = path('/privacy');
 ---
 
 <!doctype html>
@@ -154,5 +164,7 @@ const navLogo = { src: navLogoImg.src, width: NAV_LOGO_PX, height: NAV_LOGO_PX }
     </main>
 
     <Footer lang={lang} />
+
+    <CookieBar client:idle messages={cookieMessages} privacyHref={cookiePrivacyHref} />
   </body>
 </html>

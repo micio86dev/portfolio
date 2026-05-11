@@ -197,6 +197,13 @@
     "backHome": "Riportami a casa",
     "logoAlt": "Logo MicioDev"
   },
+  "cookies": {
+    "text": "Questo sito conserva nel browser una sola impostazione funzionale — la tua preferenza chiaro/scuro. Niente analitica, niente tracciamento, nessun cookie di terze parti.",
+    "accept": "Va bene",
+    "privacyLink": "Informativa privacy",
+    "settingsLink": "Impostazioni cookie",
+    "ariaLabel": "Avviso cookie"
+  },
   "dividers": {
     "services": "§ 02 — Servizi",
     "work": "§ 03 — Lavori selezionati",

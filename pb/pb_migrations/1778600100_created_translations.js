@@ -1030,6 +1030,41 @@ migrate(
         "es": "Logo de MicioDev"
       },
       {
+        "key": "cookies.text",
+        "group": "cookies",
+        "en": "This site keeps one functional setting in your browser — your light/dark preference. No analytics, no tracking, no third-party cookies.",
+        "it": "Questo sito conserva nel browser una sola impostazione funzionale — la tua preferenza chiaro/scuro. Niente analitica, niente tracciamento, nessun cookie di terze parti.",
+        "es": "Este sitio guarda en tu navegador un único ajuste funcional — tu preferencia de tema claro/oscuro. Sin analítica, sin rastreo, sin cookies de terceros."
+      },
+      {
+        "key": "cookies.accept",
+        "group": "cookies",
+        "en": "OK",
+        "it": "Va bene",
+        "es": "Entendido"
+      },
+      {
+        "key": "cookies.privacyLink",
+        "group": "cookies",
+        "en": "Privacy policy",
+        "it": "Informativa privacy",
+        "es": "Política de privacidad"
+      },
+      {
+        "key": "cookies.settingsLink",
+        "group": "cookies",
+        "en": "Cookie settings",
+        "it": "Impostazioni cookie",
+        "es": "Ajustes de cookies"
+      },
+      {
+        "key": "cookies.ariaLabel",
+        "group": "cookies",
+        "en": "Cookie notice",
+        "it": "Avviso cookie",
+        "es": "Aviso de cookies"
+      },
+      {
         "key": "dividers.services",
         "group": "dividers",
         "en": "§ 02 — Services",

@@ -197,6 +197,13 @@
     "backHome": "Take me home",
     "logoAlt": "MicioDev logo"
   },
+  "cookies": {
+    "text": "This site keeps one functional setting in your browser — your light/dark preference. No analytics, no tracking, no third-party cookies.",
+    "accept": "OK",
+    "privacyLink": "Privacy policy",
+    "settingsLink": "Cookie settings",
+    "ariaLabel": "Cookie notice"
+  },
   "dividers": {
     "services": "§ 02 — Services",
     "work": "§ 03 — Selected work",
