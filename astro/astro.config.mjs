@@ -27,7 +27,27 @@ export default defineConfig({
       redirectToDefaultLocale: false,
     },
   },
-  integrations: [vue(), sitemap()],
+  integrations: [
+    vue(),
+    sitemap({
+      // SSR `[slug]` routes aren't auto-discovered; list the new static-ish
+      // pages explicitly so they make it into the sitemap.
+      customPages: [
+        '/projects',
+        '/notes',
+        '/privacy',
+        '/imprint',
+        '/it/projects',
+        '/it/notes',
+        '/it/privacy',
+        '/it/imprint',
+        '/es/projects',
+        '/es/notes',
+        '/es/privacy',
+        '/es/imprint',
+      ].map((p) => new URL(p, process.env.SITE_URL ?? 'https://micio86dev.example').toString()),
+    }),
+  ],
   vite: {
     plugins: [tailwindcss()],
   },

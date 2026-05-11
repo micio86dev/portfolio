@@ -3,6 +3,9 @@
   "type": "module",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=24"
+  },
   "description": "MicioDev — senior freelance full-stack developer portfolio. Astro 5 (SSR) + Vue 3 islands + Tailwind v4 + PocketBase. Trilingual (en/it/es), light + dark.",
   "scripts": {
     "dev": "astro dev",

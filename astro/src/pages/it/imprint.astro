@@ -1,0 +1,15 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageView from '../../components/astro/PageView.astro';
+import { getPage } from '../../lib/pocketbase';
+import { useTranslations } from '../../i18n/utils';
+
+const lang = 'it' as const;
+const page = await getPage('imprint', lang);
+if (!page) return new Response(null, { status: 404 });
+const t = useTranslations(lang);
+---
+
+<BaseLayout lang={lang} title={page.title}>
+  <PageView lang={lang} page={page} eyebrow={`§ ${t('footer.colMore.imprint')}`} />
+</BaseLayout>

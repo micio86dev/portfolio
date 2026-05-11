@@ -1,6 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import { useTranslations, useTranslatedPath, stripLocale, type Locale } from '../../i18n/utils';
+import { CONTACT_EMAIL } from '../../lib/site';
 import LangSwitch from '../vue/LangSwitch.vue';
 import logoSrc from '../../assets/logo-miciodev.jpg';
 
@@ -11,7 +12,7 @@ const { lang } = Astro.props;
 const t = useTranslations(lang);
 const path = useTranslatedPath(lang);
 const basePath = stripLocale(Astro.url.pathname);
-const email = t('footer.email');
+const email = CONTACT_EMAIL;
 
 const siteLinks = [
   { label: t('footer.colSite.work'), href: path('/#work') },

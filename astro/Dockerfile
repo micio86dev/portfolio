@@ -8,7 +8,7 @@
 # which is a public value.
 
 # ── Stage 1: build ────────────────────────────────────────────────────
-FROM node:20-alpine AS builder
+FROM node:24-alpine AS builder
 WORKDIR /app
 
 # Install full deps first (cached unless the lockfile changes).
@@ -23,13 +23,13 @@ COPY . .
 RUN npm run build
 
 # ── Stage 2: production dependencies ──────────────────────────────────
-FROM node:20-alpine AS deps
+FROM node:24-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 
 # ── Stage 3: runtime ──────────────────────────────────────────────────
-FROM node:20-alpine AS runtime
+FROM node:24-alpine AS runtime
 WORKDIR /app
 ENV NODE_ENV=production \
     HOST=0.0.0.0 \

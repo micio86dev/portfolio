@@ -1,14 +1,18 @@
 /**
- * Fallback data for Services & Projects.
+ * Fallback data for the PocketBase-backed content (Services, Projects, Skills,
+ * News, Customers).
  *
- * Shapes mirror the PocketBase collections described in the design handoff
- * (README → "PocketBase collections schema") so swapping to live data is a
- * drop-in. Used by src/lib/pocketbase.ts whenever PUBLIC_PB_URL is unset or
- * the instance is unreachable, so the site still renders.
+ * Shapes mirror the PocketBase collections created in `pb/pb_migrations/` so
+ * swapping to live data is a drop-in. Used by src/lib/pocketbase.ts whenever
+ * PUBLIC_PB_URL is unset or the instance is unreachable, so the site still
+ * renders. (The UI *strings* — meta, nav, hero, footer, … — have their own
+ * fallback: the bundled `src/i18n/*.json`, overlaid by the `translations`
+ * collection at runtime.)
  *
  * The service copy here mirrors the `services.items.*` strings in the i18n
  * files. Project titles/descriptions are deliberately generic — the real
- * case-study content lives in PocketBase.
+ * case-study content lives in PocketBase. News & Customers fall back to empty
+ * arrays (their historical content is loaded by a migration).
  */
 
 import type { Locale } from '../i18n/utils';
@@ -180,5 +184,172 @@ export const PROJECTS_SEED: ProjectRecord[] = [
     desc_es: 'Caso de estudio en preparación — el brief, las decisiones de desarrollo y los resultados estarán aquí cuando esté redactado.',
     stack: ['Laravel', 'Vue', 'Inertia', 'Postgres'],
     kpis: [], live_url: '', repo_url: '',
+  },
+];
+
+// ── Skills (§04) ───────────────────────────────────────────────────────
+
+export type SkillGroup = 'languages' | 'infra' | 'tooling' | 'apis';
+export type SkillWeight = 'primary' | 'daily' | 'default';
+
+export interface SkillRecord {
+  id: string;
+  group: SkillGroup;
+  name: string;
+  weight: SkillWeight;
+  order: number;
+}
+
+/** Display order + i18n label key for each skill family (the labels live in the
+ *  `translations` collection / i18n JSON under `skills.groups.*`). */
+export const SKILL_GROUPS: { key: SkillGroup; idx: string; labelKey: string }[] = [
+  { key: 'languages', idx: '01', labelKey: 'skills.groups.languages' },
+  { key: 'infra', idx: '02', labelKey: 'skills.groups.infra' },
+  { key: 'tooling', idx: '03', labelKey: 'skills.groups.tooling' },
+  { key: 'apis', idx: '04', labelKey: 'skills.groups.apis' },
+];
+
+export const SKILLS_SEED: SkillRecord[] = [
+  { id: 'seed-sk-01', group: 'languages', name: 'PHP', weight: 'daily', order: 1 },
+  { id: 'seed-sk-02', group: 'languages', name: 'Laravel', weight: 'primary', order: 2 },
+  { id: 'seed-sk-03', group: 'languages', name: 'TypeScript', weight: 'daily', order: 3 },
+  { id: 'seed-sk-04', group: 'languages', name: 'Vue', weight: 'primary', order: 4 },
+  { id: 'seed-sk-05', group: 'languages', name: 'Nuxt', weight: 'primary', order: 5 },
+  { id: 'seed-sk-06', group: 'languages', name: 'Python', weight: 'default', order: 6 },
+  { id: 'seed-sk-07', group: 'infra', name: 'Linux', weight: 'daily', order: 1 },
+  { id: 'seed-sk-08', group: 'infra', name: 'Nginx', weight: 'daily', order: 2 },
+  { id: 'seed-sk-09', group: 'infra', name: 'Docker', weight: 'default', order: 3 },
+  { id: 'seed-sk-10', group: 'infra', name: 'DigitalOcean', weight: 'primary', order: 4 },
+  { id: 'seed-sk-11', group: 'infra', name: 'VPS · Hetzner', weight: 'default', order: 5 },
+  { id: 'seed-sk-12', group: 'tooling', name: 'Git', weight: 'daily', order: 1 },
+  { id: 'seed-sk-13', group: 'tooling', name: 'GitHub Actions', weight: 'daily', order: 2 },
+  { id: 'seed-sk-14', group: 'tooling', name: 'CI / CD', weight: 'default', order: 3 },
+  { id: 'seed-sk-15', group: 'tooling', name: 'Claude Code', weight: 'primary', order: 4 },
+  { id: 'seed-sk-16', group: 'apis', name: 'Stripe', weight: 'primary', order: 1 },
+  { id: 'seed-sk-18', group: 'apis', name: 'ImageKit', weight: 'default', order: 2 },
+  { id: 'seed-sk-19', group: 'apis', name: 'Supabase', weight: 'default', order: 3 },
+  { id: 'seed-sk-20', group: 'apis', name: 'PocketBase', weight: 'default', order: 4 },
+];
+
+// ── News (carried over from the previous portfolio) ────────────────────
+
+export interface NewsRecord {
+  id: string;
+  slug: string;
+  date: string;
+  published: boolean;
+  order: number;
+  cover: string;
+  /** PocketBase serves files relative to its base URL; resolve with the SDK. */
+  collectionId?: string;
+  tags: string[];
+  title_en: string;
+  title_it: string;
+  title_es: string;
+  excerpt_en: string;
+  excerpt_it: string;
+  excerpt_es: string;
+  body_en: string;
+  body_it: string;
+  body_es: string;
+}
+
+/** Localized news item exposed to components — locale-specific fields flattened. */
+export interface NewsItem {
+  id: string;
+  slug: string;
+  date: string;
+  coverUrl: string;
+  tags: string[];
+  title: string;
+  excerpt: string;
+  body: string;
+}
+
+/** Empty by default — the historical posts live in PocketBase (`news`). */
+export const NEWS_SEED: NewsRecord[] = [];
+
+// ── Customers (carried over from the previous portfolio) ───────────────
+
+export interface CustomerRecord {
+  id: string;
+  slug: string;
+  name: string;
+  sector: string;
+  url: string;
+  logo: string;
+  collectionId?: string;
+  featured: boolean;
+  order: number;
+  description_en: string;
+  description_it: string;
+  description_es: string;
+  testimonial_en: string;
+  testimonial_it: string;
+  testimonial_es: string;
+  testimonial_author: string;
+}
+
+/** Localized customer exposed to components — locale-specific fields flattened. */
+export interface CustomerItem {
+  id: string;
+  slug: string;
+  name: string;
+  sector: string;
+  url: string;
+  logoUrl: string;
+  featured: boolean;
+  description: string;
+  testimonial: string;
+  testimonialAuthor: string;
+}
+
+/** Empty by default — the historical clients live in PocketBase (`customers`). */
+export const CUSTOMERS_SEED: CustomerRecord[] = [];
+
+// ── Pages (arbitrary trilingual content pages: /privacy, /imprint, …) ──
+
+export interface PageRecord {
+  id: string;
+  slug: string;
+  order: number;
+  published: boolean;
+  title_en: string;
+  title_it: string;
+  title_es: string;
+  body_en: string;
+  body_it: string;
+  body_es: string;
+}
+
+/** Localized content page exposed to components — title/body flattened. */
+export interface PageItem {
+  id: string;
+  slug: string;
+  title: string;
+  body: string;
+}
+
+/** Fallback for the `pages` collection — mirrors the rows seeded by the
+ *  `1778600700_created_pages.js` migration. Placeholder copy until the real
+ *  legal text is added in the admin. */
+export const PAGES_SEED: PageRecord[] = [
+  {
+    id: 'seed-page-privacy', slug: 'privacy', order: 1, published: true,
+    title_en: 'Privacy Policy',
+    title_it: 'Informativa sulla privacy',
+    title_es: 'Política de privacidad',
+    body_en: '<p><strong>Placeholder.</strong> This is placeholder copy — replace it with the real privacy policy from the admin (collection <code>pages</code>, slug <code>privacy</code>).</p>',
+    body_it: '<p><strong>Segnaposto.</strong> Questo è testo segnaposto — sostituiscilo con l\'informativa sulla privacy reale dall\'admin (collezione <code>pages</code>, slug <code>privacy</code>).</p>',
+    body_es: '<p><strong>Marcador de posición.</strong> Este es un texto provisional — reemplázalo con la política de privacidad real desde el panel (colección <code>pages</code>, slug <code>privacy</code>).</p>',
+  },
+  {
+    id: 'seed-page-imprint', slug: 'imprint', order: 2, published: true,
+    title_en: 'Imprint',
+    title_it: 'Note legali',
+    title_es: 'Aviso legal',
+    body_en: '<p><strong>Placeholder.</strong> This is placeholder copy — replace it with the real imprint / legal notice from the admin (collection <code>pages</code>, slug <code>imprint</code>).</p>',
+    body_it: '<p><strong>Segnaposto.</strong> Questo è testo segnaposto — sostituiscilo con le note legali reali dall\'admin (collezione <code>pages</code>, slug <code>imprint</code>).</p>',
+    body_es: '<p><strong>Marcador de posición.</strong> Este es un texto provisional — reemplázalo con el aviso legal real desde el panel (colección <code>pages</code>, slug <code>imprint</code>).</p>',
   },
 ];

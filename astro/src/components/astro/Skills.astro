@@ -1,5 +1,7 @@
 ---
 import { useTranslations, type Locale } from '../../i18n/utils';
+import { getSkills } from '../../lib/pocketbase';
+import { SKILL_GROUPS } from '../../lib/seed-data';
 
 interface Props {
   lang: Locale;
@@ -8,54 +10,14 @@ const { lang } = Astro.props;
 const t = useTranslations(lang);
 const langTag = lang.toUpperCase();
 
-type Weight = 'primary' | 'daily' | 'default';
-interface Skill { name: string; weight: Weight }
-interface Group { idx: string; labelKey: string; items: Skill[] }
-
-// Structure + tech names lifted from the design reference (design_refs/skills.jsx).
-// Group display labels come from the i18n files (placeholder strings).
-const GROUPS: Group[] = [
-  {
-    idx: '01', labelKey: 'skills.groups.languages',
-    items: [
-      { name: 'PHP', weight: 'daily' },
-      { name: 'Laravel', weight: 'primary' },
-      { name: 'TypeScript', weight: 'daily' },
-      { name: 'Vue', weight: 'primary' },
-      { name: 'Nuxt', weight: 'primary' },
-      { name: 'Python', weight: 'default' },
-    ],
-  },
-  {
-    idx: '02', labelKey: 'skills.groups.infra',
-    items: [
-      { name: 'Linux', weight: 'daily' },
-      { name: 'Nginx', weight: 'daily' },
-      { name: 'Docker', weight: 'default' },
-      { name: 'DigitalOcean', weight: 'primary' },
-      { name: 'VPS · Hetzner', weight: 'default' },
-    ],
-  },
-  {
-    idx: '03', labelKey: 'skills.groups.tooling',
-    items: [
-      { name: 'Git', weight: 'daily' },
-      { name: 'GitHub Actions', weight: 'daily' },
-      { name: 'CI / CD', weight: 'default' },
-      { name: 'Claude Code', weight: 'primary' },
-    ],
-  },
-  {
-    idx: '04', labelKey: 'skills.groups.apis',
-    items: [
-      { name: 'Stripe', weight: 'primary' },
-      { name: 'Resend', weight: 'default' },
-      { name: 'ImageKit', weight: 'default' },
-      { name: 'Supabase', weight: 'default' },
-      { name: 'PocketBase', weight: 'default' },
-    ],
-  },
-];
+// Skills come from PocketBase (`skills` collection), grouped into the four
+// families in SKILL_GROUPS order. Names aren't translated (tool names); the
+// group display labels live in the `translations` collection / i18n JSON.
+const skills = await getSkills();
+const GROUPS = SKILL_GROUPS.map((g) => ({
+  ...g,
+  items: skills.filter((s) => s.group === g.key).sort((a, b) => a.order - b.order),
+})).filter((g) => g.items.length > 0);
 ---
 
 <section class="skills" aria-labelledby="skills-heading" id="skills">

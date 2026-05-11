@@ -1,0 +1,13 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import ProjectDetailPage from '../../../components/astro/ProjectDetailPage.astro';
+import { getProject } from '../../../lib/pocketbase';
+
+const lang = 'it' as const;
+const project = await getProject(Astro.params.slug ?? '', lang);
+if (!project) return new Response(null, { status: 404 });
+---
+
+<BaseLayout lang={lang} title={`${project.title} — ${project.client}`} description={project.desc.slice(0, 200)}>
+  <ProjectDetailPage lang={lang} project={project} />
+</BaseLayout>

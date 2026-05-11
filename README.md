@@ -8,7 +8,7 @@
 
 The files in `design_refs/` are **design references created in HTML**. They are prototypes that show intended look, layout, type, color, motion intent, and component states — **not production code to copy directly**.
 
-Your task: recreate them in the target stack (Astro 5 + Vue 3 islands + Tailwind v4 + PocketBase + Resend), using that stack's idioms. Don't port React/JSX 1:1. Lift values (hex, rem, px, easing) and structural decisions; rebuild components in Vue.
+Your task: recreate them in the target stack (Astro 5 + Vue 3 islands + Tailwind v4 + PocketBase), using that stack's idioms. Don't port React/JSX 1:1. Lift values (hex, rem, px, easing) and structural decisions; rebuild components in Vue.
 
 ## Fidelity
 
@@ -433,7 +433,7 @@ Aim for Lighthouse 100 / 100 / 100 / 100 on the IT landing page before launching
 ```
 portfolio/
 ├── astro/                      Astro 5 SSR frontend (@astrojs/node standalone server)
-│   ├── Dockerfile              multi-stage: node build → node:20-alpine standalone runtime
+│   ├── Dockerfile              multi-stage: node build → node:24-alpine standalone runtime
 │   └── .dockerignore
 ├── pb/                         PocketBase backend
 │   ├── Dockerfile              debian:bookworm-slim; downloads the pinned PB linux release
@@ -521,23 +521,34 @@ certbot --nginx -d micio86dev.it -d www.micio86dev.it \
                 -d pb.micio86dev.it -d pb.stage.micio86dev.it
 ```
 
-## PocketBase: `contacts` collection & migrations
+## PocketBase: collections & migrations
 
-Schema changes are versioned as migration files under `pb/pb_migrations/`
+Schema (and seed data) are versioned as migration files under `pb/pb_migrations/`
 (committed). PocketBase auto-applies pending migrations on startup, and the
-deploy workflows also run `pocketbase migrate up` after each release. The
-initial migration `…_created_contacts.js` creates the `contacts` collection:
+deploy workflows also run `pocketbase migrate up` after each release. All page
+content lives in PocketBase and is editable per language (`en` / `it` / `es`)
+from the admin dashboard at `https://pb.micio86dev.it/_/`:
 
-- fields: `name` (2–100), `email`, `subject` (≤200), `message` (10–2000),
-  `read` (bool), `ip` (text)
-- API rules: `createRule = ""` (public — anyone can submit); `list` / `view` /
-  `update` / `delete` require an authenticated admin (`@request.auth.id != ""`)
+| Collection | Created by | What it holds | Read rule |
+|---|---|---|---|
+| `contacts` | `…_created_contacts.js` | contact-form submissions: `name` (2–100), `email`, `subject` (≤200), `message` (10–2000), `read` (bool), `ip` | admins only (`createRule = ""` so anyone can submit) |
+| `translations` | `…_created_translations.js` | every UI string, one row per key with `en` / `it` / `es` columns (`key` like `hero.headline.line1`, `group` = first segment). Overlaid on the bundled `astro/src/i18n/*.json` at runtime. | public |
+| `services` | `…_created_services.js` | the five §02 service cards: `idx`, `order`, `icon` (select), `featured`, `title_*` / `desc_*`, `tags` (json) | public |
+| `projects` | `…_created_projects.js` | §03 case-study cards: `slug`, `idx`, `client`, `clientInitials`, `period`, `featured`, `order`, `title_*` / `desc_*`, `stack` (json), `kpis` (json), `live_url`, `repo_url` | public |
+| `skills` | `…_created_skills.js` | §04 tech pills: `group` (select), `name`, `weight` (select), `order` (names aren't translated) | public |
+| `news` | `…_created_news.js` | long-form posts carried over from the old site: `slug`, `date`, `published`, `order`, `cover` (file), `tags` (json), `title_*` / `excerpt_*` / `body_*` (body = rich text) | public, `published = true` only |
+| `customers` | `…_created_customers.js` | clients carried over from the old site: `slug`, `name`, `sector`, `url`, `logo` (file), `featured`, `order`, `description_*` / `testimonial_*`, `testimonial_author` | public |
 
-Submissions land here; read and mark them in the admin dashboard at
-`https://pb.micio86dev.it/_/`. There is no email delivery. **Spam:** enable
-PocketBase's built-in rate limiting (Settings → Rate limits) with a rule on
-`POST /api/collections/contacts/records`; the form also carries a `website`
-honeypot dropped client-side.
+The Astro frontend reads these on every request (SSR), so edits are live with no
+redeploy; if `PUBLIC_PB_URL` is unset or the instance is unreachable it falls
+back to the bundled seed data (`astro/src/lib/seed-data.ts`) and the bundled
+i18n JSON, so the site still renders. Per-request translation warm-up happens in
+`astro/src/middleware.ts` (30 s cache).
+
+`contacts` submissions land in the dashboard; read and mark them there. There is
+no email delivery. **Spam:** enable PocketBase's built-in rate limiting
+(Settings → Rate limits) with a rule on `POST /api/collections/contacts/records`;
+the form also carries a `website` honeypot dropped client-side.
 
 To add more schema changes later: edit collections in the admin UI with the
 server running with `--dev` (auto-generates a migration file), or run

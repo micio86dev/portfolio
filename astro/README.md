@@ -109,7 +109,7 @@ micio86dev/
 ├─ tsconfig.json               # extends astro/tsconfigs/strict
 ├─ .env.example                # documented env vars
 ├─ public/
-│  ├─ favicon.svg              # MicioDev cat mark
+│  ├─ favicon.ico              # MicioDev cat mark
 │  ├─ logo.svg                 # mark + wordmark, standalone
 │  ├─ robots.txt
 │  └─ fonts/.gitkeep           # expected woff2 filenames are documented here
@@ -256,7 +256,7 @@ nothing breaks.
     `fetchpriority="high"`. It's **light-mode only** — hidden in dark mode, where
     the CSS mesh + dot-grid layers take over (the photo is light-toned).
 - `public/` keeps only assets referenced by literal path / not processed:
-  `favicon.svg`, `logo.svg` (a simple vector fallback — not the brand JPG),
+  `favicon.ico`, `logo.svg` (a simple vector fallback — not the brand JPG),
   `robots.txt`, `fonts/`.
 - Per-locale Open Graph images are still TODO at `public/og/{en,it,es}.png` (1200×630).
 
@@ -370,7 +370,7 @@ node ./dist/server/entry.mjs
 npm run preview
 ```
 
-The repo ships a `Dockerfile` (multi-stage → `node:20-alpine` running the
+The repo ships a `Dockerfile` (multi-stage → `node:24-alpine` running the
 standalone server) and `../docker-compose*.yml`. For a managed platform,
 replace `@astrojs/node` in `astro.config.mjs` with the matching adapter (e.g.
 `npm run astro -- add vercel` / `npm run astro -- add cloudflare`) and set

@@ -7,7 +7,7 @@
   },
   "status": {
     "available": "Available for new projects — Q3 2026",
-    "location": "Tenerife · Canary Islands · UTC+0"
+    "location": "Fuerteventura · Canary Islands · UTC+0"
   },
   "nav": {
     "home": "MicioDev — home",
@@ -128,7 +128,7 @@
       "sending": "Sending…",
       "success": "Message sent! I'll reply within 24h.",
       "honeypotLabel": "Website",
-      "error": "Something went wrong. Please email me directly at hello@miciodev.com.",
+      "error": "Something went wrong. Please email me directly at {email}.",
       "errors": {
         "name": "Please enter your name.",
         "email": "That doesn't look like a valid email.",
@@ -140,16 +140,14 @@
     },
     "aside": {
       "eyebrow": "Direct",
-      "email": "hello@miciodev.com",
       "replies": "I reply within 24 hours, Monday to Friday.",
-      "timezone": "Tenerife · UTC+0",
+      "timezone": "Fuerteventura · UTC+0",
       "hours": "CET-friendly hours",
       "available": "Available · Q3 2026"
     }
   },
   "footer": {
     "eyebrow": "Open for new projects · Q3 2026",
-    "email": "hello@miciodev.com",
     "blurb": "Senior freelance full-stack developer. Laravel · Vue · Nuxt. Remote from the Canary Islands.",
     "colSite": {
       "title": "Site",
@@ -167,8 +165,37 @@
     },
     "elsewhere": "Elsewhere",
     "copyright": "© 2010–2026 · Alessandro · MicioDev",
-    "location": "Tenerife · Canary Islands · ES",
+    "location": "Fuerteventura · Canary Islands · ES",
     "builtWith": "Built with Astro + PocketBase · v0.1.0"
+  },
+  "projectsPage": {
+    "eyebrow": "§ Archive · Selected work",
+    "title": "Everything shipped, in one place.",
+    "intro": "A working archive of client and product builds — most still running. Open one for the brief, the stack and the outcomes.",
+    "metaTitle": "Projects — selected work",
+    "metaDescription": "An archive of selected client and product builds — Laravel, Vue and Nuxt — most still in production.",
+    "back": "← Back to projects",
+    "live": "Visit the site",
+    "repo": "View the code",
+    "stackLabel": "Stack",
+    "resultsLabel": "Results"
+  },
+  "notesPage": {
+    "eyebrow": "§ Notes · Writing & changelog",
+    "title": "Notes — what I'm building and learning.",
+    "intro": "Short posts on the things I ship, the tools I lean on and the calls I'd make again.",
+    "metaTitle": "Notes — writing & changelog",
+    "metaDescription": "Short posts on building and running Laravel, Vue and Nuxt applications.",
+    "empty": "No posts yet.",
+    "back": "← Back to notes",
+    "readMore": "Read more"
+  },
+  "notFound": {
+    "eyebrow": "Error · 404",
+    "title": "This page wandered off.",
+    "body": "404 — there's nothing here. The cat probably knocked it off the table. Let's get you back to solid ground.",
+    "backHome": "Take me home",
+    "logoAlt": "MicioDev logo"
   },
   "dividers": {
     "services": "§ 02 — Services",

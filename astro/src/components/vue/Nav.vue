@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import ThemeToggle from './ThemeToggle.vue';
 import LangSwitch from './LangSwitch.vue';
 
@@ -10,6 +10,12 @@ interface NavLink {
   num: string;
   label: string;
   active?: boolean;
+}
+
+/** Pull the bare section id out of a nav href like `/it/#about` → `about`. */
+function targetIdFromHref(href: string): string {
+  const hash = href.indexOf('#');
+  return hash === -1 ? '' : href.slice(hash + 1);
 }
 
 /** Pre-optimized logo asset (resolved by astro:assets in the layout). */
@@ -46,6 +52,51 @@ const props = withDefaults(
 const open = ref(false);
 const scrolled = ref(false);
 
+// ── Active section tracking (click + scroll-spy) ───────────────────────
+/** Section ids derived from the nav links, in document order. */
+const sectionIds = computed(() =>
+  props.links.map((l) => targetIdFromHref(l.href)).filter((id): id is string => !!id),
+);
+const activeId = ref<string>(
+  props.links.find((l) => l.active) ? targetIdFromHref(props.links.find((l) => l.active)!.href) : '',
+);
+
+/** Links with their derived target id, for `:class` comparisons in the template. */
+const navItems = computed(() =>
+  props.links.map((l) => ({ ...l, targetId: targetIdFromHref(l.href) })),
+);
+
+/** Which section ids are currently crossing the "active band" near the top. */
+const inBand = new Set<string>();
+
+function recomputeActive() {
+  // Pick the last section (document order) intersecting the band — i.e. the one
+  // you've most recently scrolled into.
+  let best: string | null = null;
+  for (const id of sectionIds.value) {
+    if (inBand.has(id)) best = id;
+  }
+  if (best && best !== activeId.value) activeId.value = best;
+}
+
+let observer: IntersectionObserver | null = null;
+
+function setActiveFromHash() {
+  const hash = window.location.hash.replace(/^#/, '');
+  if (hash && sectionIds.value.includes(hash)) {
+    activeId.value = hash;
+  } else if (!activeId.value && sectionIds.value.length) {
+    activeId.value = sectionIds.value[0];
+  }
+}
+
+function onLinkClick(href: string) {
+  const id = targetIdFromHref(href);
+  if (id) activeId.value = id;
+  open.value = false;
+  // CSS `scroll-behavior: smooth` handles the actual scroll — don't preventDefault.
+}
+
 function onScroll() {
   scrolled.value = window.scrollY > 4;
 }
@@ -56,11 +107,35 @@ function onKeydown(e: KeyboardEvent) {
 onMounted(() => {
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('keydown', onKeydown);
+  window.addEventListener('hashchange', setActiveFromHash);
   onScroll();
+  setActiveFromHash();
+
+  if ('IntersectionObserver' in window) {
+    observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) inBand.add(entry.target.id);
+          else inBand.delete(entry.target.id);
+        }
+        recomputeActive();
+      },
+      // Shrink the viewport to a thin band ~25% from the top: the "active"
+      // section is whichever one currently sits under that line.
+      { rootMargin: '-25% 0px -70% 0px', threshold: 0 },
+    );
+    for (const id of sectionIds.value) {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    }
+  }
 });
 onBeforeUnmount(() => {
   window.removeEventListener('scroll', onScroll);
   window.removeEventListener('keydown', onKeydown);
+  window.removeEventListener('hashchange', setActiveFromHash);
+  observer?.disconnect();
+  observer = null;
 });
 </script>
 
@@ -84,6 +159,7 @@ onBeforeUnmount(() => {
           :width="logo.width"
           :height="logo.height"
           alt=""
+          loading="eager"
           decoding="async"
           fetchpriority="high"
         />
@@ -92,12 +168,13 @@ onBeforeUnmount(() => {
 
       <!-- Desktop links -->
       <ul class="nav-links">
-        <li v-for="l in links" :key="l.href">
+        <li v-for="l in navItems" :key="l.href">
           <a
             :href="l.href"
             class="nav-link"
-            :class="{ 'is-active': l.active }"
-            :aria-current="l.active ? 'page' : undefined"
+            :class="{ 'is-active': l.targetId === activeId }"
+            :aria-current="l.targetId === activeId ? 'page' : undefined"
+            @click="onLinkClick(l.href)"
           >
             <span class="nav-link__num">{{ l.num }}</span>
             <span>{{ l.label }}</span>
@@ -137,8 +214,14 @@ onBeforeUnmount(() => {
     <div v-show="open" class="nav-drawer">
       <hr class="md-hr" />
       <ul class="nav-drawer__links">
-        <li v-for="l in links" :key="l.href">
-          <a :href="l.href" :aria-current="l.active ? 'page' : undefined" class="nav-drawer__link" :class="{ 'is-active': l.active }">
+        <li v-for="l in navItems" :key="l.href">
+          <a
+            :href="l.href"
+            :aria-current="l.targetId === activeId ? 'page' : undefined"
+            class="nav-drawer__link"
+            :class="{ 'is-active': l.targetId === activeId }"
+            @click="onLinkClick(l.href)"
+          >
             <span>
               <span class="nav-drawer__num">{{ l.num }}</span>
               {{ l.label }}

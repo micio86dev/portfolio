@@ -48,6 +48,8 @@ const OG_LOCALE: Record<Locale, string> = { en: 'en_US', it: 'it_IT', es: 'es_ES
 // ── Nav island props ───────────────────────────────────────────────────
 // Projects renders under the `#work` anchor; Hero/about content is `#about`.
 const navLinks = [
+  // `active` here is only the SSR-initial paint hint; the Nav island takes over
+  // active-state tracking (click + scroll-spy) on the client immediately.
   { href: path('/#about'), num: '01', label: t('nav.about'), active: true },
   { href: path('/#services'), num: '02', label: t('nav.services') },
   { href: path('/#work'), num: '03', label: t('nav.projects') },
@@ -130,7 +132,7 @@ const navLogo = { src: navLogoImg.src, width: NAV_LOGO_PX, height: NAV_LOGO_PX }
     <link rel="preload" href="/fonts/instrument-serif-italic.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/geist-regular.woff2" as="font" type="font/woff2" crossorigin />
 
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
   </head>
 
   <body>

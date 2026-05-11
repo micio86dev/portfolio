@@ -24,7 +24,8 @@ interface Messages {
   submit: string;
   sending: string;
   success: string;
-  /** Generic submission failure — never expose PocketBase error details. */
+  /** Generic submission failure — never expose PocketBase error details.
+   *  Contains "{email}", replaced with the contact address at render time. */
   error: string;
   errors: {
     name: string;
@@ -42,6 +43,10 @@ const props = defineProps<{
    *  `${pbUrl}/api/collections/contacts/records`. Provided by Contact.astro
    *  from process.env.PUBLIC_PB_URL at request time. */
   pbUrl: string;
+  /** Public contact email — substituted into the `{email}` placeholder in the
+   *  generic-failure message. Provided by Contact.astro from CONTACT_EMAIL
+   *  (src/lib/site.ts) at request time. */
+  contactEmail: string;
 }>();
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
@@ -60,6 +65,7 @@ const feedback = ref('');
 
 const messageCount = computed(() => form.message.length);
 const counterText = computed(() => props.messages.charCounter.replace('{count}', String(messageCount.value)));
+const errorText = computed(() => props.messages.error.replace('{email}', props.contactEmail));
 
 const errors = computed(() => {
   const e: Partial<Record<'name' | 'email' | 'subject' | 'message', string>> = {};
@@ -119,11 +125,11 @@ async function onSubmit() {
     } else {
       // Don't surface PocketBase's response body — generic message only.
       status.value = 'error';
-      feedback.value = props.messages.error;
+      feedback.value = errorText.value;
     }
   } catch {
     status.value = 'error';
-    feedback.value = props.messages.error;
+    feedback.value = errorText.value;
   }
 }
 </script>

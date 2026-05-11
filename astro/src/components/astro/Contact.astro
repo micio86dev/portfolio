@@ -1,5 +1,6 @@
 ---
 import { useTranslations, type Locale } from '../../i18n/utils';
+import { CONTACT_EMAIL } from '../../lib/site';
 import ContactForm from '../vue/ContactForm.vue';
 
 interface Props {
@@ -36,7 +37,7 @@ const formMessages = {
     rateLimit: t('contact.form.errors.rateLimit'),
   },
 };
-const asideEmail = t('contact.aside.email');
+const asideEmail = CONTACT_EMAIL;
 
 // PocketBase URL the form POSTs to — read at request time so it can be set per
 // environment via the container's `environment:` block (PUBLIC_PB_URL). Must be
@@ -57,7 +58,7 @@ const pbUrl =
 
   <div class="contact__layout">
     <div class="contact__panel">
-      <ContactForm client:visible messages={formMessages} pbUrl={pbUrl} />
+      <ContactForm client:visible messages={formMessages} pbUrl={pbUrl} contactEmail={CONTACT_EMAIL} />
     </div>
 
     <aside class="contact__aside">

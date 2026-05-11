@@ -7,7 +7,7 @@
   },
   "status": {
     "available": "Disponible para nuevos proyectos — Q3 2026",
-    "location": "Tenerife · Islas Canarias · UTC+0"
+    "location": "Fuerteventura · Islas Canarias · UTC+0"
   },
   "nav": {
     "home": "MicioDev — inicio",
@@ -128,7 +128,7 @@
       "sending": "Enviando…",
       "success": "¡Mensaje enviado! Te respondo en 24 horas.",
       "honeypotLabel": "Sitio web",
-      "error": "Algo ha fallado. Escríbeme directamente a hello@miciodev.com.",
+      "error": "Algo ha fallado. Escríbeme directamente a {email}.",
       "errors": {
         "name": "Escribe tu nombre.",
         "email": "Ese email no parece válido.",
@@ -140,16 +140,14 @@
     },
     "aside": {
       "eyebrow": "Directo",
-      "email": "hello@miciodev.com",
       "replies": "Respondo en 24 horas, de lunes a viernes.",
-      "timezone": "Tenerife · UTC+0",
+      "timezone": "Fuerteventura · UTC+0",
       "hours": "Horario compatible con CET",
       "available": "Disponible · Q3 2026"
     }
   },
   "footer": {
     "eyebrow": "Abierto a nuevos proyectos · Q3 2026",
-    "email": "hello@miciodev.com",
     "blurb": "Desarrollador full-stack freelance sénior. Laravel · Vue · Nuxt. En remoto, desde las Islas Canarias.",
     "colSite": {
       "title": "Sitio",
@@ -167,8 +165,37 @@
     },
     "elsewhere": "En otros sitios",
     "copyright": "© 2010–2026 · Alessandro · MicioDev",
-    "location": "Tenerife · Islas Canarias · ES",
+    "location": "Fuerteventura · Islas Canarias · ES",
     "builtWith": "Hecho con Astro + PocketBase · v0.1.0"
+  },
+  "projectsPage": {
+    "eyebrow": "§ Archivo · Trabajos seleccionados",
+    "title": "Todo lo lanzado, en un solo sitio.",
+    "intro": "Un archivo de trabajos para clientes y productos — la mayoría aún en marcha. Abre uno para ver el brief, el stack y los resultados.",
+    "metaTitle": "Proyectos — trabajos seleccionados",
+    "metaDescription": "Un archivo de trabajos seleccionados para clientes y productos — Laravel, Vue y Nuxt — la mayoría aún en producción.",
+    "back": "← Volver a proyectos",
+    "live": "Ir al sitio",
+    "repo": "Ver el código",
+    "stackLabel": "Stack",
+    "resultsLabel": "Resultados"
+  },
+  "notesPage": {
+    "eyebrow": "§ Notas · Artículos y changelog",
+    "title": "Notas — lo que construyo y lo que aprendo.",
+    "intro": "Artículos breves sobre lo que lanzo, las herramientas que uso y las decisiones que repetiría.",
+    "metaTitle": "Notas — artículos y changelog",
+    "metaDescription": "Artículos breves sobre cómo se construyen y mantienen aplicaciones Laravel, Vue y Nuxt.",
+    "empty": "Aún no hay entradas.",
+    "back": "← Volver a notas",
+    "readMore": "Seguir leyendo"
+  },
+  "notFound": {
+    "eyebrow": "Error · 404",
+    "title": "Esta página se ha escapado.",
+    "body": "404 — aquí no hay nada. Seguramente el gato la tiró de la mesa. Volvamos a terreno firme.",
+    "backHome": "Llévame a casa",
+    "logoAlt": "Logo de MicioDev"
   },
   "dividers": {
     "services": "§ 02 — Servicios",

@@ -1,0 +1,172 @@
+---
+// /notes — the writing / changelog index, backed by the `news` collection.
+// Renders gracefully empty (the `news` collection ships empty). Shared across
+// all locale routes.
+import { useTranslations, useTranslatedPath, type Locale } from '../../i18n/utils';
+import { getNews } from '../../lib/pocketbase';
+
+interface Props {
+  lang: Locale;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const path = useTranslatedPath(lang);
+const langTag = lang.toUpperCase();
+const posts = await getNews(lang);
+
+const dateFmt = new Intl.DateTimeFormat(lang, { year: 'numeric', month: 'short', day: 'numeric' });
+function fmtDate(iso: string): string {
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? iso : dateFmt.format(d);
+}
+---
+
+<section class="notes" aria-labelledby="notes-heading">
+  <header class="notes__head">
+    <span class="md-eyebrow notes__eyebrow"><span class="dot"></span>{t('notesPage.eyebrow')}</span>
+    <h1 id="notes-heading" class="notes__title">
+      <span class="notes__tag">[{langTag}]</span>{t('notesPage.title')}
+    </h1>
+    <p class="notes__intro">{t('notesPage.intro')}</p>
+  </header>
+
+  {posts.length === 0 ? (
+    <p class="notes__empty">{t('notesPage.empty')}</p>
+  ) : (
+    <ul class="notes__list">
+      {posts.map((post) => (
+        <li class="notes__item">
+          <a href={path(`/notes/${post.slug}`)} class="notes__link">
+            {post.coverUrl && (
+              <div class="notes__cover">
+                <img src={post.coverUrl} alt="" loading="lazy" />
+              </div>
+            )}
+            <div class="notes__meta">
+              <time class="notes__date" datetime={post.date}>{fmtDate(post.date)}</time>
+              {post.tags.length > 0 && (
+                <ul class="notes__tags">{post.tags.map((tg) => <li>{tg}</li>)}</ul>
+              )}
+            </div>
+            <h2 class="notes__post-title">{post.title}</h2>
+            {post.excerpt && <p class="notes__excerpt">{post.excerpt}</p>}
+            <span class="notes__more">↗ {t('notesPage.readMore')}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  )}
+
+  <footer class="notes__foot">
+    <a href={path('/')} class="notes__back">{t('notFound.backHome')}</a>
+  </footer>
+</section>
+
+<style>
+  .notes {
+    background: var(--bg);
+    color: var(--text);
+    padding: 64px 22px 88px;
+    max-width: 920px;
+    margin: 0 auto;
+  }
+  @media (min-width: 960px) { .notes { padding: 104px 64px 128px; } }
+
+  .notes__head { display: grid; gap: 18px; margin-bottom: 40px; }
+  @media (min-width: 960px) { .notes__head { margin-bottom: 56px; } }
+  .notes__eyebrow { margin: 0; }
+  .notes__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 42px;
+    line-height: 0.98;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+  @media (min-width: 960px) { .notes__title { font-size: clamp(56px, 6vw, 88px); } }
+  .notes__tag {
+    font-family: var(--font-mono);
+    font-style: normal;
+    font-size: 0.22em;
+    vertical-align: 0.7em;
+    color: var(--text-3);
+    letter-spacing: 0.14em;
+    margin-right: 0.5em;
+  }
+  .notes__intro { font-size: 16px; line-height: 1.6; color: var(--text-2); max-width: 640px; }
+
+  .notes__empty {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--text-3);
+    padding: 32px 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .notes__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+  .notes__item { border-top: 1px solid var(--line); }
+  .notes__item:last-child { border-bottom: 1px solid var(--line); }
+  .notes__link {
+    display: grid;
+    gap: 12px;
+    padding: 28px 0;
+    text-decoration: none;
+    color: var(--text);
+  }
+  .notes__link:hover .notes__post-title { color: var(--brand); }
+  .notes__link:hover .notes__more { color: var(--brand); }
+  .notes__cover { border-radius: var(--r-3); overflow: hidden; border: 1px solid var(--line); }
+  .notes__cover img { width: 100%; height: auto; display: block; }
+  .notes__meta { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+  .notes__date {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-3);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .notes__tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+  .notes__tags li {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-2);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border: 1px solid var(--line-2);
+    border-radius: 999px;
+    padding: 1px 8px;
+  }
+  .notes__post-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 28px;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    transition: color var(--dur-1) var(--ease);
+  }
+  @media (min-width: 960px) { .notes__post-title { font-size: 34px; } }
+  .notes__excerpt { margin: 0; font-size: 14px; line-height: 1.6; color: var(--text-2); max-width: 620px; }
+  .notes__more {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-3);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    transition: color var(--dur-1) var(--ease);
+  }
+
+  .notes__foot { margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--line); }
+  @media (min-width: 960px) { .notes__foot { margin-top: 56px; } }
+  .notes__back {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-2);
+    letter-spacing: 0.08em;
+    text-decoration: none;
+  }
+  .notes__back:hover { color: var(--brand); }
+</style>

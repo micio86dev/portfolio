@@ -398,7 +398,7 @@ oklab, var(--brand) 22–25%, transparent)`.
   appears once scrolled (`scrollY > 4`), transitioned at `--dur-2`.
 - **Status strip** (top, full width): `padding:8px 22px` (32 desktop), bottom 1 px
   `--line`, bg `--surface-2`, mono 11 `--text-3` `.08em` uppercase — left: brand
-  "live" dot + "AVAILABLE FOR PROJECTS — Q3 2026", right: "TENERIFE · UTC+0".
+  "live" dot + "AVAILABLE FOR PROJECTS — Q3 2026", right: "FUERTEVENTURA · UTC+0".
 - **Bar**: desktop is a 3-column grid (`auto 1fr auto`): left = wordmark, center
   = links, right = controls. Mobile is wordmark + hamburger only; links/controls
   move into a drawer.
@@ -452,7 +452,7 @@ flips `document.documentElement.dataset.theme` and persists to
   grid (see §4 recipe). Plus `grain`, the top hairline, 4 corner marks (desktop
   only) and the mono build stamp in both modes.
 - Header row (full width): eyebrow (".dot" + "Freelance · Full-stack · Since
-  2010"); on desktop a mono meta cluster on the right ("§ 01 / Hero" · "Tenerife
+  2010"); on desktop a mono meta cluster on the right ("§ 01 / Hero" · "Fuerteventura
   · UTC+0" · "v 0.1.0").
 - **H1** (the page's only `<h1>`): three `<span class="hero__line">` lines —
   line 1 prefixed with the `[LANG]` mono tag, line 2 contains the brand-green
@@ -517,7 +517,7 @@ one example pill of each weight + its meaning ("daily & preferred" / "in current
 rotation" / "when the job needs it") and "↳ index · §04". Tech names & weights
 are kept from the design reference (PHP/Laravel/TypeScript/Vue/Nuxt/Python,
 Linux/Nginx/Docker/DigitalOcean/Hetzner, Git/GitHub Actions/CI·CD/Claude Code,
-Stripe/Resend/ImageKit/Supabase/PocketBase).
+Stripe/ImageKit/Supabase/PocketBase).
 
 ### Contact (`src/components/astro/Contact.astro` + `ContactForm.vue`)
 
@@ -543,9 +543,10 @@ Header (eyebrow "§ 05 · Contact" / italic H2 "Tell me about it" prefixed with
     note on the left, the primary `.md-btn` "Send message →" (height 48) on the
     right; disabled while submitting; POSTs JSON to `/api/contact`.
 - **Aside** (`--surface` card, 1 px `--line`, `--r-3`, padding 28): a "Direct"
-  eyebrow; a display-italic 32 `hello@miciodev.com` mailto link, underlined with
+  eyebrow; a display-italic 32 `micio86dev@gmail.com` mailto link (from
+  `PUBLIC_CONTACT_EMAIL` / `src/lib/site.ts`), underlined with
   `--brand` (1 px, offset 6 px); `.md-hr`; a mono "I reply within 24 h" line;
-  `.md-hr`; a meta block (mono 11 `--text-3` uppercase): "↳ Tenerife · UTC+0",
+  `.md-hr`; a meta block (mono 11 `--text-3` uppercase): "↳ Fuerteventura · UTC+0",
   "↳ CET-friendly hours", brand dot + "Available · Q3 2026".
 
 ### Footer (`src/components/astro/Footer.astro`) — always dark
@@ -567,7 +568,7 @@ faint two-radial `--brand-glow` atmosphere, `overflow:hidden`.
   inline SVGs, 1 px `rgba(255,255,255,.14)` border, hover → `--brand-glow`
   border+icon) + a dark-variant `LangSwitch` (size sm, `client:visible`).
 - **Colophon** (top-bordered, mono 11 `rgba(255,255,255,.7)` `.08em` uppercase):
-  "© 2010 — 2026 · Alessandro · MicioDev" on the left; "Tenerife · IC · ES" +
+  "© 2010 — 2026 · Alessandro · MicioDev" on the left; "Fuerteventura · IC · ES" +
   "Built with Astro + PocketBase · v 0.1.0" on the right.
 
 ---
@@ -608,7 +609,7 @@ faint two-radial `--brand-glow` atmosphere, `overflow:hidden`.
 - The Contact aside's display-italic email and the footer's giant display-italic
   email repeat the same gesture within ~900 px — pick one (recommendation: keep
   the footer giant, shrink the aside email to body size).
-- Status meta strings vary slightly ("Tenerife · UTC+0" vs "Tenerife · IC · ES")
+- Status meta strings vary slightly ("Fuerteventura · UTC+0" vs "Fuerteventura · IC · ES")
   — unify to one canonical line.
 - The prototype animation timeline (hero entrance) is specified but not built.
 - The projects filter bar is rendered but not wired.

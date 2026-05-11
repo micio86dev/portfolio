@@ -1,0 +1,126 @@
+---
+// /projects — the projects archive. Lists every project (featured-first via
+// getProjects), reusing ProjectCard. Shared across all locale routes.
+import { useTranslations, useTranslatedPath, type Locale } from '../../i18n/utils';
+import { getProjects } from '../../lib/pocketbase';
+import ProjectCard from './ProjectCard.astro';
+
+interface Props {
+  lang: Locale;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const path = useTranslatedPath(lang);
+const langTag = lang.toUpperCase();
+const projects = await getProjects(lang);
+
+const featuredBadgeLabel = t('projects.featuredBadge');
+const openCaseStudyLabel = t('projects.openCaseStudy');
+const mockupLabel = t('projects.mockupLabel');
+
+const [first, ...rest] = projects;
+---
+
+<section class="parchive" aria-labelledby="parchive-heading">
+  <header class="parchive__head">
+    <span class="md-eyebrow parchive__eyebrow"><span class="dot"></span>{t('projectsPage.eyebrow')}</span>
+    <h1 id="parchive-heading" class="parchive__title">
+      <span class="parchive__tag">[{langTag}]</span>{t('projectsPage.title')}
+    </h1>
+    <p class="parchive__intro">{t('projectsPage.intro')}</p>
+  </header>
+
+  <div class="parchive__grid">
+    {first && (
+      <ProjectCard
+        project={first}
+        variant="featured"
+        featuredBadgeLabel={featuredBadgeLabel}
+        openCaseStudyLabel={openCaseStudyLabel}
+        mockupLabel={mockupLabel}
+        langTag={langTag}
+        href={path(`/projects/${first.slug}`)}
+      />
+    )}
+    {rest.map((p) => (
+      <ProjectCard
+        project={p}
+        variant="grid"
+        featuredBadgeLabel={featuredBadgeLabel}
+        openCaseStudyLabel={openCaseStudyLabel}
+        mockupLabel={mockupLabel}
+        langTag={langTag}
+        href={path(`/projects/${p.slug}`)}
+      />
+    ))}
+  </div>
+
+  <footer class="parchive__foot">
+    <a href={path('/')} class="parchive__back">{t('notFound.backHome')}</a>
+    <span class="parchive__foot-idx">{t('projects.footerIndex')}</span>
+  </footer>
+</section>
+
+<style>
+  .parchive {
+    background: var(--bg);
+    color: var(--text);
+    padding: 64px 22px 88px;
+  }
+  @media (min-width: 960px) { .parchive { padding: 104px 64px 128px; } }
+
+  .parchive__head { display: grid; gap: 18px; margin-bottom: 36px; max-width: 980px; }
+  @media (min-width: 960px) { .parchive__head { margin-bottom: 56px; } }
+  .parchive__eyebrow { margin: 0; }
+  .parchive__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 42px;
+    line-height: 0.98;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+  @media (min-width: 960px) { .parchive__title { font-size: clamp(56px, 6vw, 88px); } }
+  .parchive__tag {
+    font-family: var(--font-mono);
+    font-style: normal;
+    font-size: 0.22em;
+    vertical-align: 0.7em;
+    color: var(--text-3);
+    letter-spacing: 0.14em;
+    margin-right: 0.5em;
+  }
+  .parchive__intro { font-size: 16px; line-height: 1.6; color: var(--text-2); max-width: 640px; }
+
+  .parchive__grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
+  @media (min-width: 960px) { .parchive__grid { grid-template-columns: 1fr 1fr; gap: 20px; } }
+
+  .parchive__foot {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  @media (min-width: 960px) { .parchive__foot { margin-top: 56px; } }
+  .parchive__back {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-2);
+    letter-spacing: 0.08em;
+    text-decoration: none;
+  }
+  .parchive__back:hover { color: var(--brand); }
+  .parchive__foot-idx {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-3);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+</style>
