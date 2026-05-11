@@ -1,0 +1,147 @@
+/* MicioDev — design tokens (lifted from design_refs/tokens.css)
+   Brand: deep sage-emerald, never lime. Senior-dev editorial.
+   Light-default; dark via [data-theme="dark"] on <html>.
+   These apply globally (no .miciodev-scope wrapper). */
+
+:root {
+  /* ── Brand greens ─────────────────────────────────────────── */
+  --brand-50:  #EAF3ED;
+  --brand-100: #CFE3D5;
+  --brand-200: #9CC8AA;
+  --brand-300: #5FA577;
+  --brand-400: #2F8556;
+  --brand-500: #1F6E4A;   /* primary */
+  --brand-600: #15533A;   /* hover */
+  --brand-700: #0E3F2C;   /* press */
+  --brand-800: #0A3424;
+  --brand-900: #052017;
+
+  /* Dark-mode brand: lifted, phosphor-leaning */
+  --brand-glow: #3FB07A;
+
+  /* ── Neutrals (warm-tinted) ──────────────────────────────── */
+  --ink-0:   #FFFFFF;
+  --ink-50:  #FAFAF7;
+  --ink-100: #F4F4EF;
+  --ink-150: #EDEDE7;
+  --ink-200: #E2E2DA;
+  --ink-300: #CECEC4;
+  --ink-400: #9A9A8F;
+  --ink-500: #6E6E64;
+  --ink-600: #4A4A42;
+  --ink-700: #2A2A25;
+  --ink-900: #0E0E0C;
+  --ink-950: #070706;
+
+  /* ── Semantic — light mode (default) ─────────────────────── */
+  --bg:        var(--ink-50);
+  --surface:   var(--ink-0);
+  --surface-2: var(--ink-100);
+  --surface-3: var(--ink-150);
+  --line:      var(--ink-200);
+  --line-2:    var(--ink-300);
+  --text:      var(--ink-900);
+  --text-2:    var(--ink-600);
+  --text-3:    var(--ink-500);
+  --brand:        var(--brand-500);
+  --brand-hover:  var(--brand-600);
+  --brand-press:  var(--brand-700);
+  --brand-tint:   var(--brand-50);
+  --brand-tint-2: var(--brand-100);
+  --on-brand:     var(--ink-0);
+  --focus-ring:   color-mix(in oklab, var(--brand-500) 60%, white);
+  --danger:       #B4321F;
+
+  /* ── Type ────────────────────────────────────────────────── */
+  --font-display: "Instrument Serif", "Times New Roman", serif;
+  --font-body:    "Geist", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono:    "Geist Mono", ui-monospace, "JetBrains Mono", monospace;
+
+  /* fixed steps per design spec */
+  --fs-d2: 88px;   --lh-d2: 88px;
+  --fs-d1: 64px;   --lh-d1: 68px;
+  --fs-h1: 44px;   --lh-h1: 48px;
+  --fs-h2: 32px;   --lh-h2: 36px;
+  --fs-h3: 24px;   --lh-h3: 30px;
+  --fs-h4: 18px;   --lh-h4: 24px;
+  --fs-bl: 18px;   --lh-bl: 28px;
+  --fs-b:  15px;   --lh-b:  22px;
+  --fs-s:  13px;   --lh-s:  20px;
+  --fs-m:  11px;   --lh-m:  14px;
+
+  /* ── Spacing (4-px base) ─────────────────────────────────── */
+  --sp-0:  0;
+  --sp-1:  4px;
+  --sp-2:  8px;
+  --sp-3:  12px;
+  --sp-4:  16px;
+  --sp-5:  24px;
+  --sp-6:  32px;
+  --sp-7:  48px;
+  --sp-8:  64px;
+  --sp-9:  96px;
+  --sp-10: 128px;
+
+  /* ── Radii / shadow ──────────────────────────────────────── */
+  --r-1: 2px;
+  --r-2: 4px;
+  --r-3: 8px;
+  --r-4: 14px;
+  --r-pill: 999px;
+
+  --shadow-1: 0 1px 0 rgba(14, 14, 12, .04), 0 1px 2px rgba(14, 14, 12, .04);
+  --shadow-2: 0 1px 0 rgba(14, 14, 12, .04), 0 6px 18px rgba(14, 14, 12, .06);
+  --shadow-3: 0 12px 36px rgba(14, 14, 12, .10);
+  --shadow-focus: 0 0 0 3px var(--focus-ring);
+
+  /* ── Motion ──────────────────────────────────────────────── */
+  --ease: cubic-bezier(.2, .7, .3, 1);
+  --dur-1: 120ms;
+  --dur-2: 180ms;
+  --dur-3: 240ms;
+}
+
+/* ── Dark mode ─────────────────────────────────────────────── */
+:root[data-theme="dark"] {
+  --bg:        #0A0B0A;
+  --surface:   #111210;
+  --surface-2: #16170F;   /* whisper of warm-green */
+  --surface-3: #1C1D17;
+  --line:      #232520;
+  --line-2:    #2E312A;
+  --text:      #F1F1EA;
+  --text-2:    #B7B7AC;
+  --text-3:    #80807A;
+  --brand:        var(--brand-glow);
+  --brand-hover:  #5BC290;
+  --brand-press:  #76CFA4;
+  --brand-tint:   color-mix(in oklab, var(--brand-glow) 14%, #0A0B0A);
+  --brand-tint-2: color-mix(in oklab, var(--brand-glow) 22%, #0A0B0A);
+  --on-brand:     #062014;
+  --focus-ring:   color-mix(in oklab, var(--brand-glow) 70%, black);
+  --danger:       #E36D58;
+  --shadow-1: 0 1px 0 rgba(0, 0, 0, .35), 0 1px 2px rgba(0, 0, 0, .4);
+  --shadow-2: 0 1px 0 rgba(0, 0, 0, .35), 0 6px 18px rgba(0, 0, 0, .5);
+  --shadow-3: 0 12px 36px rgba(0, 0, 0, .55);
+}
+
+/* ── WCAG hit-area on coarse pointers (touch) ──────────────── */
+@media (pointer: coarse) {
+  button[aria-label],
+  [role="group"] button,
+  [role="radiogroup"] button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* ── Reduced motion — blanket guard ────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

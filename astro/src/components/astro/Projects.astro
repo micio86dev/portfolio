@@ -1,0 +1,217 @@
+---
+import { useTranslations, useTranslatedPath, type Locale } from '../../i18n/utils';
+import { getProjects } from '../../lib/pocketbase';
+import ProjectCard from './ProjectCard.astro';
+
+interface Props {
+  lang: Locale;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const path = useTranslatedPath(lang);
+const langTag = lang.toUpperCase();
+const projects = await getProjects(lang);
+
+const featuredBadgeLabel = t('projects.featuredBadge');
+const openCaseStudyLabel = t('projects.openCaseStudy');
+const mockupLabel = t('projects.mockupLabel');
+
+// First project (featured-first sorted in lib) renders as the wide featured card.
+const [first, ...rest] = projects;
+
+const filters = [
+  t('projects.filters.all'),
+  t('projects.filters.saas'),
+  t('projects.filters.ecommerce'),
+  t('projects.filters.dashboards'),
+  t('projects.filters.editorial'),
+];
+const stackFilters = ['Laravel', 'Vue', 'Nuxt', 'TypeScript', 'Node'];
+---
+
+<section class="projects" aria-labelledby="work-heading" id="work">
+  <header class="projects__head">
+    <div class="projects__eyebrow"><span class="md-eyebrow"><span class="dot"></span>{t('projects.eyebrow')}</span></div>
+    <h2 id="work-heading" class="projects__title">
+      <span class="projects__tag">[{langTag}]</span>{t('projects.title')}
+    </h2>
+    <p class="projects__meta">{t('projects.meta')}</p>
+  </header>
+
+  <!-- Filter bar — placeholder controls, not yet wired -->
+  <div class="projects__filters" role="group" aria-label={t('projects.filterLabel')}>
+    <div class="projects__filter-group">
+      <span class="md-eyebrow projects__filter-label">{t('projects.filterLabel')}</span>
+      {filters.map((f, i) => (
+        <button type="button" class:list={['projects__chip', { 'is-active': i === 0 }]} aria-pressed={i === 0}>{f}</button>
+      ))}
+    </div>
+    <div class="projects__filter-group projects__filter-group--stack">
+      <span class="md-eyebrow projects__filter-label">{t('projects.stackLabel')}</span>
+      {stackFilters.map((s) => <button type="button" class="projects__chip projects__chip--ghost">{s}</button>)}
+    </div>
+  </div>
+
+  <div class="projects__grid">
+    {first && (
+      <ProjectCard
+        project={first}
+        variant="featured"
+        featuredBadgeLabel={featuredBadgeLabel}
+        openCaseStudyLabel={openCaseStudyLabel}
+        mockupLabel={mockupLabel}
+        langTag={langTag}
+        href={path(`/projects/${first.slug}`)}
+      />
+    )}
+    {rest.map((p) => (
+      <ProjectCard
+        project={p}
+        variant="grid"
+        featuredBadgeLabel={featuredBadgeLabel}
+        openCaseStudyLabel={openCaseStudyLabel}
+        mockupLabel={mockupLabel}
+        langTag={langTag}
+        href={path(`/projects/${p.slug}`)}
+      />
+    ))}
+  </div>
+
+  <footer class="projects__foot">
+    <a href={path('/projects')} class="projects__archive">
+      <span class="projects__archive-arrow">[{langTag}] →</span>
+      {t('projects.archiveCta')}
+    </a>
+    <span class="projects__foot-idx">{t('projects.footerIndex')}</span>
+  </footer>
+</section>
+
+<style>
+  .projects {
+    background: var(--bg);
+    color: var(--text);
+    padding: 64px 22px 80px;
+  }
+  @media (min-width: 960px) { .projects { padding: 96px 64px 112px; } }
+
+  .projects__head {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 18px;
+    margin-bottom: 28px;
+  }
+  @media (min-width: 960px) {
+    .projects__head {
+      grid-template-columns: repeat(12, 1fr);
+      column-gap: 24px;
+      row-gap: 32px;
+      margin-bottom: 40px;
+    }
+    .projects__eyebrow { grid-column: 1 / 4; }
+    .projects__title { grid-column: 4 / 11; }
+    .projects__meta { grid-column: 11 / 13; align-self: end; text-align: right; }
+  }
+  .projects__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 42px;
+    line-height: 0.98;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+  @media (min-width: 960px) { .projects__title { font-size: clamp(56px, 6vw, 92px); } }
+  .projects__tag {
+    font-family: var(--font-mono);
+    font-style: normal;
+    font-size: 0.22em;
+    vertical-align: 0.7em;
+    color: var(--text-3);
+    letter-spacing: 0.14em;
+    margin-right: 0.5em;
+  }
+  .projects__meta {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-3);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .projects__filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 14px 0;
+    margin-bottom: 18px;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  @media (min-width: 960px) { .projects__filters { margin-bottom: 28px; } }
+  .projects__filter-group { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .projects__filter-group--stack { display: none; }
+  @media (min-width: 960px) { .projects__filter-group--stack { display: flex; } }
+  .projects__filter-label { margin-right: 8px; }
+  .projects__chip {
+    height: 26px;
+    padding: 0 11px;
+    border: 1px solid var(--line-2);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--text-2);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+  }
+  .projects__chip.is-active { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .projects__chip--ghost { border-color: var(--line); font-weight: 400; }
+
+  .projects__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  @media (min-width: 960px) { .projects__grid { grid-template-columns: 1fr 1fr; gap: 20px; } }
+
+  .projects__foot {
+    margin-top: 32px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: baseline;
+    justify-content: space-between;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+  }
+  @media (min-width: 960px) { .projects__foot { margin-top: 56px; } }
+  .projects__archive {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 12px;
+    text-decoration: none;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 28px;
+    line-height: 1;
+    color: var(--text);
+  }
+  .projects__archive-arrow {
+    font-family: var(--font-mono);
+    font-style: normal;
+    font-size: 11px;
+    color: var(--text-3);
+    letter-spacing: 0.14em;
+  }
+  .projects__foot-idx {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-3);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+</style>

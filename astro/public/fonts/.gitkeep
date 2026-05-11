@@ -1,0 +1,14 @@
+# Self-hosted, subsetted woff2 files go here. Expected filenames (referenced
+# by src/styles/app.css @font-face and BaseLayout.astro preload links):
+#
+#   instrument-serif-regular.woff2
+#   instrument-serif-italic.woff2     ← preloaded
+#   geist-regular.woff2               ← preloaded
+#   geist-medium.woff2
+#   geist-semibold.woff2
+#   geist-mono-regular.woff2
+#   geist-mono-medium.woff2
+#
+# Download: Instrument Serif from fonts.google.com, Geist + Geist Mono from
+# vercel.com/font. Subset to Latin (covers en/it/es) with glyphhanger or
+# fonttools `pyftsubset`. Until these exist the system fallbacks render.

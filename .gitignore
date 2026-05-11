@@ -1,0 +1,32 @@
+# ── Environment — NEVER commit (this is a public repo) ─────────────────
+.env
+.env.*
+!.env.example
+
+# ── Astro / Node ───────────────────────────────────────────────────────
+node_modules/
+dist/
+.output/
+.astro/
+# The lockfile MUST be committed (CI runs `npm ci`). Re-include it in case a
+# global ~/.gitignore ignores package-lock.json.
+!astro/package-lock.json
+
+# ── PocketBase ─────────────────────────────────────────────────────────
+# The committed binary in pb/ is a local (macOS) build; the image downloads
+# the pinned Linux build at build time. Never commit either binary or data.
+pb/pocketbase
+pb/pb_data/
+
+# ── Logs ───────────────────────────────────────────────────────────────
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ── Editor / OS ────────────────────────────────────────────────────────
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea/

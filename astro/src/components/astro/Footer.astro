@@ -1,0 +1,241 @@
+---
+import { Image } from 'astro:assets';
+import { useTranslations, useTranslatedPath, stripLocale, type Locale } from '../../i18n/utils';
+import LangSwitch from '../vue/LangSwitch.vue';
+import logoSrc from '../../assets/logo-miciodev.jpg';
+
+interface Props {
+  lang: Locale;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const path = useTranslatedPath(lang);
+const basePath = stripLocale(Astro.url.pathname);
+const email = t('footer.email');
+
+const siteLinks = [
+  { label: t('footer.colSite.work'), href: path('/#work') },
+  { label: t('footer.colSite.services'), href: path('/#services') },
+  { label: t('footer.colSite.about'), href: path('/#about') },
+  { label: t('footer.colSite.contact'), href: path('/#contact') },
+];
+const moreLinks = [
+  { label: t('footer.colMore.notes'), href: path('/notes') },
+  { label: t('footer.colMore.archive'), href: path('/projects') },
+  { label: t('footer.colMore.privacy'), href: path('/privacy') },
+  { label: t('footer.colMore.imprint'), href: path('/imprint') },
+];
+const socials = [
+  { kind: 'github', label: 'GitHub', href: 'https://github.com/' },
+  { kind: 'linkedin', label: 'LinkedIn', href: 'https://linkedin.com/' },
+  { kind: 'youtube', label: 'YouTube', href: 'https://youtube.com/' },
+];
+---
+
+<footer class="ft">
+  <div class="ft__atmosphere" aria-hidden="true"></div>
+  <div class="ft__inner">
+    <!-- Big italic sign-off -->
+    <div class="ft__signoff">
+      <p class="ft__eyebrow"><span class="ft__eyebrow-dot"></span>{t('footer.eyebrow')}</p>
+      <a href={`mailto:${email}`} class="ft__email">
+        {email.includes('@') ? (
+          <>
+            {email.split('@')[0]}@<span class="ft__email-accent">{email.split('@')[1].split('.')[0]}</span>.{email.split('.').slice(1).join('.')}
+          </>
+        ) : email}
+        <span class="ft__email-arrow">↗</span>
+      </a>
+    </div>
+
+    <!-- Columns -->
+    <div class="ft__cols">
+      <div class="ft__brand">
+        <a href={path('/')} class="ft__mark" aria-label={t('nav.home')}>
+          <Image class="ft__mark-img" src={logoSrc} alt="" width={36} height={36} densities={[1, 2]} loading="lazy" />
+          <span class="ft__wordmark">Micio<span class="ft__wordmark-dev">Dev</span></span>
+        </a>
+        <p class="ft__blurb">{t('footer.blurb')}</p>
+      </div>
+
+      <div class="ft__col">
+        <span class="ft__col-title">{t('footer.colSite.title')}</span>
+        <ul>
+          {siteLinks.map((l) => <li><a href={l.href}><span class="ft__col-mark">↳</span>{l.label}</a></li>)}
+        </ul>
+      </div>
+
+      <div class="ft__col">
+        <span class="ft__col-title">{t('footer.colMore.title')}</span>
+        <ul>
+          {moreLinks.map((l) => <li><a href={l.href}><span class="ft__col-mark">↳</span>{l.label}</a></li>)}
+        </ul>
+      </div>
+
+      <div class="ft__elsewhere">
+        <span class="ft__col-title">{t('footer.elsewhere')}</span>
+        <div class="ft__socials">
+          {socials.map((s) => (
+            <a href={s.href} aria-label={`${s.label} — ${t('a11y.externalLink')}`} rel="noopener noreferrer" target="_blank">
+              {s.kind === 'github' && (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 19c-4 1.2-4-2-6-2.5M14 22v-3.4a3 3 0 0 0-.8-2.3c2.7-.3 5.5-1.3 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.3 4.3 0 0 0-.1-3.2s-1-.3-3.4 1.2a11.7 11.7 0 0 0-6 0C5.5 1.5 4.5 1.8 4.5 1.8a4.3 4.3 0 0 0-.1 3.2A4.6 4.6 0 0 0 3 8.3c0 4.6 2.8 5.6 5.5 5.9a3 3 0 0 0-.8 2.3V22" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              )}
+              {s.kind === 'linkedin' && (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.4" /><path d="M8 11v6M8 8.5v.01M12 17v-3.5a2 2 0 0 1 4 0V17M12 11v6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg>
+              )}
+              {s.kind === 'youtube' && (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="3" stroke="currentColor" stroke-width="1.4" /><path d="M10 9.2 L15 12 L10 14.8 Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" /></svg>
+              )}
+            </a>
+          ))}
+        </div>
+        <div class="ft__lang">
+          <LangSwitch client:visible current={lang} basePath={basePath} variant="dark" size="sm" label={t('a11y.language')} />
+        </div>
+      </div>
+    </div>
+
+    <!-- Colophon -->
+    <div class="ft__colophon">
+      <span>{t('footer.copyright')}</span>
+      <span>
+        <span class="ft__colophon-loc">{t('footer.location')}</span>
+        <span>{t('footer.builtWith')}</span>
+      </span>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .ft {
+    position: relative;
+    overflow: hidden;
+    background: #0a0b0a; /* always dark — never reads --bg */
+    color: #f1f1ea;
+    padding: 56px 22px 32px;
+  }
+  @media (min-width: 960px) { .ft { padding: 88px 64px 40px; } }
+  .ft__atmosphere {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(60% 80% at 90% 0%, color-mix(in oklab, var(--brand-glow) 14%, transparent) 0%, transparent 60%),
+      radial-gradient(50% 60% at 5% 100%, color-mix(in oklab, var(--brand-glow) 10%, transparent) 0%, transparent 60%);
+  }
+  .ft__inner { position: relative; }
+
+  .ft__signoff {
+    padding-bottom: 32px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  @media (min-width: 960px) { .ft__signoff { padding-bottom: 56px; } }
+  .ft__eyebrow {
+    margin: 0 0 18px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.7);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .ft__eyebrow-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--brand-glow);
+    margin-right: 10px;
+    vertical-align: 2px;
+  }
+  .ft__email {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 48px;
+    line-height: 0.96;
+    letter-spacing: -0.028em;
+    color: #f1f1ea;
+    text-decoration: none;
+    display: inline-block;
+    word-break: break-word;
+  }
+  @media (min-width: 960px) { .ft__email { font-size: clamp(72px, 8vw, 124px); } }
+  .ft__email-accent { color: var(--brand-glow); }
+  .ft__email-arrow {
+    font-family: var(--font-mono);
+    font-style: normal;
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.5);
+    margin-left: 14px;
+    vertical-align: 0.6em;
+    letter-spacing: 0.12em;
+  }
+
+  .ft__cols {
+    padding-top: 32px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  @media (min-width: 960px) {
+    .ft__cols { padding-top: 56px; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 24px; }
+  }
+  .ft__brand { display: flex; flex-direction: column; gap: 14px; }
+  .ft__mark { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; color: #f1f1ea; }
+  .ft__mark-img { width: 36px; height: 36px; border-radius: var(--r-2); object-fit: cover; flex: none; }
+  .ft__wordmark { font-family: var(--font-display); font-style: italic; font-size: 28px; letter-spacing: -0.01em; }
+  .ft__wordmark-dev { font-style: normal; font-family: var(--font-mono); font-size: 16px; letter-spacing: 0.04em; }
+  .ft__blurb { margin: 0; color: rgba(255, 255, 255, 0.72); font-size: 14px; line-height: 1.55; max-width: 320px; }
+
+  .ft__col, .ft__elsewhere { display: flex; flex-direction: column; gap: 14px; }
+  .ft__col-title {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .ft__col ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+  .ft__col a {
+    color: #f1f1ea;
+    text-decoration: none;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .ft__col a:hover { color: var(--brand-glow); }
+  .ft__col-mark { font-family: var(--font-mono); font-size: 10px; color: rgba(255, 255, 255, 0.4); letter-spacing: 0.14em; }
+
+  .ft__socials { display: flex; gap: 8px; }
+  .ft__socials a {
+    width: 38px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 999px;
+    color: #f1f1ea;
+    transition: border-color var(--dur-1) var(--ease), color var(--dur-1) var(--ease);
+  }
+  .ft__socials a:hover { border-color: var(--brand-glow); color: var(--brand-glow); }
+  .ft__lang { margin-top: 4px; }
+
+  .ft__colophon {
+    margin-top: 32px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.7);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  @media (min-width: 960px) { .ft__colophon { margin-top: 56px; } }
+  .ft__colophon-loc { margin-right: 18px; }
+</style>

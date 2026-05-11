@@ -1,0 +1,281 @@
+---
+import type { ProjectRecord, Localized } from '../../lib/seed-data';
+
+interface Props {
+  project: Localized<ProjectRecord>;
+  variant: 'featured' | 'grid';
+  featuredBadgeLabel: string;
+  openCaseStudyLabel: string;
+  mockupLabel: string;
+  langTag: string;
+  /** href to the case study / project detail */
+  href: string;
+}
+const { project: p, variant, featuredBadgeLabel, openCaseStudyLabel, mockupLabel, langTag, href } = Astro.props;
+const isFeatured = variant === 'featured';
+---
+
+<a href={href} class:list={['pcard', `pcard--${variant}`]} aria-label={`${p.title} — ${openCaseStudyLabel}`}>
+  {isFeatured && (
+    <div class="pcard__mockup-pane">
+      <div class="pcard__mockup">
+        <div class="pcard__chrome">
+          <span class="pcard__dot"></span><span class="pcard__dot"></span><span class="pcard__dot"></span>
+          <span class="pcard__urlbar"></span>
+        </div>
+        <div class="pcard__stripes">
+          <span class="pcard__mockup-label">{mockupLabel}</span>
+        </div>
+      </div>
+      {p.kpis.length > 0 && (
+        <div class="pcard__kpis">
+          {p.kpis.map((k) => (
+            <div class="pcard__kpi">
+              <span class="pcard__kpi-label">{k.label}</span>
+              <span class="pcard__kpi-value">{k.value}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )}
+
+  <div class="pcard__body">
+    <header class="pcard__head">
+      <div class="pcard__client">
+        <span class="pcard__crest" aria-hidden="true">{p.clientInitials}</span>
+        <div class="pcard__client-meta">
+          <span class="pcard__client-name">{p.client} · / {p.idx}</span>
+          <span class="pcard__period">{p.period}</span>
+        </div>
+      </div>
+      {(isFeatured || p.featured) && (
+        <span class="pcard__badge"><span class="pcard__badge-dot"></span>{featuredBadgeLabel}</span>
+      )}
+    </header>
+
+    <h3 class="pcard__title">{p.title}</h3>
+
+    <p class="pcard__desc"><span class="pcard__lang">[{langTag}]</span>{p.desc}</p>
+
+    <hr class="md-hr" />
+
+    {p.stack.length > 0 && (
+      <ul class="pcard__stack">
+        {p.stack.map((s) => <li class="pcard__chip">{s}</li>)}
+      </ul>
+    )}
+
+    <div class="pcard__foot">
+      <span>↗ {openCaseStudyLabel}</span>
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M5 11 L11 5 M6 5 H11 V10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </div>
+  </div>
+</a>
+
+<style>
+  .pcard {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 26px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-3);
+    text-decoration: none;
+    color: var(--text);
+    transition:
+      border-color var(--dur-2) var(--ease),
+      box-shadow var(--dur-2) var(--ease),
+      transform var(--dur-2) var(--ease);
+  }
+  .pcard:hover {
+    border-color: var(--text);
+    box-shadow: var(--shadow-2);
+    transform: translateY(-2px);
+  }
+  .pcard:hover .pcard__foot { color: var(--brand); }
+
+  /* Featured: side-by-side mockup + text on wide screens; spans both grid cols. */
+  .pcard--featured { padding: 0; overflow: hidden; }
+  @media (min-width: 960px) {
+    .pcard--featured {
+      grid-column: span 2;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+    }
+  }
+  .pcard__mockup-pane {
+    padding: 24px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--line);
+  }
+  @media (min-width: 960px) {
+    .pcard__mockup-pane { border-bottom: 0; border-right: 1px solid var(--line); }
+  }
+  .pcard__mockup {
+    aspect-ratio: 16 / 10;
+    border: 1px solid var(--line);
+    border-radius: var(--r-3);
+    overflow: hidden;
+    background: var(--surface);
+    display: grid;
+    grid-template-rows: 28px 1fr;
+  }
+  .pcard__chrome {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 10px;
+    border-bottom: 1px solid var(--line);
+    background: var(--surface-2);
+  }
+  .pcard__dot { width: 8px; height: 8px; border-radius: 999px; background: var(--line-2); }
+  .pcard__urlbar { margin-left: 12px; height: 14px; flex: 0 1 220px; background: var(--surface-3); border-radius: 4px; }
+  .pcard__stripes {
+    position: relative;
+    background: repeating-linear-gradient(135deg, var(--surface) 0 12px, var(--surface-2) 12px 24px);
+  }
+  .pcard__mockup-label {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-3);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  .pcard__kpis {
+    margin-top: 14px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  .pcard__kpi { display: grid; gap: 4px; }
+  .pcard__kpi-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-3);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .pcard__kpi-value {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 22px;
+    line-height: 1;
+    color: var(--text);
+  }
+
+  .pcard__body { display: flex; flex-direction: column; gap: 18px; }
+  .pcard--featured .pcard__body { padding: 28px; }
+
+  .pcard__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .pcard__client { display: flex; align-items: center; gap: 12px; }
+  .pcard__crest {
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: var(--surface-2);
+    border: 1px solid var(--line-2);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+  .pcard--featured .pcard__crest { width: 44px; height: 44px; font-size: 13px; }
+  .pcard__client-meta { display: grid; gap: 2px; }
+  .pcard__client-name {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-3);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .pcard__period { font-family: var(--font-mono); font-size: 11px; color: var(--text-2); }
+  .pcard__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 22px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: var(--brand-tint);
+    color: var(--brand);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    border: 1px solid color-mix(in oklab, var(--brand) 22%, transparent);
+    white-space: nowrap;
+  }
+  .pcard__badge-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 999px;
+    background: var(--brand);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--brand) 18%, transparent);
+  }
+
+  .pcard__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 30px;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+  .pcard--featured .pcard__title { font-size: clamp(34px, 3.2vw, 48px); line-height: 1.02; }
+
+  .pcard__desc { margin: 0; font-size: 13px; line-height: 1.55; color: var(--text-2); }
+  .pcard__lang {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-3);
+    letter-spacing: 0.14em;
+    margin-right: 8px;
+  }
+  .pcard__stack { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+  .pcard__chip {
+    display: inline-flex;
+    align-items: center;
+    height: 22px;
+    padding: 0 9px;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--text-2);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    border: 1px solid var(--line-2);
+    white-space: nowrap;
+  }
+  .pcard__foot {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 8px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-3);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    transition: color var(--dur-1) var(--ease);
+  }
+</style>

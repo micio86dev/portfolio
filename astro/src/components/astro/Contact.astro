@@ -1,0 +1,174 @@
+---
+import { useTranslations, type Locale } from '../../i18n/utils';
+import ContactForm from '../vue/ContactForm.vue';
+
+interface Props {
+  lang: Locale;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const langTag = lang.toUpperCase();
+
+// Strings handed to the Vue island as a prop (the island can't read i18n itself).
+const formMessages = {
+  ariaLabel: t('contact.form.ariaLabel'),
+  honeypotLabel: t('contact.form.honeypotLabel'),
+  name: t('contact.form.name'),
+  namePlaceholder: t('contact.form.namePlaceholder'),
+  email: t('contact.form.email'),
+  emailPlaceholder: t('contact.form.emailPlaceholder'),
+  subject: t('contact.form.subject'),
+  subjectOptions: {
+    general: t('contact.form.subjectOptions.general'),
+    estimate: t('contact.form.subjectOptions.estimate'),
+    consulting: t('contact.form.subjectOptions.consulting'),
+    other: t('contact.form.subjectOptions.other'),
+  },
+  message: t('contact.form.message'),
+  messagePlaceholder: t('contact.form.messagePlaceholder'),
+  charCounter: t('contact.form.charCounter'),
+  privacy: t('contact.form.privacy'),
+  submit: t('contact.form.submit'),
+  sending: t('contact.form.sending'),
+  success: t('contact.form.success'),
+  errors: {
+    name: t('contact.form.errors.name'),
+    email: t('contact.form.errors.email'),
+    messageShort: t('contact.form.errors.messageShort'),
+    messageLong: t('contact.form.errors.messageLong'),
+    rateLimit: t('contact.form.errors.rateLimit'),
+    server: t('contact.form.errors.server'),
+  },
+};
+const asideEmail = t('contact.aside.email');
+---
+
+<section class="contact" aria-labelledby="contact-heading" id="contact">
+  <header class="contact__head">
+    <div class="contact__eyebrow"><span class="md-eyebrow"><span class="dot"></span>{t('contact.eyebrow')}</span></div>
+    <h2 id="contact-heading" class="contact__title">
+      <span class="contact__tag">[{langTag}]</span>{t('contact.title')}
+    </h2>
+  </header>
+
+  <div class="contact__layout">
+    <div class="contact__panel">
+      <ContactForm client:visible messages={formMessages} action="/api/contact" />
+    </div>
+
+    <aside class="contact__aside">
+      <span class="md-eyebrow"><span class="dot"></span>{t('contact.aside.eyebrow')}</span>
+      <a href={`mailto:${asideEmail}`} class="contact__aside-email">{asideEmail}</a>
+      <hr class="md-hr" />
+      <p class="contact__aside-line">{t('contact.aside.replies')}</p>
+      <hr class="md-hr" />
+      <div class="contact__aside-meta">
+        <span>↳ {t('contact.aside.timezone')}</span>
+        <span>↳ {t('contact.aside.hours')}</span>
+        <span><span class="contact__aside-dot"></span>{t('contact.aside.available')}</span>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<style>
+  .contact {
+    background: var(--bg);
+    color: var(--text);
+    padding: 64px 22px 80px;
+  }
+  @media (min-width: 960px) { .contact { padding: 120px 64px 140px; } }
+
+  .contact__head {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  @media (min-width: 960px) {
+    .contact__head {
+      grid-template-columns: repeat(12, 1fr);
+      column-gap: 24px;
+      margin-bottom: 56px;
+    }
+    .contact__eyebrow { grid-column: 1 / 4; }
+    .contact__title { grid-column: 4 / 11; }
+  }
+  .contact__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 42px;
+    line-height: 0.98;
+    letter-spacing: -0.025em;
+  }
+  @media (min-width: 960px) { .contact__title { font-size: clamp(56px, 6vw, 84px); } }
+  .contact__tag {
+    font-family: var(--font-mono);
+    font-style: normal;
+    font-size: 0.22em;
+    vertical-align: 0.7em;
+    color: var(--text-3);
+    letter-spacing: 0.14em;
+    margin-right: 0.5em;
+  }
+
+  .contact__layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  @media (min-width: 960px) { .contact__layout { grid-template-columns: 1.6fr 1fr; gap: 32px; } }
+
+  .contact__panel {
+    padding: 22px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-3);
+  }
+  @media (min-width: 960px) { .contact__panel { padding: 36px; } }
+
+  .contact__aside {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-3);
+    padding: 28px;
+    display: grid;
+    gap: 22px;
+    align-content: start;
+  }
+  .contact__aside-email {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 32px;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    text-decoration: underline;
+    text-decoration-color: var(--brand);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 6px;
+    word-break: break-all;
+  }
+  .contact__aside-line { margin: 0; font-family: var(--font-mono); font-size: 12px; color: var(--text-2); }
+  .contact__aside-meta {
+    display: grid;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-3);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .contact__aside-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--brand);
+    margin-right: 8px;
+    vertical-align: 1px;
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--brand) 22%, transparent);
+  }
+</style>

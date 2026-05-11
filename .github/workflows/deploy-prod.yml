@@ -1,0 +1,83 @@
+name: Deploy — production
+
+# Triggered by merges to main. Builds + pushes :latest images to GHCR, then
+# SSHes into the VPS and rolls the production stack.
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_ASTRO: ghcr.io/micio86dev/portfolio-astro
+  IMAGE_PB: ghcr.io/micio86dev/portfolio-pb
+  TAG: latest
+  SITE_URL: https://micio86dev.it
+
+jobs:
+  deploy:
+    name: build → push → deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build & push astro image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./astro
+          push: true
+          tags: ${{ env.IMAGE_ASTRO }}:${{ env.TAG }}
+          build-args: |
+            PB_URL=${{ secrets.PROD_PB_URL }}
+            SITE_URL=${{ env.SITE_URL }}
+
+      - name: Build & push pocketbase image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./pb
+          push: true
+          tags: ${{ env.IMAGE_PB }}:${{ env.TAG }}
+
+      - name: Load SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+
+      - name: Sync compose file to VPS
+        env:
+          SSH_TARGET: ${{ secrets.VPS_SSH_USER }}@${{ secrets.VPS_SSH_HOST }}
+        run: |
+          scp -o StrictHostKeyChecking=accept-new \
+            docker-compose.prod.yml \
+            "${SSH_TARGET}:/var/www/portfolio/"
+
+      - name: Deploy on VPS
+        env:
+          SSH_TARGET: ${{ secrets.VPS_SSH_USER }}@${{ secrets.VPS_SSH_HOST }}
+        run: |
+          ssh -o StrictHostKeyChecking=accept-new "${SSH_TARGET}" 'bash -se' <<'REMOTE'
+          set -euo pipefail
+          cd /var/www/portfolio
+          docker compose -f docker-compose.prod.yml pull
+          docker compose -f docker-compose.prod.yml up -d --remove-orphans
+          docker exec portfolio-pocketbase \
+            /pb/pocketbase migrate up --dir=/pb/pb_data --migrationsDir=/pb/pb_migrations || true
+          docker image prune -f
+          REMOTE

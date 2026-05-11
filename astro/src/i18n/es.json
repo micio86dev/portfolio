@@ -1,0 +1,194 @@
+{
+  "meta": {
+    "siteName": "MicioDev",
+    "title": "Desarrollador full-stack sénior — Laravel, Vue y Nuxt",
+    "description": "Desarrollador full-stack freelance, más de 15 años creando y manteniendo aplicaciones Laravel, Vue y Nuxt. En remoto, desde las Islas Canarias. Disponible desde el Q3 2026.",
+    "ogAlt": "MicioDev — desarrollador full-stack freelance · Laravel · Vue · Nuxt"
+  },
+  "status": {
+    "available": "Disponible para nuevos proyectos — Q3 2026",
+    "location": "Tenerife · Islas Canarias · UTC+0"
+  },
+  "nav": {
+    "home": "MicioDev — inicio",
+    "about": "Sobre mí",
+    "services": "Servicios",
+    "projects": "Proyectos",
+    "contact": "Contacto",
+    "hireMe": "Trabajemos juntos"
+  },
+  "hero": {
+    "eyebrow": "Freelance · full-stack · desde 2010",
+    "headline": {
+      "line1": "Apps web full-stack",
+      "accent": "hechas para durar",
+      "line3": "y mantenidas en marcha."
+    },
+    "subhead": "Laravel, Vue y Nuxt — frontend, API e infraestructura, por un solo desarrollador. Más de 15 años de experiencia, en remoto desde las Islas Canarias.",
+    "ctaPrimary": "Ver proyectos",
+    "ctaSecondary": "Hablemos",
+    "availability": "Disponible · Q3 2026",
+    "replies": "respondo en 24h",
+    "trustedBy": {
+      "label": "Clientes seleccionados · 2018–2026",
+      "count": "07 / 42",
+      "clientLabel": "cliente"
+    },
+    "meta": {
+      "section": "§ 01 / Hero",
+      "version": "v 0.1.0"
+    },
+    "stamp": "// build 0xA1F · lg\n// region · ic-tenerife\n// uptime · 99.98%"
+  },
+  "services": {
+    "eyebrow": "§ 02 · Servicios",
+    "title": "Lo que hago, en cinco líneas claras",
+    "note": "Cinco servicios · presupuesto por proyecto",
+    "footerNote": "Aquí no: diseño desde cero · apps móviles nativas · WordPress",
+    "footerIndex": "↳ index · §02",
+    "items": {
+      "fullstack": {
+        "title": "Desarrollo web full-stack",
+        "desc": "Back end en Laravel, front end en Vue o Nuxt — un solo desarrollador en todo el stack. Del primer commit a un despliegue en el que puedes confiar."
+      },
+      "api": {
+        "title": "Diseño de APIs y arquitectura backend",
+        "desc": "APIs REST y GraphQL pensadas para consumirse: versionadas, documentadas, con tests. Modelos de datos que aguantan cuando el producto crece."
+      },
+      "vps": {
+        "title": "Infraestructura VPS y DevOps",
+        "desc": "Aprovisionamiento, despliegues, monitorización y backups en tus propios servidores. CI/CD que publica en verde — no a base de suerte."
+      },
+      "consulting": {
+        "title": "Consultoría técnica para agencias",
+        "desc": "Un par de manos sénior para definir alcance, estimaciones y decisiones de arquitectura. Marca blanca, a tu ritmo."
+      },
+      "review": {
+        "title": "Revisión de código y refactor de legado",
+        "desc": "Auditorías, desenredar el código y reescrituras incrementales de bases de código que se han quedado grandes — sin reescribirlo todo de golpe."
+      }
+    }
+  },
+  "projects": {
+    "eyebrow": "§ 03 · Trabajos seleccionados",
+    "title": "Cosas lanzadas — y aún en pie.",
+    "meta": "05 a la vista · 42 en el archivo · 2010–2026",
+    "featuredBadge": "Destacado",
+    "openCaseStudy": "Abrir el caso de estudio",
+    "filterLabel": "Filtrar",
+    "stackLabel": "Stack",
+    "filters": {
+      "all": "Todos",
+      "saas": "SaaS",
+      "ecommerce": "E-commerce",
+      "dashboards": "Dashboards",
+      "editorial": "Editorial"
+    },
+    "archiveCta": "Explora el archivo — 42 proyectos desde 2010",
+    "mockupLabel": "mockup del proyecto · 16 / 10",
+    "footerIndex": "↳ index · §03"
+  },
+  "skills": {
+    "eyebrow": "§ 04 · Habilidades",
+    "title": "Herramientas, en cuatro familias",
+    "note": "Sin barras, sin porcentajes — solo lo que uso de verdad.",
+    "footerIndex": "↳ index · §04",
+    "groups": {
+      "languages": "Lenguajes y frameworks",
+      "infra": "Infraestructura",
+      "tooling": "Herramientas y flujo de trabajo",
+      "apis": "APIs y servicios"
+    },
+    "legend": {
+      "label": "Leyenda",
+      "primary": "a diario — y preferido",
+      "daily": "en rotación actual",
+      "default": "cuando el trabajo lo pide",
+      "pillPrimary": "principal",
+      "pillDaily": "diario",
+      "pillDefault": "ocasional"
+    }
+  },
+  "contact": {
+    "eyebrow": "§ 05 · Contacto",
+    "title": "Cuéntame el proyecto.",
+    "form": {
+      "ariaLabel": "Formulario de contacto",
+      "name": "Nombre",
+      "namePlaceholder": "María García",
+      "email": "Email",
+      "emailPlaceholder": "maria@empresa.com",
+      "subject": "Asunto",
+      "subjectOptions": {
+        "general": "Consulta general",
+        "estimate": "Presupuesto de un proyecto",
+        "consulting": "Consultoría",
+        "other": "Otra cosa"
+      },
+      "message": "Mensaje",
+      "messagePlaceholder": "¿Qué estás construyendo y dónde necesitas una mano?",
+      "charCounter": "{count} / 4000",
+      "privacy": "Al enviar aceptas la política de privacidad.",
+      "submit": "Enviar mensaje",
+      "sending": "Enviando…",
+      "success": "Enviado — gracias. Te respondo en 24 horas.",
+      "honeypotLabel": "Sitio web",
+      "errors": {
+        "name": "Escribe tu nombre.",
+        "email": "Ese email no parece válido.",
+        "messageShort": "Un poco más de detalle, por favor — al menos 20 caracteres.",
+        "messageLong": "Te has pasado del límite — quédate por debajo de 4000 caracteres.",
+        "rateLimit": "Demasiados intentos. Inténtalo de nuevo en un minuto.",
+        "server": "Algo ha fallado por mi lado. Escríbeme directamente a hello@miciodev.com."
+      }
+    },
+    "aside": {
+      "eyebrow": "Directo",
+      "email": "hello@miciodev.com",
+      "replies": "Respondo en 24 horas, de lunes a viernes.",
+      "timezone": "Tenerife · UTC+0",
+      "hours": "Horario compatible con CET",
+      "available": "Disponible · Q3 2026"
+    }
+  },
+  "footer": {
+    "eyebrow": "Abierto a nuevos proyectos · Q3 2026",
+    "email": "hello@miciodev.com",
+    "blurb": "Desarrollador full-stack freelance sénior. Laravel · Vue · Nuxt. En remoto, desde las Islas Canarias.",
+    "colSite": {
+      "title": "Sitio",
+      "work": "Proyectos",
+      "services": "Servicios",
+      "about": "Sobre mí",
+      "contact": "Contacto"
+    },
+    "colMore": {
+      "title": "Más",
+      "notes": "Notas",
+      "archive": "Archivo",
+      "privacy": "Privacidad",
+      "imprint": "Aviso legal"
+    },
+    "elsewhere": "En otros sitios",
+    "copyright": "© 2010–2026 · Alessandro · MicioDev",
+    "location": "Tenerife · Islas Canarias · ES",
+    "builtWith": "Hecho con Astro + PocketBase · v0.1.0"
+  },
+  "dividers": {
+    "services": "§ 02 — Servicios",
+    "work": "§ 03 — Trabajos seleccionados",
+    "skills": "§ 04 — Habilidades",
+    "contact": "§ 05 — Contacto"
+  },
+  "a11y": {
+    "skipToContent": "Saltar al contenido",
+    "mainNav": "Navegación principal",
+    "openMenu": "Abrir el menú",
+    "closeMenu": "Cerrar el menú",
+    "toLight": "Cambiar a modo claro",
+    "toDark": "Cambiar a modo oscuro",
+    "language": "Idioma",
+    "switchTo": "Cambiar a {lang}",
+    "externalLink": "se abre en una pestaña nueva"
+  }
+}

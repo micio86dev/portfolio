@@ -1,0 +1,156 @@
+---
+import '../styles/app.css';
+import { getImage } from 'astro:assets';
+import Nav from '../components/vue/Nav.vue';
+import Footer from '../components/astro/Footer.astro';
+import logoSrc from '../assets/logo-miciodev.jpg';
+import {
+  useTranslations,
+  useTranslatedPath,
+  stripLocale,
+  LOCALES,
+  DEFAULT_LOCALE,
+  type Locale,
+} from '../i18n/utils';
+
+interface Props {
+  lang: Locale;
+  /** override <title>; falls back to the i18n meta.title */
+  title?: string;
+  /** override <meta description>; falls back to i18n meta.description */
+  description?: string;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const path = useTranslatedPath(lang);
+
+const title = Astro.props.title ?? t('meta.title');
+const description = Astro.props.description ?? t('meta.description');
+const siteName = t('meta.siteName');
+
+const site = Astro.site ?? new URL('https://micio86dev.example');
+const canonicalPath = Astro.url.pathname;
+const canonicalUrl = new URL(canonicalPath, site);
+const basePath = stripLocale(canonicalPath);
+
+// hreflang triplet + x-default (default locale).
+function localeUrl(l: Locale): string {
+  const clean = basePath === '/' ? '/' : basePath;
+  const p = l === DEFAULT_LOCALE ? clean : clean === '/' ? `/${l}/` : `/${l}${clean}`;
+  return new URL(p, site).toString();
+}
+
+const ogImage = new URL(`/og/${lang}.png`, site).toString();
+// Open Graph wants the full `xx_XX` form, not the bare language subtag.
+const OG_LOCALE: Record<Locale, string> = { en: 'en_US', it: 'it_IT', es: 'es_ES' };
+
+// ── Nav island props ───────────────────────────────────────────────────
+// Projects renders under the `#work` anchor; Hero/about content is `#about`.
+const navLinks = [
+  { href: path('/#about'), num: '01', label: t('nav.about'), active: true },
+  { href: path('/#services'), num: '02', label: t('nav.services') },
+  { href: path('/#work'), num: '03', label: t('nav.projects') },
+  { href: path('/#contact'), num: '04', label: t('nav.contact') },
+];
+const navMessages = {
+  home: t('nav.home'),
+  hireMe: t('nav.hireMe'),
+  mainNav: t('a11y.mainNav'),
+  statusAvailable: t('status.available'),
+  statusLocation: t('status.location'),
+  openMenu: t('a11y.openMenu'),
+  closeMenu: t('a11y.closeMenu'),
+  toLight: t('a11y.toLight'),
+  toDark: t('a11y.toDark'),
+  language: t('a11y.language'),
+};
+
+// Optimize the brand mark via astro:assets, then hand the resolved URL to the
+// Vue nav island (framework components can't use <Image> directly). Rendered
+// at 30 px; 2× intrinsic for crisp retina.
+const NAV_LOGO_PX = 60;
+const navLogoImg = await getImage({ src: logoSrc, width: NAV_LOGO_PX, height: NAV_LOGO_PX, format: 'webp' });
+const navLogo = { src: navLogoImg.src, width: NAV_LOGO_PX, height: NAV_LOGO_PX };
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Baseline Content-Security-Policy. `'unsafe-inline'` for script-src is
+         required by the inline theme-bootstrap below (a <meta> CSP can't carry
+         a nonce); harden it with a hash if you externalise that script.
+         `frame-ancestors` / X-Frame-Options must be sent as a real header. -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
+    />
+
+    <!-- Theme bootstrap — runs before paint so there is no flash of the wrong palette. Must precede the stylesheet. -->
+    <script is:inline>
+      (function () {
+        try {
+          var saved = localStorage.getItem('miciodev-theme');
+          var sys = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          document.documentElement.dataset.theme = saved || sys;
+        } catch (e) {
+          /* localStorage blocked — leave default (light) */
+        }
+      })();
+    </script>
+
+    <title>{title} · {siteName}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl.toString()} />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <!-- hreflang -->
+    {LOCALES.map((l) => <link rel="alternate" hreflang={l} href={localeUrl(l)} />)}
+    <link rel="alternate" hreflang="x-default" href={localeUrl(DEFAULT_LOCALE)} />
+
+    <!-- Open Graph / Twitter -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl.toString()} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:alt" content={t('meta.ogAlt')} />
+    <meta property="og:locale" content={OG_LOCALE[lang]} />
+    {LOCALES.filter((l) => l !== lang).map((l) => <meta property="og:locale:alternate" content={OG_LOCALE[l]} />)}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <!-- Critical fonts (place the woff2 files in /public/fonts/ — see README "Fonts"). -->
+    <link rel="preload" href="/fonts/instrument-serif-italic.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/geist-regular.woff2" as="font" type="font/woff2" crossorigin />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">{t('a11y.skipToContent')}</a>
+
+    <Nav
+      client:load
+      lang={lang}
+      basePath={basePath}
+      links={navLinks}
+      homeHref={path('/')}
+      hireHref={path('/#contact')}
+      logo={navLogo}
+      messages={navMessages}
+    />
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <Footer lang={lang} />
+  </body>
+</html>

@@ -1,0 +1,29 @@
+{
+  "name": "micio86dev",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MicioDev — senior freelance full-stack developer portfolio. Astro 5 + Vue 3 islands + Tailwind v4 + PocketBase + Resend. Trilingual (en/it/es), light + dark.",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "check": "astro check"
+  },
+  "dependencies": {
+    "astro": "^5.0.0",
+    "@astrojs/vue": "^5.0.0",
+    "@astrojs/sitemap": "^3.2.0",
+    "@astrojs/node": "^9.0.0",
+    "vue": "^3.5.0",
+    "pocketbase": "^0.25.0",
+    "resend": "^4.0.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.0",
+    "@tailwindcss/vite": "^4.0.0",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.7.0"
+  }
+}

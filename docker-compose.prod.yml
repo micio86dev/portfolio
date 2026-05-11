@@ -1,0 +1,33 @@
+# Production overrides — used on the VPS, on its own:
+#
+#   cd /var/www/portfolio
+#   docker compose -f docker-compose.prod.yml pull
+#   docker compose -f docker-compose.prod.yml up -d --remove-orphans
+#
+# Self-contained: passing `-f docker-compose.prod.yml` does NOT auto-load
+# docker-compose.yml, so there is no build context to worry about — images are
+# pulled from GHCR. Runtime secrets (RESEND_API_KEY, CONTACT_TO_EMAIL,
+# CONTACT_FROM_EMAIL) live in ./.env on the VPS — never committed, never
+# passed through CI. This file is also the *base* for docker-compose.stage.yml.
+
+services:
+  astro:
+    image: ghcr.io/micio86dev/portfolio-astro:latest
+    container_name: portfolio-astro
+    ports:
+      - "3000:4321"
+    env_file:
+      - .env
+    restart: unless-stopped
+    depends_on:
+      - pocketbase
+
+  pocketbase:
+    image: ghcr.io/micio86dev/portfolio-pb:latest
+    container_name: portfolio-pocketbase
+    ports:
+      # Bound to loopback — reverse-proxied by host nginx (see nginx/portfolio.conf).
+      - "127.0.0.1:8090:8090"
+    volumes:
+      - /var/www/portfolio/pb_data:/pb/pb_data
+    restart: unless-stopped

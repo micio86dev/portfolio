@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="40" viewBox="0 0 180 40" role="img" aria-label="MicioDev">
+  <rect x="2" y="4" width="32" height="32" rx="7" fill="#1F6E4A"/>
+  <path d="M9 13 L13 9 L15 15 Z" fill="#FFFFFF"/>
+  <path d="M27 13 L23 9 L21 15 Z" fill="#FFFFFF"/>
+  <circle cx="18" cy="21" r="8" fill="#FFFFFF"/>
+  <circle cx="15.2" cy="20.4" r="1.1" fill="#1F6E4A"/>
+  <circle cx="20.8" cy="20.4" r="1.1" fill="#1F6E4A"/>
+  <path d="M17.2 23 L18.8 23 L18 24 Z" fill="#1F6E4A"/>
+  <text x="46" y="27" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="24" fill="#0E0E0C">Micio</text>
+  <text x="116" y="27" font-family="ui-monospace, 'JetBrains Mono', monospace" font-size="15" fill="#0E0E0C">Dev</text>
+</svg>

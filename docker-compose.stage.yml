@@ -1,0 +1,23 @@
+# Staging overrides — layered ON TOP of docker-compose.prod.yml on the VPS:
+#
+#   cd /var/www/portfolio-stage
+#   docker compose -f docker-compose.prod.yml -f docker-compose.stage.yml pull
+#   docker compose -f docker-compose.prod.yml -f docker-compose.stage.yml up -d --remove-orphans
+#
+# `!override` replaces the list from the base file instead of appending to it
+# (Docker Compose 2.24+), so we don't inherit the prod ports/volumes.
+
+services:
+  astro:
+    image: ghcr.io/micio86dev/portfolio-astro:develop
+    container_name: portfolio-stage-astro
+    ports: !override
+      - "3001:4321"
+
+  pocketbase:
+    image: ghcr.io/micio86dev/portfolio-pb:develop
+    container_name: portfolio-stage-pocketbase
+    ports: !override
+      - "127.0.0.1:8091:8090"
+    volumes: !override
+      - /var/www/portfolio-stage/pb_data:/pb/pb_data

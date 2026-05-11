@@ -1,0 +1,194 @@
+{
+  "meta": {
+    "siteName": "MicioDev",
+    "title": "Senior Full-Stack Developer — Laravel, Vue & Nuxt",
+    "description": "Freelance full-stack developer, 15+ years building and running Laravel, Vue and Nuxt applications. Remote from the Canary Islands. Available Q3 2026.",
+    "ogAlt": "MicioDev — freelance full-stack developer · Laravel · Vue · Nuxt"
+  },
+  "status": {
+    "available": "Available for new projects — Q3 2026",
+    "location": "Tenerife · Canary Islands · UTC+0"
+  },
+  "nav": {
+    "home": "MicioDev — home",
+    "about": "About",
+    "services": "Services",
+    "projects": "Projects",
+    "contact": "Contact",
+    "hireMe": "Hire me"
+  },
+  "hero": {
+    "eyebrow": "Freelance · full-stack · since 2010",
+    "headline": {
+      "line1": "Full-stack web apps",
+      "accent": "built to last",
+      "line3": "and kept running."
+    },
+    "subhead": "Laravel, Vue and Nuxt — frontend, API and infrastructure, by one developer. 15+ years in, working remote from the Canary Islands.",
+    "ctaPrimary": "View Projects",
+    "ctaSecondary": "Let's Talk",
+    "availability": "Available · Q3 2026",
+    "replies": "replies within 24h",
+    "trustedBy": {
+      "label": "Selected clients · 2018–2026",
+      "count": "07 / 42",
+      "clientLabel": "client"
+    },
+    "meta": {
+      "section": "§ 01 / Hero",
+      "version": "v 0.1.0"
+    },
+    "stamp": "// build 0xA1F · lg\n// region · ic-tenerife\n// uptime · 99.98%"
+  },
+  "services": {
+    "eyebrow": "§ 02 · Services",
+    "title": "What I do, in five clear lines",
+    "note": "Five services · per-project quotes",
+    "footerNote": "Not here: design from scratch · native mobile apps · WordPress",
+    "footerIndex": "↳ index · §02",
+    "items": {
+      "fullstack": {
+        "title": "Full-stack web development",
+        "desc": "Laravel back end, Vue or Nuxt front end — one developer across the whole stack. From the first commit to a deploy you can trust."
+      },
+      "api": {
+        "title": "API design & backend architecture",
+        "desc": "REST and GraphQL APIs built to be consumed: versioned, documented, tested. Data models that hold up when the product grows."
+      },
+      "vps": {
+        "title": "VPS infrastructure & DevOps",
+        "desc": "Provisioning, deploys, monitoring and backups on your own servers. CI/CD that ships on green — not on hope."
+      },
+      "consulting": {
+        "title": "Technical consulting for agencies",
+        "desc": "A senior pair of hands for scoping, estimates and architecture calls. White-label, on your timeline."
+      },
+      "review": {
+        "title": "Code review & legacy refactoring",
+        "desc": "Audits, untangling and incremental rewrites of code that has outgrown itself — without a big-bang rewrite."
+      }
+    }
+  },
+  "projects": {
+    "eyebrow": "§ 03 · Selected work",
+    "title": "Things shipped — and still standing.",
+    "meta": "05 shown · 42 archived · 2010–2026",
+    "featuredBadge": "Featured",
+    "openCaseStudy": "Open case study",
+    "filterLabel": "Filter",
+    "stackLabel": "Stack",
+    "filters": {
+      "all": "All",
+      "saas": "SaaS",
+      "ecommerce": "E-commerce",
+      "dashboards": "Dashboards",
+      "editorial": "Editorial"
+    },
+    "archiveCta": "Browse the archive — 42 projects since 2010",
+    "mockupLabel": "project mockup · 16 / 10",
+    "footerIndex": "↳ index · §03"
+  },
+  "skills": {
+    "eyebrow": "§ 04 · Skills",
+    "title": "Tools, in four families",
+    "note": "No bars, no percentages — just what I actually use.",
+    "footerIndex": "↳ index · §04",
+    "groups": {
+      "languages": "Languages & frameworks",
+      "infra": "Infrastructure",
+      "tooling": "Tooling & workflow",
+      "apis": "APIs & services"
+    },
+    "legend": {
+      "label": "Legend",
+      "primary": "daily — and preferred",
+      "daily": "in current rotation",
+      "default": "when the job calls for it",
+      "pillPrimary": "primary",
+      "pillDaily": "daily",
+      "pillDefault": "reach for"
+    }
+  },
+  "contact": {
+    "eyebrow": "§ 05 · Contact",
+    "title": "Tell me about the project.",
+    "form": {
+      "ariaLabel": "Contact form",
+      "name": "Name",
+      "namePlaceholder": "Jane Rossi",
+      "email": "Email",
+      "emailPlaceholder": "jane@company.com",
+      "subject": "Subject",
+      "subjectOptions": {
+        "general": "General inquiry",
+        "estimate": "Project estimate",
+        "consulting": "Consulting",
+        "other": "Something else"
+      },
+      "message": "Message",
+      "messagePlaceholder": "What are you building, and where do you need a hand?",
+      "charCounter": "{count} / 4000",
+      "privacy": "By sending this you accept the privacy policy.",
+      "submit": "Send message",
+      "sending": "Sending…",
+      "success": "Sent — thanks. I'll reply within 24 hours.",
+      "honeypotLabel": "Website",
+      "errors": {
+        "name": "Please enter your name.",
+        "email": "That doesn't look like a valid email.",
+        "messageShort": "A little more detail, please — at least 20 characters.",
+        "messageLong": "That's over the limit — keep it under 4000 characters.",
+        "rateLimit": "Too many attempts. Try again in a minute.",
+        "server": "Something broke on my end. Email me directly at hello@miciodev.com."
+      }
+    },
+    "aside": {
+      "eyebrow": "Direct",
+      "email": "hello@miciodev.com",
+      "replies": "I reply within 24 hours, Monday to Friday.",
+      "timezone": "Tenerife · UTC+0",
+      "hours": "CET-friendly hours",
+      "available": "Available · Q3 2026"
+    }
+  },
+  "footer": {
+    "eyebrow": "Open for new projects · Q3 2026",
+    "email": "hello@miciodev.com",
+    "blurb": "Senior freelance full-stack developer. Laravel · Vue · Nuxt. Remote from the Canary Islands.",
+    "colSite": {
+      "title": "Site",
+      "work": "Projects",
+      "services": "Services",
+      "about": "About",
+      "contact": "Contact"
+    },
+    "colMore": {
+      "title": "More",
+      "notes": "Notes",
+      "archive": "Archive",
+      "privacy": "Privacy",
+      "imprint": "Imprint"
+    },
+    "elsewhere": "Elsewhere",
+    "copyright": "© 2010–2026 · Alessandro · MicioDev",
+    "location": "Tenerife · Canary Islands · ES",
+    "builtWith": "Built with Astro + PocketBase · v0.1.0"
+  },
+  "dividers": {
+    "services": "§ 02 — Services",
+    "work": "§ 03 — Selected work",
+    "skills": "§ 04 — Skills",
+    "contact": "§ 05 — Contact"
+  },
+  "a11y": {
+    "skipToContent": "Skip to content",
+    "mainNav": "Main navigation",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "toLight": "Switch to light mode",
+    "toDark": "Switch to dark mode",
+    "language": "Language",
+    "switchTo": "Switch to {lang}",
+    "externalLink": "opens in a new tab"
+  }
+}

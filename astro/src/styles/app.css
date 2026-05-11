@@ -1,0 +1,360 @@
+@import "tailwindcss";
+@import "./tokens.css";
+
+/* ──────────────────────────────────────────────────────────────────────
+   Tailwind v4 theme — maps the design tokens to Tailwind's generated
+   utility variables so you can use e.g. `text-brand-500`, `font-display`,
+   `bg-ink-50`, `rounded-r3`, `shadow-2`. The semantic surface vars
+   (--bg, --surface, --text, --line, …) stay as plain CSS vars and flip
+   on [data-theme="dark"]; reference them directly in components.
+   ────────────────────────────────────────────────────────────────────── */
+@theme {
+  /* Brand — sage emerald. Never lime. */
+  --color-brand-50:  #EAF3ED;
+  --color-brand-100: #CFE3D5;
+  --color-brand-200: #9CC8AA;
+  --color-brand-300: #5FA577;
+  --color-brand-400: #2F8556;
+  --color-brand-500: #1F6E4A;
+  --color-brand-600: #15533A;
+  --color-brand-700: #0E3F2C;
+  --color-brand-800: #0A3424;
+  --color-brand-900: #052017;
+  --color-brand-glow: #3FB07A;
+
+  /* Warm neutrals */
+  --color-ink-0:   #FFFFFF;
+  --color-ink-50:  #FAFAF7;
+  --color-ink-100: #F4F4EF;
+  --color-ink-150: #EDEDE7;
+  --color-ink-200: #E2E2DA;
+  --color-ink-300: #CECEC4;
+  --color-ink-400: #9A9A8F;
+  --color-ink-500: #6E6E64;
+  --color-ink-600: #4A4A42;
+  --color-ink-700: #2A2A25;
+  --color-ink-900: #0E0E0C;
+  --color-ink-950: #070706;
+
+  --color-danger: #B4321F;
+
+  /* Semantic aliases (light values; dark overrides live in tokens.css) */
+  --color-bg:      var(--bg);
+  --color-surface: var(--surface);
+  --color-line:    var(--line);
+  --color-text:    var(--text);
+  --color-text-2:  var(--text-2);
+  --color-text-3:  var(--text-3);
+  --color-brand:   var(--brand);
+
+  /* Type */
+  --font-display: "Instrument Serif", "Times New Roman", serif;
+  --font-body:    "Geist", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono:    "Geist Mono", ui-monospace, "JetBrains Mono", monospace;
+
+  --text-d2: 88px;
+  --text-d1: 64px;
+  --text-h1: 44px;
+  --text-h2: 32px;
+  --text-h3: 24px;
+  --text-h4: 18px;
+  --text-bl: 18px;
+  --text-b:  15px;
+  --text-s:  13px;
+  --text-m:  11px;
+
+  /* Spacing (4px base) — extends Tailwind's default scale */
+  --spacing-1:  4px;
+  --spacing-2:  8px;
+  --spacing-3:  12px;
+  --spacing-4:  16px;
+  --spacing-5:  24px;
+  --spacing-6:  32px;
+  --spacing-7:  48px;
+  --spacing-8:  64px;
+  --spacing-9:  96px;
+  --spacing-10: 128px;
+
+  /* Radii */
+  --radius-r1: 2px;
+  --radius-r2: 4px;
+  --radius-r3: 8px;
+  --radius-r4: 14px;
+  --radius-pill: 999px;
+
+  /* Shadows */
+  --shadow-1: 0 1px 0 rgb(14 14 12 / .04), 0 1px 2px rgb(14 14 12 / .04);
+  --shadow-2: 0 1px 0 rgb(14 14 12 / .04), 0 6px 18px rgb(14 14 12 / .06);
+  --shadow-3: 0 12px 36px rgb(14 14 12 / .10);
+
+  /* Motion */
+  --ease-md: cubic-bezier(.2, .7, .3, 1);
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   Self-hosted fonts. Place subsetted woff2 files in /public/fonts/ — see
+   the README "Fonts" section. Until then the system fallbacks render
+   (Times New Roman / system-ui). `font-display: swap` + size-adjust keeps
+   layout shift to a minimum once the webfonts arrive.
+   ────────────────────────────────────────────────────────────────────── */
+@font-face {
+  font-family: "Instrument Serif";
+  src: url("/fonts/instrument-serif-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Instrument Serif";
+  src: url("/fonts/instrument-serif-italic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Geist";
+  src: url("/fonts/geist-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  size-adjust: 100%;
+  ascent-override: 92%;
+}
+@font-face {
+  font-family: "Geist";
+  src: url("/fonts/geist-medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  size-adjust: 100%;
+  ascent-override: 92%;
+}
+@font-face {
+  font-family: "Geist";
+  src: url("/fonts/geist-semibold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+  size-adjust: 100%;
+  ascent-override: 92%;
+}
+@font-face {
+  font-family: "Geist Mono";
+  src: url("/fonts/geist-mono-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Geist Mono";
+  src: url("/fonts/geist-mono-medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ── Base resets ───────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: var(--fs-b);
+  line-height: var(--lh-b);
+  font-feature-settings: "ss01", "ss02", "cv11";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4 {
+  margin: 0;
+  font-weight: 400;
+  font-family: var(--font-display);
+  letter-spacing: -.01em;
+}
+
+p { margin: 0; }
+a { color: inherit; }
+
+img, svg, video {
+  display: block;
+  max-width: 100%;
+}
+
+:where(button, [role="button"], a, input, select, textarea):focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+  border-radius: var(--r-2);
+}
+
+/* Skip-to-content link (visually hidden until focused). */
+.skip-link {
+  position: absolute;
+  left: 8px;
+  top: -48px;
+  z-index: 100;
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: var(--r-2);
+  background: var(--brand);
+  color: var(--on-brand);
+  font: 500 14px/1 var(--font-body);
+  text-decoration: none;
+  transition: top var(--dur-1) var(--ease);
+}
+.skip-link:focus {
+  top: 8px;
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   Component utility classes ported from design_refs/tokens.css.
+   ────────────────────────────────────────────────────────────────────── */
+
+/* mono micro-label, all-caps, tracked. The signature accent. */
+.md-eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--fs-m);
+  line-height: var(--lh-m);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  font-weight: 500;
+}
+.md-eyebrow .dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--brand);
+  margin-right: 8px;
+  vertical-align: 1px;
+}
+
+/* hairline rule */
+.md-hr {
+  height: 1px;
+  background: var(--line);
+  border: 0;
+  margin: 0;
+}
+
+/* ── Buttons ───────────────────────────────────────────────── */
+.md-btn {
+  --_bg: var(--brand);
+  --_fg: var(--on-brand);
+  --_bd: transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 18px;
+  border-radius: var(--r-2);
+  border: 1px solid var(--_bd);
+  background: var(--_bg);
+  color: var(--_fg);
+  font: 500 14px/1 var(--font-body);
+  letter-spacing: .005em;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background var(--dur-1) var(--ease),
+    border-color var(--dur-1) var(--ease),
+    color var(--dur-1) var(--ease),
+    box-shadow var(--dur-1) var(--ease),
+    transform var(--dur-1) var(--ease);
+}
+.md-btn:not([disabled]):hover { --_bg: var(--brand-hover); }
+.md-btn:not([disabled]):focus-visible { box-shadow: var(--shadow-focus); outline: none; }
+.md-btn:not([disabled]):active { --_bg: var(--brand-press); transform: translateY(1px); }
+.md-btn[disabled] { --_bg: var(--surface-3); --_fg: var(--text-3); cursor: not-allowed; }
+.md-btn--secondary { --_bg: transparent; --_fg: var(--text); --_bd: var(--line-2); }
+.md-btn--secondary:not([disabled]):hover { --_bg: var(--surface-2); --_bd: var(--text); }
+.md-btn--ghost { --_bg: transparent; --_fg: var(--text); --_bd: transparent; }
+.md-btn--ghost:not([disabled]):hover { --_bg: var(--surface-2); }
+.md-btn .arrow { font-family: var(--font-mono); font-size: 13px; }
+
+/* ── Tag / Pill ────────────────────────────────────────────── */
+.md-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: var(--r-pill);
+  font: 500 12px/1 var(--font-mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  background: var(--surface-2);
+  color: var(--text-2);
+  border: 1px solid var(--line);
+}
+.md-tag--brand { background: var(--brand-tint); color: var(--brand); border-color: transparent; }
+.md-tag--solid { background: var(--brand); color: var(--on-brand); border-color: transparent; }
+
+/* ── Input ─────────────────────────────────────────────────── */
+.md-field { display: flex; flex-direction: column; gap: 6px; }
+.md-field > label {
+  font: 500 12px/1 var(--font-mono);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+.md-input {
+  height: 44px;
+  padding: 0 14px;
+  background: var(--surface);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-2);
+  color: var(--text);
+  font: 400 15px/1 var(--font-body);
+  width: 100%;
+  transition:
+    border-color var(--dur-1) var(--ease),
+    box-shadow var(--dur-1) var(--ease),
+    background var(--dur-1) var(--ease);
+}
+.md-input::placeholder { color: var(--text-3); }
+.md-input:hover { border-color: var(--text); }
+.md-input:focus { outline: none; border-color: var(--brand); box-shadow: var(--shadow-focus); }
+.md-input[data-state="error"] { border-color: var(--danger); }
+.md-input:disabled { background: var(--surface-2); color: var(--text-3); cursor: not-allowed; }
+textarea.md-input { height: auto; min-height: 140px; padding: 14px; line-height: 1.55; resize: vertical; }
+
+/* ── Card ──────────────────────────────────────────────────── */
+.md-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  padding: var(--sp-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  transition:
+    border-color var(--dur-2) var(--ease),
+    box-shadow var(--dur-2) var(--ease),
+    transform var(--dur-2) var(--ease);
+}
+.md-card:hover { border-color: var(--text); box-shadow: var(--shadow-2); }
+
+/* mono index label used on section headers ("§ 02 · Services" and "/ 01") */
+.md-meta {
+  font-family: var(--font-mono);
+  font-size: var(--fs-m);
+  color: var(--text-3);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}

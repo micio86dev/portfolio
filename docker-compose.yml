@@ -1,0 +1,32 @@
+# Local development stack. Build images from source; secrets come from
+# .env.local (copy .env.example → .env.local and fill it in).
+#
+#   docker compose up --build
+#   → site:        http://localhost:4321
+#   → PocketBase:  http://localhost:8090/_/
+
+services:
+  astro:
+    build:
+      context: ./astro
+      args:
+        PB_URL: ${PB_URL:-}
+        SITE_URL: ${SITE_URL:-http://localhost:4321}
+    ports:
+      - "4321:4321"
+    env_file:
+      - path: .env.local
+        required: false
+    depends_on:
+      - pocketbase
+
+  pocketbase:
+    build:
+      context: ./pb
+    ports:
+      - "8090:8090"
+    volumes:
+      - pb_data:/pb/pb_data
+
+volumes:
+  pb_data:
