@@ -1,10 +1,12 @@
 /// <reference path="../pb_data/types.d.ts" />
 
 // Adds the home-page "colophon" (built-with) copy to the `translations`
-// collection: the section-divider label plus the eyebrow / title / body /
-// CTA label / repo URL for the new Colophon section. These are UI strings, so
-// they live alongside the rest of the site copy in `translations` and can be
-// edited from the admin (/_/) with no redeploy.
+// collection: the section-divider label plus the eyebrow / title / body for
+// the new Colophon section. These are UI strings, so they live alongside the
+// rest of the site copy in `translations` and can be edited from the admin
+// (/_/) with no redeploy. (The section has no "view the source" link — the
+// portfolio's own repo isn't public — so there are no repo-* keys here; an
+// earlier draft did, removed by 1778609000_drop_colophon_repo_translation_keys.js.)
 //
 // `up()` is an idempotent UPSERT: it updates the row if a record with that
 // `key` already exists, otherwise creates it. That makes this safe on a fresh
@@ -47,20 +49,6 @@ migrate(
         it: 'Questo portfolio gira su Astro con SSR ibrido, un backend PocketBase self-hosted, Docker per il packaging e CI/CD tramite GitHub Actions — realizzato con Claude Code, a carte scoperte.',
         es: 'Este portfolio funciona con Astro y SSR híbrido, un backend PocketBase autoalojado, Docker para el empaquetado y CI/CD mediante GitHub Actions — hecho con Claude Code, a la vista de todos.',
       },
-      {
-        key: 'colophon.repoCta',
-        group: 'colophon',
-        en: 'View the source ↗',
-        it: 'Vedi il codice ↗',
-        es: 'Ver el código ↗',
-      },
-      {
-        key: 'colophon.repoUrl',
-        group: 'colophon',
-        en: 'https://github.com/micio86dev/itjobhub-antigravity-config',
-        it: 'https://github.com/micio86dev/itjobhub-antigravity-config',
-        es: 'https://github.com/micio86dev/itjobhub-antigravity-config',
-      },
     ];
 
     for (const row of rows) {
@@ -89,8 +77,6 @@ migrate(
     //   'colophon.eyebrow',
     //   'colophon.title',
     //   'colophon.body',
-    //   'colophon.repoCta',
-    //   'colophon.repoUrl',
     // ];
     // for (const key of keys) {
     //   try {
