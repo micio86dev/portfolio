@@ -927,9 +927,9 @@ migrate(
       {
         "key": "footer.builtWith",
         "group": "footer",
-        "en": "Built with Astro + PocketBase · v0.1.0",
-        "it": "Realizzato con Astro + PocketBase · v0.1.0",
-        "es": "Hecho con Astro + PocketBase · v0.1.0"
+        "en": "Built with Astro + PocketBase · v1.0.0",
+        "it": "Realizzato con Astro + PocketBase · v1.0.0",
+        "es": "Hecho con Astro + PocketBase · v1.0.0"
       },
       {
         "key": "projectsPage.eyebrow",
