@@ -13,6 +13,7 @@ import {
   DEFAULT_LOCALE,
   type Locale,
 } from '../i18n/utils';
+import { siteUrl, isStagingHost } from '../lib/seo';
 
 interface Props {
   lang: Locale;
@@ -27,6 +28,14 @@ interface Props {
 const { lang, noindex = false } = Astro.props;
 const t = useTranslations(lang);
 const path = useTranslatedPath(lang);
+
+// Staging hosts (stage.*) must never be indexed — emit a noindex robots meta
+// in addition to the per-page `noindex` flag. Both collapse into one tag.
+// Check the proxied request host AND the resolved site origin (PUBLIC_SITE_URL /
+// Astro.site, which is `https://stage.micio86dev.it` in the staging build) — the
+// Node adapter doesn't always surface the reverse-proxy Host on Astro.url.
+const isStaging =
+  Astro.url.hostname.startsWith('stage.') || isStagingHost(siteUrl(Astro.site, Astro.url.href));
 
 const title = Astro.props.title ?? t('meta.title');
 const description = Astro.props.description ?? t('meta.description');
@@ -118,9 +127,15 @@ const cookiePrivacyHref = path('/privacy');
 
     <title>{title} · {siteName}</title>
     <meta name="description" content={description} />
-    {noindex && <meta name="robots" content="noindex" />}
+    {(noindex || isStaging) && <meta name="robots" content="noindex, nofollow" />}
+
+    <!-- Critical fonts — start downloading ASAP, before canonical/OG resolve.
+         Place the woff2 files in /public/fonts/ (see README "Fonts"). -->
+    <link rel="preload" href="/fonts/instrument-serif-italic.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/geist-regular.woff2" as="font" type="font/woff2" crossorigin />
+
     <link rel="canonical" href={canonicalUrl.toString()} />
-    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="sitemap" href="/sitemap.xml" />
 
     <!-- hreflang -->
     {LOCALES.map((l) => <link rel="alternate" hreflang={l} href={localeUrl(l)} />)}
@@ -141,9 +156,20 @@ const cookiePrivacyHref = path('/privacy');
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
 
-    <!-- Critical fonts (place the woff2 files in /public/fonts/ — see README "Fonts"). -->
-    <link rel="preload" href="/fonts/instrument-serif-italic.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/fonts/geist-regular.woff2" as="font" type="font/woff2" crossorigin />
+    <!-- Structured data — identity card for rich results / knowledge panel. -->
+    <script
+      type="application/ld+json"
+      is:inline
+      set:html={JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'Person',
+        name: 'Alessandro Micelli',
+        jobTitle: 'Full-Stack Freelance Developer',
+        url: 'https://micio86dev.it',
+        sameAs: ['https://github.com/micio86dev', 'https://youtube.com/@miciodev'],
+        knowsAbout: ['Laravel', 'Vue.js', 'Nuxt', 'TypeScript', 'PHP', 'Docker'],
+      })}
+    />
 
     <link rel="icon" href="/favicon.ico" sizes="any" />
   </head>
@@ -152,7 +178,7 @@ const cookiePrivacyHref = path('/privacy');
     <a class="skip-link" href="#main">{t('a11y.skipToContent')}</a>
 
     <Nav
-      client:load
+      client:idle
       lang={lang}
       basePath={basePath}
       links={navLinks}

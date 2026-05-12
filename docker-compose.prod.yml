@@ -20,6 +20,8 @@ services:
     environment:
       # Reached by the browser (contact form) AND by the SSR server.
       - PUBLIC_PB_URL=${PROD_PB_URL}
+      # Runtime origin for the /sitemap.xml and /robots.txt SSR endpoints.
+      - PUBLIC_SITE_URL=https://micio86dev.it
     restart: unless-stopped
     depends_on:
       - pocketbase

@@ -69,6 +69,18 @@ jobs:
             docker-compose.prod.yml docker-compose.stage.yml \
             "${SSH_TARGET}:/var/www/portfolio-stage/"
 
+      - name: Sync nginx stage config to VPS
+        # /etc/nginx/.htpasswd_portfolio_stage must already exist on the VPS — create it
+        # once, manually, and never commit it:
+        #   sudo apt install apache2-utils -y
+        #   sudo htpasswd -c /etc/nginx/.htpasswd_portfolio_stage YOUR_USERNAME
+        env:
+          SSH_TARGET: ${{ secrets.VPS_SSH_USER }}@${{ secrets.VPS_SSH_HOST }}
+        run: |
+          scp -o StrictHostKeyChecking=accept-new nginx/stage.conf "${SSH_TARGET}:/etc/nginx/sites-available/portfolio-stage"
+          ssh -o StrictHostKeyChecking=accept-new "${SSH_TARGET}" \
+            'ln -sf /etc/nginx/sites-available/portfolio-stage /etc/nginx/sites-enabled/portfolio-stage && nginx -t && systemctl reload nginx'
+
       - name: Write runtime env on VPS
         # docker-compose.stage.yml reads ${STAGE_PB_URL} from this .env. The
         # value is piped over the SSH session — never echoed to the build log.

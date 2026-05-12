@@ -5,6 +5,7 @@
 import { useTranslations, useTranslatedPath, type Locale } from '../../i18n/utils';
 import type { NewsItem } from '../../lib/seed-data';
 import ContentPage from './ContentPage.astro';
+import PbImage from '../vue/PbImage.vue';
 
 interface Props {
   lang: Locale;
@@ -22,7 +23,7 @@ const metaLine = post.tags.length > 0 ? `${dateLabel} · ${post.tags.join(' · '
 
 <ContentPage eyebrow={t('notesPage.eyebrow')} title={post.title} meta={metaLine}>
   {post.coverUrl && (
-    <p><img src={post.coverUrl} alt="" /></p>
+    <p><PbImage src={post.coverUrl} alt="" width={1200} height={675} eager /></p>
   )}
   <Fragment set:html={post.body} />
   <p slot="after" class="note-back-wrap">

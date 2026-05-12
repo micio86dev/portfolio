@@ -4,6 +4,7 @@
 // all locale routes.
 import { useTranslations, useTranslatedPath, type Locale } from '../../i18n/utils';
 import { getNews } from '../../lib/pocketbase';
+import PbImage from '../vue/PbImage.vue';
 
 interface Props {
   lang: Locale;
@@ -36,7 +37,7 @@ function fmtDate(iso: string): string {
           <a href={path(`/notes/${post.slug}`)} class="notes__link">
             {post.coverUrl && (
               <div class="notes__cover">
-                <img src={post.coverUrl} alt="" loading="lazy" />
+                <PbImage src={post.coverUrl} alt="" width={800} height={450} />
               </div>
             )}
             <div class="notes__meta">

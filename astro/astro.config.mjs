@@ -1,7 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import vue from '@astrojs/vue';
-import sitemap from '@astrojs/sitemap';
 import node from '@astrojs/node';
 import tailwindcss from '@tailwindcss/vite';
 
@@ -27,27 +26,10 @@ export default defineConfig({
       redirectToDefaultLocale: false,
     },
   },
-  integrations: [
-    vue(),
-    sitemap({
-      // SSR `[slug]` routes aren't auto-discovered; list the new static-ish
-      // pages explicitly so they make it into the sitemap.
-      customPages: [
-        '/projects',
-        '/notes',
-        '/privacy',
-        '/imprint',
-        '/it/projects',
-        '/it/notes',
-        '/it/privacy',
-        '/it/imprint',
-        '/es/projects',
-        '/es/notes',
-        '/es/privacy',
-        '/es/imprint',
-      ].map((p) => new URL(p, process.env.SITE_URL ?? 'https://micio86dev.example').toString()),
-    }),
-  ],
+  // The sitemap is served by a dynamic SSR endpoint (`src/pages/sitemap.xml.ts`)
+  // rather than the `@astrojs/sitemap` integration, so it can enumerate the
+  // PocketBase-backed `[slug]` routes at request time.
+  integrations: [vue()],
   vite: {
     plugins: [tailwindcss()],
   },

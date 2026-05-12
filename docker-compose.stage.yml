@@ -15,6 +15,8 @@ services:
       - "3001:4321"
     environment: !override
       - PUBLIC_PB_URL=${STAGE_PB_URL}
+      # Runtime origin for the /sitemap.xml and /robots.txt SSR endpoints.
+      - PUBLIC_SITE_URL=https://stage.micio86dev.it
 
   pocketbase:
     image: ghcr.io/micio86dev/portfolio-pb:develop

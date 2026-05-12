@@ -5,7 +5,7 @@
 // (Astro serves this for any unmatched route). Copy comes from the
 // `translations` overlay / bundled i18n JSON like everything else.
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getImage } from 'astro:assets';
+import { Image } from 'astro:assets';
 import logoSrc from '../assets/logo-miciodev.jpg';
 import { useTranslations, useTranslatedPath, getLangFromUrl } from '../i18n/utils';
 
@@ -14,7 +14,6 @@ const t = useTranslations(lang);
 const path = useTranslatedPath(lang);
 
 const LOGO_PX = 96;
-const logoImg = await getImage({ src: logoSrc, width: LOGO_PX, height: LOGO_PX, format: 'webp' });
 ---
 
 <BaseLayout lang={lang} title={t('notFound.title')} description={t('notFound.body')}>
@@ -22,11 +21,12 @@ const logoImg = await getImage({ src: logoSrc, width: LOGO_PX, height: LOGO_PX, 
     <div class="nf__glow" aria-hidden="true"></div>
 
     <div class="nf__inner">
-      <img
+      <Image
         class="nf__logo"
-        src={logoImg.src}
+        src={logoSrc}
         width={LOGO_PX}
         height={LOGO_PX}
+        format="webp"
         alt={t('notFound.logoAlt')}
         decoding="async"
         loading="eager"
