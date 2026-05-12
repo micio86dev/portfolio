@@ -411,12 +411,12 @@ portfolio/
 │   ├── pocketbase              local (macOS) binary — gitignored
 │   └── pb_data/                SQLite data — gitignored
 ├── docker-compose.yml          local dev (builds from source)
-├── docker-compose.prod.yml     production (GHCR :latest, ports 3000/8090) — also the base for stage
-├── docker-compose.stage.yml    staging overrides (GHCR :develop, ports 3001/8091)
+├── docker-compose.prod.yml     production (GHCR :latest, ports 4322/8090) — also the base for stage
+├── docker-compose.stage.yml    staging overrides (GHCR :develop, ports 4321/8091)
 ├── nginx/                      host-nginx vhosts (reference copies; placed on the VPS by hand)
-│   ├── micio86dev.conf             prod app  → :3000  (+ www→apex redirect)
+│   ├── micio86dev.conf             prod app  → :4322  (+ www→apex redirect)
 │   ├── pb.micio86dev.it.conf       prod PB   → :8090
-│   ├── stage.micio86dev.it.conf    stage app → :3001  (HTTP Basic Auth, noindex)
+│   ├── stage.micio86dev.it.conf    stage app → :4321  (HTTP Basic Auth, noindex)
 │   └── pb-stage.micio86dev.it.conf stage PB  → :8091  (noindex)
 └── .github/workflows/
     ├── ci.yml                  PR → astro check + build
@@ -491,9 +491,9 @@ by hand, once, as root, and re-do it only when one changes in the repo:
 
 | repo file | → `/etc/nginx/sites-available/` | upstream |
 |---|---|---|
-| `nginx/micio86dev.conf` | `micio86dev` | prod app `:3000` (+ `www`→apex) |
+| `nginx/micio86dev.conf` | `micio86dev` | prod app `:4322` (+ `www`→apex) |
 | `nginx/pb.micio86dev.it.conf` | `pb.micio86dev.it` | prod PocketBase `:8090` |
-| `nginx/stage.micio86dev.it.conf` | `stage.micio86dev.it` | stage app `:3001` (HTTP Basic Auth, noindex) |
+| `nginx/stage.micio86dev.it.conf` | `stage.micio86dev.it` | stage app `:4321` (HTTP Basic Auth, noindex) |
 | `nginx/pb-stage.micio86dev.it.conf` | `pb-stage.micio86dev.it` | stage PocketBase `:8091` (noindex) |
 
 Each file is self-contained and carries its own `:443` + `ssl_certificate` block,

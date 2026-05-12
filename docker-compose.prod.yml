@@ -16,7 +16,7 @@ services:
     image: ghcr.io/micio86dev/portfolio-astro:latest
     container_name: portfolio-astro
     ports:
-      - "3000:4321"
+      - "4322:4321"
     environment:
       # Reached by the browser (contact form) AND by the SSR server.
       - PUBLIC_PB_URL=${PROD_PB_URL}

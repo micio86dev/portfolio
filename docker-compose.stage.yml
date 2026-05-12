@@ -12,7 +12,7 @@ services:
     image: ghcr.io/micio86dev/portfolio-astro:develop
     container_name: portfolio-stage-astro
     ports: !override
-      - "3001:4321"
+      - "4321:4321"
     environment: !override
       - PUBLIC_PB_URL=${STAGE_PB_URL}
       # Runtime origin for the /sitemap.xml and /robots.txt SSR endpoints.
