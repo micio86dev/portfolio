@@ -9,6 +9,7 @@
  *   - Services / §02    → `services`        → getServices(locale)
  *   - Projects / §03    → `projects`        → getProjects(locale)
  *   - Skills / §04      → `skills`          → getSkills()
+ *   - Courses           → `courses`         → getCourses(locale)
  *   - News              → `news`            → getNews(locale)
  *   - Customers         → `customers`       → getCustomers(locale)
  *
@@ -29,12 +30,14 @@ import {
   PROJECTS_SEED,
   SERVICES_SEED,
   SKILLS_SEED,
+  COURSES_SEED,
   NEWS_SEED,
   CUSTOMERS_SEED,
   PAGES_SEED,
   type ProjectRecord,
   type ServiceRecord,
   type SkillRecord,
+  type CourseRecord,
   type NewsRecord,
   type NewsItem,
   type CustomerRecord,
@@ -51,7 +54,7 @@ const PB_URL =
 /** Singleton client. Server-only; `null` when PUBLIC_PB_URL is not set. */
 export const pb: PocketBase | null = PB_URL ? new PocketBase(PB_URL) : null;
 
-function localize<T extends ServiceRecord | ProjectRecord>(
+function localize<T extends ServiceRecord | ProjectRecord | CourseRecord>(
   record: T,
   locale: Locale,
 ): Localized<T> {
@@ -173,6 +176,23 @@ export async function getProject(
   }
   const seed = PROJECTS_SEED.find((r) => r.slug === slug);
   return seed ? localize(seed, locale) : null;
+}
+
+// ── Courses ────────────────────────────────────────────────────────────
+
+export async function getCourses(locale: Locale): Promise<Localized<CourseRecord>[]> {
+  if (pb) {
+    try {
+      const items = await pb.collection('courses').getFullList<CourseRecord>({
+        sort: '+order',
+        requestKey: null,
+      });
+      return [...items].sort((a, b) => a.order - b.order).map((r) => localize(r, locale));
+    } catch (err) {
+      console.warn('[pocketbase] getCourses failed — using seed data:', (err as Error)?.message);
+    }
+  }
+  return [...COURSES_SEED].sort((a, b) => a.order - b.order).map((r) => localize(r, locale));
 }
 
 // ── Skills (§04) ───────────────────────────────────────────────────────

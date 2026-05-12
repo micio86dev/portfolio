@@ -109,6 +109,16 @@
       "pillDefault": "occasionale"
     }
   },
+  "courses": {
+    "eyebrow": "§ 04b · Corsi",
+    "title": "Corsi che insegno, in tre percorsi",
+    "meta": "Tre corsi · Udemy e YouTube",
+    "viewCourse": "Vai al corso",
+    "platform": {
+      "udemy": "Udemy",
+      "youtube": "YouTube"
+    }
+  },
   "contact": {
     "eyebrow": "§ 05 · Contatti",
     "title": "Raccontami il progetto.",
@@ -215,6 +225,7 @@
     "services": "§ 02 — Servizi",
     "work": "§ 03 — Lavori selezionati",
     "skills": "§ 04 — Competenze",
+    "courses": "§ 04b — Corsi",
     "contact": "§ 05 — Contatti"
   },
   "a11y": {

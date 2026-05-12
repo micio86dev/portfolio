@@ -109,6 +109,16 @@
       "pillDefault": "reach for"
     }
   },
+  "courses": {
+    "eyebrow": "§ 04b · Courses",
+    "title": "Courses I teach, in three tracks",
+    "meta": "Three courses · Udemy & YouTube",
+    "viewCourse": "View course",
+    "platform": {
+      "udemy": "Udemy",
+      "youtube": "YouTube"
+    }
+  },
   "contact": {
     "eyebrow": "§ 05 · Contact",
     "title": "Tell me about the project.",
@@ -215,6 +225,7 @@
     "services": "§ 02 — Services",
     "work": "§ 03 — Selected work",
     "skills": "§ 04 — Skills",
+    "courses": "§ 04b — Courses",
     "contact": "§ 05 — Contact"
   },
   "a11y": {
