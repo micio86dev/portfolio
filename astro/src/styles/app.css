@@ -221,7 +221,7 @@ img, svg, video {
 }
 
 /* ──────────────────────────────────────────────────────────────────────
-   Component utility classes ported from design_refs/tokens.css.
+   Component utility classes — the `.md-*` set (see ./tokens.css for the tokens).
    ────────────────────────────────────────────────────────────────────── */
 
 /* mono micro-label, all-caps, tracked. The signature accent. */

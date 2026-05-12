@@ -3,10 +3,8 @@
 Senior freelance full-stack developer portfolio for **MicioDev**.
 Trilingual (English · Italian · Spanish), light + dark, mobile-first.
 
-> Scaffolded from the design handoff in `../design_refs/` (+ `../README.md`).
-> The `.astro` and `.vue` components recreate those HTML/JSX prototypes in the
-> target stack — design values (hex / rem / px / easing / motion timings) were
-> lifted; the markup was rebuilt with each tool's idioms rather than ported.
+> Built to the design spec in `../README.md` (tokens, layout, motion) — see
+> also `DESIGN.md` for the design-system reference.
 
 ---
 
@@ -353,7 +351,7 @@ renders: `<html lang>`, `<title>`, `<meta name="description">`,
   (blanket reset in `tokens.css`).
 - Touch targets ≥ 44 × 44 px on coarse pointers (CSS media query in `tokens.css`).
 - Contrast meets WCAG AA in both themes (brand ~7.4 : 1 light, ~9.1 : 1 dark
-  per the design handoff).
+  per the design spec in `../README.md`).
 
 ---
 

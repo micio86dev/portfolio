@@ -1,11 +1,8 @@
 # DESIGN.md — MicioDev design system reference
 
 Everything needed to understand the visual design and CSS of this project, in
-one place. Sources: the design handoff at `../README.md` and `../design_refs/`
-(HTML/JSX prototypes + the canonical `../design_refs/tokens.css`). The
-prototypes are **references for look, layout, type, color, motion intent and
-component states** — not production code. Values below are final
-(high-fidelity); markup was rebuilt in `.astro` / `.vue`.
+one place. The design spec it implements lives at `../README.md`. Values below
+are final (high-fidelity); the markup is `.astro` / `.vue`.
 
 Where this is implemented: `src/styles/tokens.css` (token surface),
 `src/styles/app.css` (Tailwind `@theme` mapping + `@font-face` + base resets +

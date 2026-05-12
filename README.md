@@ -1,14 +1,15 @@
-# Handoff: MicioDev Portfolio
+# MicioDev Portfolio — design spec
 
 > Senior freelance full-stack developer portfolio. Italian agencies & SaaS as primary audience. Trilingual (IT / EN / ES), light + dark, mobile-first.
 
 ---
 
-## About the design files
+## About this document
 
-The files in `design_refs/` are **design references created in HTML**. They are prototypes that show intended look, layout, type, color, motion intent, and component states — **not production code to copy directly**.
-
-Your task: recreate them in the target stack (Astro 5 + Vue 3 islands + Tailwind v4 + PocketBase), using that stack's idioms. Don't port React/JSX 1:1. Lift values (hex, rem, px, easing) and structural decisions; rebuild components in Vue.
+This is the design specification — tokens, layout, behaviour, and component
+states. The design is **already implemented** in the Astro 5 + Vue 3 islands +
+Tailwind v4 + PocketBase app under `astro/` (see `astro/README.md` and
+`astro/DESIGN.md`); the values below are the source of truth it was built from.
 
 ## Fidelity
 
@@ -29,7 +30,7 @@ Your task: recreate them in the target stack (Astro 5 + Vue 3 islands + Tailwind
 
 ## Design tokens (drop into `src/styles/app.css`)
 
-Tailwind v4 reads `@theme` directly. The token file `design_refs/tokens.css` is the source of truth — copy values into `@theme`. Excerpt:
+Tailwind v4 reads `@theme` directly. The token file `astro/src/styles/tokens.css` is the source of truth; `astro/src/styles/app.css` mirrors it into `@theme`. Excerpt:
 
 ```css
 @import "tailwindcss";
@@ -165,7 +166,7 @@ src/
 | **ThemeToggle** | Vue island (child of Nav) | Reads/writes `localStorage.theme` + `document.documentElement.dataset.theme`. See "Dark mode" below. |
 | **LangSwitch** | Vue island (child of Nav) | ARIA radiogroup, arrow-key nav. Routes to `/`, `/en/`, `/es/` preserving the current path. |
 | Hero | Astro static | Atmosphere (radial mesh + dot grid mask + SVG grain) is pure CSS/SVG. CTAs are `<a>` not Vue. |
-| Services | Astro static | Card grid; data from PocketBase at build. Icons are inline SVG (`design_refs/services.jsx` has the 5 line icons). |
+| Services | Astro static | Card grid; data from PocketBase. Icons are 5 inline line-SVGs (`stack` / `api` / `vps` / `compass` / `magnifier`). |
 | Projects | Astro static | Featured + grid. Data from PocketBase. Hover state = CSS only. |
 | Skills | Astro static | Pure list. No JS. Three pill weights: `primary` / `daily` / `default` — class-driven. |
 | **ContactForm** | Vue island | `client:visible`. Live validation, char counter, `aria-live="polite"` region for submit feedback, honeypot field, POSTs to `${PUBLIC_PB_URL}/api/collections/contacts/records`. |
@@ -328,7 +329,7 @@ Expected outcome: text is paint-blocked for < 50 ms, italic display swaps in by 
 
 ## Sections & layout reference
 
-Open `design_refs/FullPage.html` (desktop, light + dark) and `design_refs/Mobile.html` (390 px) for the canonical visual reference. Section heights:
+Section heights:
 
 | § | Section | Desktop pad | Mobile pad | Notes |
 |---|---|---|---|---|
@@ -368,37 +369,6 @@ Section dividers: a 1 px hairline + mono `§ NN — name` label in the gutter. *
 
 ---
 
-## Files in this bundle
-
-```
-design_handoff_miciodev_portfolio/
-├─ README.md                     ← this file
-└─ design_refs/
-   ├─ Foundations.html           ← color tokens, type scale, components
-   ├─ Hero.html                  ← hero composition + animation spec
-   ├─ Services.html               ← 5-service grid + icons
-   ├─ Projects.html               ← featured + grid + hover state
-   ├─ Skills.html                 ← 4-group pill cloud
-   ├─ Contact.html                ← form (default/error/success) + dark footer
-   ├─ FullPage.html               ← full assembly · light + dark · 1440
-   ├─ Mobile.html                 ← full assembly · 390 · light + dark · a11y audit
-   ├─ tokens.css                  ← canonical token source
-   ├─ nav-card.jsx                ← Nav (desktop + mobile drawer) reference
-   ├─ hero.jsx                    ← Hero composition reference
-   ├─ services.jsx                ← Services + the 5 line icons
-   ├─ projects-section.jsx        ← Projects layout
-   ├─ projects-cards.jsx          ← Featured + grid card markup
-   ├─ projects-data.js            ← Placeholder data shape — model PocketBase off this
-   ├─ skills.jsx                  ← Pill weights + groups
-   ├─ contact-footer.jsx          ← Form + dark footer
-   ├─ full-page.jsx               ← Desktop section stacking
-   └─ full-mobile.jsx             ← Mobile section stacking
-```
-
-JSX files are **references for layout and intent**, not files to port directly. Read them, lift values, rebuild in `.vue` and `.astro`.
-
----
-
 ## Implementation order suggestion
 
 1. Scaffold Astro + Vue + Tailwind v4 + i18n routes (no content yet).
@@ -406,7 +376,7 @@ JSX files are **references for layout and intent**, not files to port directly. 
 3. Load fonts (self-host, subset, preload critical two).
 4. Build Nav.vue + ThemeToggle.vue + LangSwitch.vue. Verify theme bootstrap doesn't flash.
 5. Build Hero, Services, Skills as Astro static — content from i18n JSON (no PocketBase yet).
-6. Stand up PocketBase locally with `projects` and `services` collections; seed with the placeholder data in `projects-data.js`.
+6. Stand up PocketBase locally with `projects` and `services` collections; seed with placeholder data mirroring their schema.
 7. Wire build-time fetch helpers; swap Services + Projects to read from PocketBase.
 8. Build ContactForm.vue posting directly to the PocketBase `contacts` collection.
 9. Footer.
