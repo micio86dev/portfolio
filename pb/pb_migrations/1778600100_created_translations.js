@@ -596,6 +596,27 @@ migrate(
         "es": "YouTube"
       },
       {
+        "key": "career.eyebrow",
+        "group": "career",
+        "en": "§ · About",
+        "it": "§ · Chi sono",
+        "es": "§ · Sobre mí"
+      },
+      {
+        "key": "career.title",
+        "group": "career",
+        "en": "The path that got me here",
+        "it": "Il percorso che mi ha portato qui",
+        "es": "El camino que me trajo hasta aquí"
+      },
+      {
+        "key": "career.intro",
+        "group": "career",
+        "en": "Hi, I'm a full-stack web developer skilled in high performance.",
+        "it": "Ciao, sono uno sviluppatore web full-stack con una passione per le alte prestazioni.",
+        "es": "Hola, soy desarrollador web full-stack con foco en el alto rendimiento."
+      },
+      {
         "key": "contact.eyebrow",
         "group": "contact",
         "en": "§ 05 · Contact",
@@ -1119,6 +1140,13 @@ migrate(
         "en": "§ 03 — Selected work",
         "it": "§ 03 — Lavori selezionati",
         "es": "§ 03 — Trabajos seleccionados"
+      },
+      {
+        "key": "dividers.career",
+        "group": "dividers",
+        "en": "§ — About",
+        "it": "§ — Chi sono",
+        "es": "§ — Sobre mí"
       },
       {
         "key": "dividers.skills",

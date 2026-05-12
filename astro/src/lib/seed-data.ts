@@ -295,6 +295,68 @@ export const COURSES_SEED: CourseRecord[] = [
   },
 ];
 
+// ── Career path (the "About" section · §) ──────────────────────────────
+
+/** Mirrors the `career` collection (1778606000_created_career.js): one row per
+ *  milestone, with `body_*` columns per locale and an optional `tech` tag list.
+ *  The section intro line is *not* here — it's a UI string (`career.intro`). */
+export interface CareerRecord {
+  id: string;
+  /** Short label, e.g. "2010" or "2018 — present". */
+  period: string;
+  /** Employer / context, e.g. "Proxime S.r.l." or "Freelance · Canary Islands". */
+  company: string;
+  body_en: string;
+  body_it: string;
+  body_es: string;
+  /** Optional tech-tag chips for the milestone. */
+  tech: string[];
+  /** Display order — oldest first; the component decides the visual direction. */
+  order: number;
+}
+
+/** Localized career milestone exposed to components — `body` flattened. */
+export interface CareerItem {
+  id: string;
+  period: string;
+  company: string;
+  body: string;
+  tech: string[];
+}
+
+/** Fallback for the `career` collection — mirrors the rows seeded by
+ *  `1778606000_created_career.js` (English bodies only; it/es fall back). */
+export const CAREER_SEED: CareerRecord[] = [
+  {
+    id: 'seed-career-01', period: '2010', company: 'Proxime S.r.l.',
+    body_en:
+      'Monitored photovoltaic systems and built websites for public administration. In charge of the PA sites and their back-end in pure PHP / XHTML; also wrote Perl scripts so the photovoltaic-system inverters could talk to the monitoring system.',
+    body_it: '', body_es: '',
+    tech: ['PHP', 'XHTML', 'Perl'], order: 1,
+  },
+  {
+    id: 'seed-career-02', period: '2013', company: 'Alcos Digital S.r.l.',
+    body_en:
+      'Learned to work with PHP frameworks (including Laravel); also developed native iOS apps in Objective-C.',
+    body_it: '', body_es: '',
+    tech: ['PHP', 'Laravel', 'Objective-C', 'iOS'], order: 2,
+  },
+  {
+    id: 'seed-career-03', period: '2015', company: 'SiComunicaWeb S.r.l.',
+    body_en:
+      'Worked on PrestaShop e-commerce; built mobile apps with Ionic (AngularJS); shipped first Laravel REST APIs; fell in love with real-time tech like WebSockets.',
+    body_it: '', body_es: '',
+    tech: ['PrestaShop', 'Ionic', 'AngularJS', 'Laravel', 'WebSockets'], order: 3,
+  },
+  {
+    id: 'seed-career-04', period: '2018 — present', company: 'Freelance · Canary Islands',
+    body_en:
+      'Varied clients; moved to NuxtJS (Vue) as a current favourite front-end tech; still developing in Laravel; in spare time always experimenting with whatever improves web-app performance.',
+    body_it: '', body_es: '',
+    tech: ['Nuxt', 'Vue', 'Laravel'], order: 4,
+  },
+];
+
 // ── News (carried over from the previous portfolio) ────────────────────
 
 export interface NewsRecord {

@@ -4,6 +4,7 @@ import Hero from './Hero.astro';
 import SectionDivider from './SectionDivider.astro';
 import Services from './Services.astro';
 import Projects from './Projects.astro';
+import Career from './Career.astro';
 import Skills from './Skills.astro';
 import Courses from './Courses.astro';
 import Contact from './Contact.astro';
@@ -23,6 +24,9 @@ const t = useTranslations(lang);
 
 <SectionDivider label={t('dividers.work')} />
 <Projects lang={lang} />
+
+<SectionDivider label={t('dividers.career')} />
+<Career lang={lang} />
 
 <SectionDivider label={t('dividers.skills')} />
 <Skills lang={lang} />
