@@ -12,7 +12,9 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "check": "astro check"
+    "check": "astro check",
+    "lint": "eslint . --max-warnings 0",
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
     "@astrojs/node": "^9.0.0",
@@ -24,8 +26,16 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.0",
+    "@eslint/js": "^10.0.1",
     "@tailwindcss/vite": "^4.0.0",
+    "astro-eslint-parser": "^1.4.0",
+    "eslint": "^10.3.0",
+    "eslint-plugin-astro": "^1.7.0",
+    "eslint-plugin-vue": "^10.9.1",
+    "globals": "^17.6.0",
     "tailwindcss": "^4.0.0",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "typescript-eslint": "^8.59.3",
+    "vue-eslint-parser": "^10.4.0"
   }
 }

@@ -1,0 +1,1 @@
+cd "$(git rev-parse --show-toplevel)/astro" && npm run lint && npm run check

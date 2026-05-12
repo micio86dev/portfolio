@@ -30,7 +30,7 @@ function hrefFor(locale: Locale): string {
 }
 
 function onKeydown(e: KeyboardEvent, index: number) {
-  let next = index;
+  let next: number;
   if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = (index + 1) % LOCALES.length;
   else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = (index - 1 + LOCALES.length) % LOCALES.length;
   else if (e.key === 'Home') next = 0;

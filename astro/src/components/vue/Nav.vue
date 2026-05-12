@@ -140,19 +140,32 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="nav-root" :class="{ 'is-scrolled': scrolled }">
+  <div
+    class="nav-root"
+    :class="{ 'is-scrolled': scrolled }"
+  >
     <!-- Status strip -->
     <div class="nav-status">
       <span>
-        <span class="nav-status__dot" aria-hidden="true" />
+        <span
+          class="nav-status__dot"
+          aria-hidden="true"
+        />
         {{ messages.statusAvailable }}
       </span>
       <span>{{ messages.statusLocation }}</span>
     </div>
 
-    <nav class="nav-bar" :aria-label="messages.mainNav">
+    <nav
+      class="nav-bar"
+      :aria-label="messages.mainNav"
+    >
       <!-- Wordmark -->
-      <a :href="homeHref" :aria-label="messages.home" class="nav-mark">
+      <a
+        :href="homeHref"
+        :aria-label="messages.home"
+        class="nav-mark"
+      >
         <img
           class="nav-mark__img"
           :src="logo.src"
@@ -162,13 +175,16 @@ onBeforeUnmount(() => {
           loading="eager"
           decoding="async"
           fetchpriority="high"
-        />
+        >
         <span class="nav-wordmark">Micio<span class="nav-wordmark__dev">Dev</span></span>
       </a>
 
       <!-- Desktop links -->
       <ul class="nav-links">
-        <li v-for="l in navItems" :key="l.href">
+        <li
+          v-for="l in navItems"
+          :key="l.href"
+        >
           <a
             :href="l.href"
             class="nav-link"
@@ -184,10 +200,23 @@ onBeforeUnmount(() => {
 
       <!-- Desktop controls -->
       <div class="nav-controls">
-        <LangSwitch :current="lang" :base-path="basePath" :label="messages.language" />
-        <span class="nav-divider" aria-hidden="true" />
-        <ThemeToggle :label-to-light="messages.toLight" :label-to-dark="messages.toDark" />
-        <a :href="hireHref" class="md-btn nav-cta">
+        <LangSwitch
+          :current="lang"
+          :base-path="basePath"
+          :label="messages.language"
+        />
+        <span
+          class="nav-divider"
+          aria-hidden="true"
+        />
+        <ThemeToggle
+          :label-to-light="messages.toLight"
+          :label-to-dark="messages.toDark"
+        />
+        <a
+          :href="hireHref"
+          class="md-btn nav-cta"
+        >
           {{ messages.hireMe }} <span class="arrow">→</span>
         </a>
       </div>
@@ -200,10 +229,26 @@ onBeforeUnmount(() => {
         :aria-expanded="open"
         @click="open = !open"
       >
-        <svg v-if="open" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <path d="M3 3l10 10M13 3 3 13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+        <svg
+          v-if="open"
+          width="16"
+          height="16"
+          viewBox="0 0 16 16"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path
+            d="M3 3l10 10M13 3 3 13"
+            stroke="currentColor"
+            stroke-width="1.4"
+            stroke-linecap="round"
+          />
         </svg>
-        <span v-else class="nav-burger__lines" aria-hidden="true">
+        <span
+          v-else
+          class="nav-burger__lines"
+          aria-hidden="true"
+        >
           <span style="width: 16px" />
           <span style="width: 11px; margin-left: 5px" />
         </span>
@@ -211,10 +256,16 @@ onBeforeUnmount(() => {
     </nav>
 
     <!-- Mobile drawer -->
-    <div v-show="open" class="nav-drawer">
-      <hr class="md-hr" />
+    <div
+      v-show="open"
+      class="nav-drawer"
+    >
+      <hr class="md-hr">
       <ul class="nav-drawer__links">
-        <li v-for="l in navItems" :key="l.href">
+        <li
+          v-for="l in navItems"
+          :key="l.href"
+        >
           <a
             :href="l.href"
             :aria-current="l.targetId === activeId ? 'page' : undefined"
@@ -226,15 +277,29 @@ onBeforeUnmount(() => {
               <span class="nav-drawer__num">{{ l.num }}</span>
               {{ l.label }}
             </span>
-            <span class="nav-drawer__arrow" aria-hidden="true">↗</span>
+            <span
+              class="nav-drawer__arrow"
+              aria-hidden="true"
+            >↗</span>
           </a>
         </li>
       </ul>
       <div class="nav-drawer__controls">
-        <LangSwitch :current="lang" :base-path="basePath" :label="messages.language" size="sm" />
-        <ThemeToggle :label-to-light="messages.toLight" :label-to-dark="messages.toDark" />
+        <LangSwitch
+          :current="lang"
+          :base-path="basePath"
+          :label="messages.language"
+          size="sm"
+        />
+        <ThemeToggle
+          :label-to-light="messages.toLight"
+          :label-to-dark="messages.toDark"
+        />
       </div>
-      <a :href="hireHref" class="md-btn nav-drawer__cta">
+      <a
+        :href="hireHref"
+        class="md-btn nav-drawer__cta"
+      >
         {{ messages.hireMe }} <span class="arrow">→</span>
       </a>
     </div>

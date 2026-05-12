@@ -135,7 +135,12 @@ async function onSubmit() {
 </script>
 
 <template>
-  <form class="cf" novalidate :aria-label="messages.ariaLabel" @submit.prevent="onSubmit">
+  <form
+    class="cf"
+    novalidate
+    :aria-label="messages.ariaLabel"
+    @submit.prevent="onSubmit"
+  >
     <div class="cf__row cf__row--split">
       <div class="md-field cf__field">
         <label for="cf-name">{{ messages.name }}</label>
@@ -152,8 +157,12 @@ async function onSubmit() {
           :aria-invalid="showError('name') || undefined"
           aria-describedby="cf-name-err"
           @blur="touched.name = true"
-        />
-        <span id="cf-name-err" class="cf__err" role="alert">{{ showError('name') ? errors.name : '' }}</span>
+        >
+        <span
+          id="cf-name-err"
+          class="cf__err"
+          role="alert"
+        >{{ showError('name') ? errors.name : '' }}</span>
       </div>
 
       <div class="md-field cf__field">
@@ -170,8 +179,12 @@ async function onSubmit() {
           :aria-invalid="showError('email') || undefined"
           aria-describedby="cf-email-err"
           @blur="touched.email = true"
-        />
-        <span id="cf-email-err" class="cf__err" role="alert">{{ showError('email') ? errors.email : '' }}</span>
+        >
+        <span
+          id="cf-email-err"
+          class="cf__err"
+          role="alert"
+        >{{ showError('email') ? errors.email : '' }}</span>
       </div>
     </div>
 
@@ -189,14 +202,21 @@ async function onSubmit() {
         :aria-invalid="showError('subject') || undefined"
         aria-describedby="cf-subject-err"
         @blur="touched.subject = true"
-      />
-      <span id="cf-subject-err" class="cf__err" role="alert">{{ showError('subject') ? errors.subject : '' }}</span>
+      >
+      <span
+        id="cf-subject-err"
+        class="cf__err"
+        role="alert"
+      >{{ showError('subject') ? errors.subject : '' }}</span>
     </div>
 
     <div class="md-field cf__field">
       <div class="cf__label-row">
         <label for="cf-message">{{ messages.message }}</label>
-        <span class="cf__counter" :class="{ 'is-error': messageCount > MAX_MESSAGE }">{{ counterText }}</span>
+        <span
+          class="cf__counter"
+          :class="{ 'is-error': messageCount > MAX_MESSAGE }"
+        >{{ counterText }}</span>
       </div>
       <textarea
         id="cf-message"
@@ -211,13 +231,27 @@ async function onSubmit() {
         aria-describedby="cf-message-err"
         @blur="touched.message = true"
       />
-      <span id="cf-message-err" class="cf__err" role="alert">{{ showError('message') ? errors.message : '' }}</span>
+      <span
+        id="cf-message-err"
+        class="cf__err"
+        role="alert"
+      >{{ showError('message') ? errors.message : '' }}</span>
     </div>
 
     <!-- Honeypot — visually hidden, off-screen, not announced. Bots fill it; humans don't. Never sent. -->
-    <div class="cf__hp" aria-hidden="true">
+    <div
+      class="cf__hp"
+      aria-hidden="true"
+    >
       <label for="cf-website">{{ messages.honeypotLabel }}</label>
-      <input id="cf-website" v-model="form.website" type="text" name="website" tabindex="-1" autocomplete="off" />
+      <input
+        id="cf-website"
+        v-model="form.website"
+        type="text"
+        name="website"
+        tabindex="-1"
+        autocomplete="off"
+      >
     </div>
 
     <!-- Live feedback region -->
@@ -232,7 +266,11 @@ async function onSubmit() {
 
     <div class="cf__row cf__submit-row">
       <span class="cf__privacy">{{ messages.privacy }}</span>
-      <button type="submit" class="md-btn cf__submit" :disabled="status === 'submitting'">
+      <button
+        type="submit"
+        class="md-btn cf__submit"
+        :disabled="status === 'submitting'"
+      >
         {{ status === 'submitting' ? messages.sending : status === 'success' ? messages.success : messages.submit }}
         <span class="arrow">→</span>
       </button>

@@ -1,7 +1,7 @@
 name: CI
 
-# Fast PR gate: type-check + production build. No Docker build here — that runs
-# only on merges to develop/main (deploy-stage / deploy-prod).
+# Fast PR gate: lint + type-check + production build. No Docker build here — that
+# runs only on merges to develop/main (deploy-stage / deploy-prod).
 on:
   pull_request:
     branches: [develop, main]
@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   build:
-    name: astro check + build
+    name: lint + astro check + build
     runs-on: ubuntu-latest
     timeout-minutes: 10
     defaults:
@@ -32,6 +32,9 @@ jobs:
 
       - run: npm ci
 
+      - name: Lint
+        run: npm run lint
+
       - name: Type check
         run: npm run check
 
@@ -42,7 +45,3 @@ jobs:
           PB_URL: ""
           SITE_URL: https://micio86dev.it
         run: npm run build
-
-      # ESLint is not configured in this project yet. When an "lint" script is
-      # added to astro/package.json, add a step here:
-      #   - run: npm run lint

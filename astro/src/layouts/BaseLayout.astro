@@ -105,10 +105,10 @@ const cookiePrivacyHref = path('/privacy');
     <script is:inline>
       (function () {
         try {
-          var saved = localStorage.getItem('miciodev-theme');
-          var sys = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          const saved = localStorage.getItem('miciodev-theme');
+          const sys = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
           document.documentElement.dataset.theme = saved || sys;
-        } catch (e) {
+        } catch {
           /* localStorage blocked — leave default (light) */
         }
       })();

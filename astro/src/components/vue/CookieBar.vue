@@ -27,7 +27,7 @@ interface CookieMessages {
  *  policy change can extend it without reshaping the dismiss handler. */
 const categories = [{ id: 'necessary', required: true, enabled: true }] as const;
 
-const props = defineProps<{
+defineProps<{
   messages: CookieMessages;
   /** Locale-prefixed href for the privacy page, computed in Astro. */
   privacyHref: string;
@@ -104,10 +104,19 @@ onBeforeUnmount(() => {
       role="region"
       :aria-label="messages.ariaLabel"
     >
-      <p class="cookiebar__text">{{ messages.text }}</p>
+      <p class="cookiebar__text">
+        {{ messages.text }}
+      </p>
       <div class="cookiebar__actions">
-        <a class="cookiebar__link" :href="privacyHref">{{ messages.privacyLink }}</a>
-        <button type="button" class="md-btn cookiebar__ok" @click="dismiss()">
+        <a
+          class="cookiebar__link"
+          :href="privacyHref"
+        >{{ messages.privacyLink }}</a>
+        <button
+          type="button"
+          class="md-btn cookiebar__ok"
+          @click="dismiss()"
+        >
           {{ messages.accept }}
         </button>
       </div>

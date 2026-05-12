@@ -3,7 +3,7 @@ import { ref, onMounted, onBeforeUnmount } from 'vue';
 
 const STORAGE_KEY = 'miciodev-theme';
 
-const props = withDefaults(
+withDefaults(
   defineProps<{
     /** label when currently dark (→ action: switch to light) */
     labelToLight?: string;
@@ -66,7 +66,14 @@ onBeforeUnmount(() => {
     @click="toggle"
   >
     <!-- moon when dark, sun when light -->
-    <svg v-if="dark" width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <svg
+      v-if="dark"
+      width="14"
+      height="14"
+      viewBox="0 0 16 16"
+      fill="none"
+      aria-hidden="true"
+    >
       <path
         d="M13.5 9.5A5 5 0 1 1 6.5 2.5a5.5 5.5 0 0 0 7 7Z"
         stroke="currentColor"
@@ -74,12 +81,32 @@ onBeforeUnmount(() => {
         stroke-linejoin="round"
       />
     </svg>
-    <svg v-else width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-      <circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.4" />
-      <line v-for="a in [0, 45, 90, 135, 180, 225, 270, 315]" :key="a"
-        :x1="8 + Math.cos((a * Math.PI) / 180) * 5.4" :y1="8 + Math.sin((a * Math.PI) / 180) * 5.4"
-        :x2="8 + Math.cos((a * Math.PI) / 180) * 7" :y2="8 + Math.sin((a * Math.PI) / 180) * 7"
-        stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+    <svg
+      v-else
+      width="14"
+      height="14"
+      viewBox="0 0 16 16"
+      fill="none"
+      aria-hidden="true"
+    >
+      <circle
+        cx="8"
+        cy="8"
+        r="3"
+        stroke="currentColor"
+        stroke-width="1.4"
+      />
+      <line
+        v-for="a in [0, 45, 90, 135, 180, 225, 270, 315]"
+        :key="a"
+        :x1="8 + Math.cos((a * Math.PI) / 180) * 5.4"
+        :y1="8 + Math.sin((a * Math.PI) / 180) * 5.4"
+        :x2="8 + Math.cos((a * Math.PI) / 180) * 7"
+        :y2="8 + Math.sin((a * Math.PI) / 180) * 7"
+        stroke="currentColor"
+        stroke-width="1.4"
+        stroke-linecap="round"
+      />
     </svg>
   </button>
 </template>
