@@ -226,13 +226,21 @@
       "fallbackBody": "Questa pagina è in aggiornamento. Nel frattempo, per qualsiasi domanda legale o sulla protezione dei dati, scrivimi tramite il modulo di contatto del sito."
     }
   },
+  "colophon": {
+    "eyebrow": "§ 06 · Colophon",
+    "title": "Costruito in chiaro",
+    "body": "Questo portfolio gira su Astro con SSR ibrido, un backend PocketBase self-hosted, Docker per il packaging e CI/CD tramite GitHub Actions — realizzato con Claude Code, a carte scoperte.",
+    "repoCta": "Vedi il codice ↗",
+    "repoUrl": "https://github.com/micio86dev/itjobhub-antigravity-config"
+  },
   "dividers": {
     "services": "§ 02 — Servizi",
     "work": "§ 03 — Lavori selezionati",
     "career": "§ — Chi sono",
     "skills": "§ 04 — Competenze",
     "courses": "§ 04b — Corsi",
-    "contact": "§ 05 — Contatti"
+    "contact": "§ 05 — Contatti",
+    "colophon": "§ 06 — Colophon"
   },
   "a11y": {
     "skipToContent": "Vai al contenuto",

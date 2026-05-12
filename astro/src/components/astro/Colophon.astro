@@ -1,0 +1,124 @@
+---
+import { useTranslations, type Locale } from '../../i18n/utils';
+
+interface Props {
+  lang: Locale;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+// Footer-adjacent colophon: names the stack this portfolio is built on. The
+// product names below are proper nouns — not translated; only the surrounding
+// copy (eyebrow / title / body / CTA / repo URL) comes from `translations`.
+const TECH = ['Astro · Hybrid SSR', 'PocketBase', 'Docker', 'GitHub Actions · CI/CD', 'Claude Code'];
+const repoUrl = t('colophon.repoUrl');
+---
+
+<section class="colophon" aria-labelledby="colophon-heading" id="colophon">
+  <header class="colophon__head">
+    <div class="colophon__eyebrow"><span class="md-eyebrow"><span class="dot"></span>{t('colophon.eyebrow')}</span></div>
+    <h2 id="colophon-heading" class="colophon__title" data-reveal>{t('colophon.title')}</h2>
+  </header>
+
+  <div class="colophon__body">
+    <p class="colophon__prose" data-reveal>{t('colophon.body')}</p>
+    <hr class="md-hr" />
+    <ul class="colophon__chips" data-reveal>
+      {TECH.map((name) => <li class="colophon__chip">{name}</li>)}
+    </ul>
+    <a class="colophon__cta" href={repoUrl} target="_blank" rel="noopener noreferrer" data-reveal>
+      {t('colophon.repoCta')}
+    </a>
+  </div>
+</section>
+
+<script>
+  // Scroll-reveal (self-initialises on import) — matches the other section
+  // components on the homepage.
+  import '../../scripts/scroll-reveal.ts';
+</script>
+
+<style>
+  .colophon {
+    background: var(--bg);
+    color: var(--text);
+    padding: 48px 22px 64px;
+  }
+  @media (min-width: 960px) { .colophon { padding: 64px 64px 96px; } }
+
+  .colophon__head {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  @media (min-width: 960px) {
+    .colophon__head {
+      grid-template-columns: repeat(12, 1fr);
+      column-gap: 24px;
+      margin-bottom: 36px;
+    }
+    .colophon__eyebrow { grid-column: 1 / 4; }
+    .colophon__title { grid-column: 4 / 11; }
+  }
+  .colophon__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 30px;
+    line-height: 1.02;
+    letter-spacing: -0.022em;
+    text-wrap: balance;
+  }
+  @media (min-width: 960px) { .colophon__title { font-size: clamp(36px, 4vw, 52px); } }
+
+  .colophon__body {
+    display: grid;
+    gap: 18px;
+    max-width: 56rem;
+  }
+  .colophon__prose {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-2);
+    text-wrap: pretty;
+  }
+  .colophon__chips {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .colophon__chip {
+    display: inline-flex;
+    align-items: center;
+    height: 22px;
+    padding: 0 9px;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--text-2);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    border: 1px solid var(--line-2);
+    white-space: nowrap;
+    transition: background-color 150ms var(--ease);
+  }
+  .colophon__chip:hover { background-color: var(--surface-2); }
+  .colophon__cta {
+    justify-self: start;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    color: var(--text);
+    text-decoration: underline;
+    text-decoration-color: var(--brand);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 5px;
+    transition: color 150ms var(--ease);
+  }
+  .colophon__cta:hover { color: var(--brand); }
+</style>
