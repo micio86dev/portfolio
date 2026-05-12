@@ -37,6 +37,7 @@ import {
   NEWS_SEED,
   CUSTOMERS_SEED,
   PAGES_SEED,
+  SOCIALS_SEED,
   type ProjectRecord,
   type ServiceRecord,
   type SkillRecord,
@@ -51,12 +52,24 @@ import {
   type CustomerItem,
   type PageRecord,
   type PageItem,
+  type SocialRecord,
   type Localized,
 } from './seed-data';
 
 const PB_URL =
   (typeof process !== 'undefined' ? process.env.PUBLIC_PB_URL : undefined) ||
   (import.meta.env.PUBLIC_PB_URL as string | undefined);
+
+/** Origin of the PocketBase instance (e.g. `https://pb.micio86dev.it`), or '' when
+ *  unset. The page CSP whitelists this for `img-src` (file URLs minted by `fileUrl()`)
+ *  and `connect-src` (the contact-form POST in ContactForm.vue). */
+export const PB_ORIGIN = (() => {
+  try {
+    return PB_URL ? new URL(PB_URL).origin : '';
+  } catch {
+    return '';
+  }
+})();
 
 /** Singleton client. Server-only; `null` when PUBLIC_PB_URL is not set. */
 export const pb: PocketBase | null = PB_URL ? new PocketBase(PB_URL) : null;
@@ -442,4 +455,24 @@ export async function getPage(slug: string, locale: Locale): Promise<PageItem | 
   }
   const seed = PAGES_SEED.find((r) => r.slug === slug && r.published);
   return seed ? toPageItem(seed, locale) : null;
+}
+
+// ── Socials (footer "Elsewhere" links) ─────────────────────────────────
+
+/** The footer's social links, in display order. Read fresh on every request
+ *  (the admin can edit/reorder them in PocketBase — see `{PB_URL}/socials-order`),
+ *  falling back to `SOCIALS_SEED` when PocketBase is unreachable. */
+export async function getSocials(): Promise<SocialRecord[]> {
+  if (pb) {
+    try {
+      const items = await pb.collection('socials').getFullList<SocialRecord>({
+        sort: '+order,+created',
+        requestKey: null,
+      });
+      return [...items].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    } catch (err) {
+      console.warn('[pocketbase] getSocials failed — using seed data:', (err as Error)?.message);
+    }
+  }
+  return [...SOCIALS_SEED].sort((a, b) => a.order - b.order);
 }

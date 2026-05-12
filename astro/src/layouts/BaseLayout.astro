@@ -14,6 +14,7 @@ import {
   type Locale,
 } from '../i18n/utils';
 import { siteUrl, isStagingHost } from '../lib/seo';
+import { PB_ORIGIN } from '../lib/pocketbase';
 
 interface Props {
   lang: Locale;
@@ -95,6 +96,24 @@ const cookieMessages = {
   ariaLabel: t('cookies.ariaLabel'),
 };
 const cookiePrivacyHref = path('/privacy');
+
+// ── Content-Security-Policy ────────────────────────────────────────────
+// Built per-environment so the PocketBase origin (file URLs in <img>, the
+// contact-form POST) is whitelisted without hard-coding stage/prod hosts.
+// YouTube video thumbnails come from i.ytimg.com (Videos.astro).
+const cspImgSrc = ["'self'", 'data:', 'https://i.ytimg.com', PB_ORIGIN].filter(Boolean).join(' ');
+const cspConnectSrc = ["'self'", PB_ORIGIN].filter(Boolean).join(' ');
+const csp = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline'",
+  `img-src ${cspImgSrc}`,
+  "font-src 'self'",
+  `connect-src ${cspConnectSrc}`,
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+].join('; ');
 ---
 
 <!doctype html>
@@ -106,11 +125,9 @@ const cookiePrivacyHref = path('/privacy');
     <!-- Baseline Content-Security-Policy. `'unsafe-inline'` for script-src is
          required by the inline theme-bootstrap below (a <meta> CSP can't carry
          a nonce); harden it with a hash if you externalise that script.
-         `frame-ancestors` / X-Frame-Options must be sent as a real header. -->
-    <meta
-      http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
-    />
+         `frame-ancestors` / X-Frame-Options must be sent as a real header.
+         `img-src` / `connect-src` include the PocketBase origin (see above). -->
+    <meta http-equiv="Content-Security-Policy" content={csp} />
 
     <!-- Theme bootstrap — runs before paint so there is no flash of the wrong palette. Must precede the stylesheet. -->
     <script is:inline>

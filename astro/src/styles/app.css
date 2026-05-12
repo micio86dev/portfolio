@@ -92,10 +92,10 @@
 }
 
 /* ──────────────────────────────────────────────────────────────────────
-   Self-hosted fonts. Place subsetted woff2 files in /public/fonts/ — see
-   the README "Fonts" section. Until then the system fallbacks render
-   (Times New Roman / system-ui). `font-display: swap` + size-adjust keeps
-   layout shift to a minimum once the webfonts arrive.
+   Self-hosted fonts — the woff2 files live in /public/fonts/ (see the
+   README "Fonts" section and public/fonts/.gitkeep). If a file is missing
+   the system fallbacks render (Times New Roman / system-ui); `font-display:
+   swap` + size-adjust keeps layout shift to a minimum until the webfont loads.
    ────────────────────────────────────────────────────────────────────── */
 @font-face {
   font-family: "Instrument Serif";

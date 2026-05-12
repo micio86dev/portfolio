@@ -597,3 +597,54 @@ export const PAGES_SEED: PageRecord[] = [
     body_es: '<p>Este sitio, <strong>miciodev.com</strong>, es el portfolio personal de MicioDev — desarrollador full-stack freelance (Laravel, Vue, Nuxt) que trabaja en remoto desde las Islas Canarias, España. Existe para presentar los servicios, una selección de trabajos y una forma de ponerse en contacto.</p><h2>Quién es el responsable</h2><p>El sitio lo gestiona MicioDev (desarrollador full-stack freelance). El nombre legal completo, el domicilio de la actividad, el NIF / número de identificación fiscal y la jurisdicción competente están disponibles bajo petición — escribe a través del formulario de contacto del sitio y se facilitarán.</p><h2>Alojamiento y tratamiento de datos</h2><p>El sitio se ejecuta en un servidor privado virtual y usa un backend PocketBase autoalojado para el contenido y para los envíos del formulario de contacto. No se usan servicios de analítica, publicidad ni rastreo de terceros. Para más detalles sobre qué se guarda y por qué, consulta la <a href="/privacy">política de privacidad</a>.</p><h2>Propiedad intelectual</h2><p>Salvo que se indique lo contrario, los textos, el código, el diseño y los gráficos de este sitio son propiedad de MicioDev y están protegidos por derechos de autor. Los nombres, logotipos y marcas de terceros mostrados en los casos de estudio o como referencias siguen siendo propiedad de sus respectivos titulares. Cualquier reutilización más allá de lo que permite la ley de propiedad intelectual requiere consentimiento previo por escrito.</p><h2>Enlaces externos</h2><p>Este sitio puede enlazar a sitios externos que están fuera de su control. No se asume responsabilidad alguna por el contenido, la disponibilidad o las prácticas de protección de datos de esos sitios; visitarlos es bajo tu propio riesgo.</p><h2>Limitación de responsabilidad</h2><p>El contenido de este sitio se ofrece de buena fe y solo con fines de información general. Aunque se pone un cuidado razonable en mantenerlo exacto y actualizado, no se ofrece garantía alguna sobre su integridad o corrección, ni se acepta responsabilidad por cualquier pérdida derivada de su uso.</p><h2>Contacto</h2><p>Esta página es informativa y no constituye asesoramiento legal. Las preguntas, correcciones o comunicaciones legales pueden enviarse a través del <a href="/#contact">formulario de contacto</a> del sitio.</p>',
   },
 ];
+
+// ── Socials (footer "Elsewhere" links · 1778600800_created_socials.js) ──
+
+/** Platform keys the footer knows how to draw — keep this union in sync with
+ *  the `icon` select values in `pb/pb_migrations/1778600800_created_socials.js`
+ *  / `1778603000_update_socials_links.js` and the `ICONS` map in
+ *  `astro/src/components/astro/Footer.astro`. Adding a platform = a new PB
+ *  migration that widens the select + a key here + the SVG in Footer. */
+export type SocialIcon =
+  | 'github'
+  | 'gitlab'
+  | 'linkedin'
+  | 'x'
+  | 'instagram'
+  | 'facebook'
+  | 'youtube'
+  | 'tiktok'
+  | 'udemy'
+  | 'codepen'
+  | 'dribbble'
+  | 'telegram'
+  | 'mastodon'
+  | 'email'
+  | 'rss'
+  | 'website';
+
+/** Mirrors the `socials` collection: one row per footer social link. `icon`
+ *  picks the SVG; `url` is the profile URL; `label` is the (untranslated)
+ *  platform name used for the link's `title` / `aria-label`; `order` is the
+ *  manual sort (lower = first), reorderable by drag & drop at
+ *  `{PB_URL}/socials-order`. */
+export interface SocialRecord {
+  id: string;
+  icon: SocialIcon;
+  url: string;
+  label: string;
+  order: number;
+}
+
+/** Fallback for the `socials` collection — mirrors the rows seeded by
+ *  `1778603000_update_socials_links.js` (source: data/socials.md). Used only
+ *  when PocketBase is unreachable; the live links are managed in the admin. */
+export const SOCIALS_SEED: SocialRecord[] = [
+  { id: 'seed-social-github', icon: 'github', url: 'https://github.com/micio86dev', label: 'GitHub', order: 1 },
+  { id: 'seed-social-linkedin', icon: 'linkedin', url: 'https://linkedin.com/in/miciodev', label: 'LinkedIn', order: 2 },
+  { id: 'seed-social-youtube', icon: 'youtube', url: 'https://youtube.com/@miciodev', label: 'YouTube', order: 3 },
+  { id: 'seed-social-instagram', icon: 'instagram', url: 'https://instagram.com/miciodev', label: 'Instagram', order: 4 },
+  { id: 'seed-social-tiktok', icon: 'tiktok', url: 'https://tiktok.com/@miciodev', label: 'TikTok', order: 5 },
+  { id: 'seed-social-facebook', icon: 'facebook', url: 'https://facebook.com/profile.php?id=61576394360974', label: 'Facebook', order: 6 },
+  { id: 'seed-social-udemy', icon: 'udemy', url: 'https://www.udemy.com/user/alessandro-micelli', label: 'Udemy', order: 7 },
+];

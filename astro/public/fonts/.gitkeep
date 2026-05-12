@@ -1,14 +1,16 @@
-# Self-hosted, subsetted woff2 files go here. Expected filenames (referenced
-# by src/styles/app.css @font-face and BaseLayout.astro preload links):
+# Self-hosted woff2 files for the site fonts. Referenced by:
+#   - src/styles/app.css           (@font-face)
+#   - src/layouts/BaseLayout.astro (preload links for the two critical faces)
 #
-#   instrument-serif-regular.woff2
-#   instrument-serif-italic.woff2     ← preloaded
-#   geist-regular.woff2               ← preloaded
-#   geist-medium.woff2
-#   geist-semibold.woff2
-#   geist-mono-regular.woff2
-#   geist-mono-medium.woff2
+# Present here (Latin subset — covers en/it/es), pulled from the Fontsource CDN
+# (https://cdn.jsdelivr.net/fontsource/fonts/<id>@latest/latin-<wght>-<style>.woff2):
 #
-# Download: Instrument Serif from fonts.google.com, Geist + Geist Mono from
-# vercel.com/font. Subset to Latin (covers en/it/es) with glyphhanger or
-# fonttools `pyftsubset`. Until these exist the system fallbacks render.
+#   instrument-serif-regular.woff2    (instrument-serif, 400 normal)
+#   instrument-serif-italic.woff2     (instrument-serif, 400 italic)   ← preloaded
+#   geist-regular.woff2               (geist, 400 normal)              ← preloaded
+#   geist-medium.woff2                (geist, 500 normal)
+#   geist-semibold.woff2              (geist, 600 normal)
+#   geist-mono-regular.woff2          (geist-mono, 400 normal)
+#   geist-mono-medium.woff2           (geist-mono, 500 normal)
+#
+# .gitkeep stays so the directory survives even if the woff2 files are removed.
