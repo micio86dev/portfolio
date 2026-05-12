@@ -248,6 +248,53 @@ export const SKILLS_SEED: SkillRecord[] = [
   { id: 'seed-sk-20', group: 'apis', name: 'PocketBase', weight: 'default', order: 4 },
 ];
 
+// ── Courses ────────────────────────────────────────────────────────────
+
+export interface CourseRecord {
+  id: string;
+  slug: string;
+  title_en: string;
+  title_it: string;
+  title_es: string;
+  desc_en: string;
+  desc_it: string;
+  desc_es: string;
+  platform: 'udemy' | 'youtube';
+  url: string;
+  image: string;
+  collectionId?: string;
+  featured: boolean;
+  order: number;
+}
+
+/** Mirrors the rows seeded by `1778604000_created_courses.js`. */
+export const COURSES_SEED: CourseRecord[] = [
+  {
+    id: 'seed-course-01', slug: 'devops', platform: 'udemy', featured: true, order: 1,
+    title_en: 'DevOps', title_it: '', title_es: '',
+    desc_en: 'Hands-on DevOps fundamentals — CI/CD, containers, automation.',
+    desc_it: '', desc_es: '',
+    url: 'https://www.udemy.com/course/devops-base/?referralCode=9E9B8A6F662F2D7045B7&couponCode=E623B44A3C89CEF9F9B6',
+    image: '',
+  },
+  {
+    id: 'seed-course-02', slug: 'php-base', platform: 'youtube', featured: false, order: 2,
+    title_en: 'PHP Base', title_it: '', title_es: '',
+    desc_en: 'PHP from scratch — a full beginner playlist.',
+    desc_it: '', desc_es: '',
+    url: 'https://www.youtube.com/watch?v=UttHm-Mwqfc&list=PLpT9bDwYZoZtT6aV8aB2ZR7K4RkqSULeu&index=2',
+    image: '',
+  },
+  {
+    id: 'seed-course-03', slug: 'sql-base', platform: 'youtube', featured: false, order: 3,
+    title_en: 'SQL Base', title_it: '', title_es: '',
+    desc_en: 'SQL fundamentals — queries, joins, schema design.',
+    desc_it: '', desc_es: '',
+    url: 'https://www.youtube.com/watch?v=gv0Bz48YLD4&list=PLpT9bDwYZoZstOfTkzHLVa3RDYE2PRqWz',
+    image: '',
+  },
+];
+
 // ── News (carried over from the previous portfolio) ────────────────────
 
 export interface NewsRecord {
