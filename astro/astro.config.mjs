@@ -18,6 +18,11 @@ export default defineConfig({
   site: process.env.SITE_URL ?? 'https://micio86dev.example',
   output: 'server',
   adapter: node({ mode: 'standalone' }),
+  // Inline every stylesheet into the document instead of emitting render-blocking
+  // <link rel="stylesheet"> requests — the per-page CSS here is small and SSR
+  // serves a fresh document each request anyway, so cross-page CSS caching buys
+  // little. Cuts the critical request chain (helps FCP/LCP).
+  build: { inlineStylesheets: 'always' },
   i18n: {
     defaultLocale: 'en',
     locales: ['en', 'it', 'es'],

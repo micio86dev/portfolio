@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets';
 import { useTranslations, useTranslatedPath, type Locale } from '../../i18n/utils';
 import { getCustomers } from '../../lib/pocketbase';
+import { pbThumb } from '../../lib/img';
 import heroImg from '../../assets/hero.webp';
 
 interface Props {
@@ -103,7 +104,7 @@ const customers = await getCustomers(lang);
             <span class="hero__logo-dot" aria-hidden="true"></span>
             <a class="hero__logo-link" href={path(`/customers/${c.slug}`)}>
               {c.logoUrl ? (
-                <img class="hero__logo-img" src={c.logoUrl} alt={c.name} loading="lazy" decoding="async" />
+                <img class="hero__logo-img" src={pbThumb(c.logoUrl, '0x64')} alt={c.name} loading="lazy" decoding="async" />
               ) : (
                 <span>{c.name}</span>
               )}

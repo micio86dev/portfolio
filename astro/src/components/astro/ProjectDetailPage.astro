@@ -4,6 +4,7 @@
 // across all locale routes.
 import { useTranslations, useTranslatedPath, type Locale } from '../../i18n/utils';
 import PbImage from '../vue/PbImage.vue';
+import { pbThumb } from '../../lib/img';
 import type { ProjectRecord, Localized } from '../../lib/seed-data';
 
 interface Props {
@@ -31,7 +32,7 @@ const galleryUrls = (p.imageUrls ?? []).slice(1);
     <div class="pdetail__client">
       <span class="pdetail__crest" class:list={{ 'pdetail__crest--logo': !!p.crestUrl }} aria-hidden="true">
         {p.crestUrl ? (
-          <img class="pdetail__crest-img" src={p.crestUrl} alt="" loading="lazy" decoding="async" />
+          <img class="pdetail__crest-img" src={pbThumb(p.crestUrl, '128x128f')} alt="" width="128" height="128" loading="lazy" decoding="async" />
         ) : p.crestInitials}
       </span>
       <div class="pdetail__client-meta">
@@ -51,7 +52,7 @@ const galleryUrls = (p.imageUrls ?? []).slice(1);
 
   {p.coverUrl && (
     <figure class="pdetail__cover">
-      <PbImage src={p.coverUrl} alt={p.title} width={1280} height={800} eager />
+      <PbImage src={pbThumb(p.coverUrl, '1280x800f')} alt={p.title} width={1280} height={800} eager />
     </figure>
   )}
 
@@ -78,7 +79,7 @@ const galleryUrls = (p.imageUrls ?? []).slice(1);
       <span class="md-eyebrow pdetail__gallery-label">{t('projectsPage.galleryLabel')}</span>
       <div class="pdetail__gallery-grid">
         {galleryUrls.map((src) => (
-          <figure class="pdetail__shot"><PbImage src={src} alt="" width={800} height={500} /></figure>
+          <figure class="pdetail__shot"><PbImage src={pbThumb(src, '800x500f')} alt="" width={800} height={500} /></figure>
         ))}
       </div>
     </div>

@@ -4,6 +4,7 @@
 // Shared across all locale routes.
 import { useTranslations, useTranslatedPath, type Locale } from '../../i18n/utils';
 import PbImage from '../vue/PbImage.vue';
+import { pbThumb } from '../../lib/img';
 import type { CustomerDetail } from '../../lib/seed-data';
 
 interface Props {
@@ -54,7 +55,7 @@ const galleryUrls = c.imageUrls.slice(1);
     <div class="cdetail__id">
       <span class="cdetail__crest" class:list={{ 'cdetail__crest--logo': !!c.logoUrl }} aria-hidden="true">
         {c.logoUrl ? (
-          <img class="cdetail__crest-img" src={c.logoUrl} alt="" loading="lazy" decoding="async" />
+          <img class="cdetail__crest-img" src={pbThumb(c.logoUrl, '128x128f')} alt="" width="128" height="128" loading="lazy" decoding="async" />
         ) : initials}
       </span>
       <div class="cdetail__meta">
@@ -74,7 +75,7 @@ const galleryUrls = c.imageUrls.slice(1);
 
   {c.primaryImageUrl && (
     <figure class="cdetail__cover">
-      <PbImage src={c.primaryImageUrl} alt={c.name} width={1280} height={800} eager />
+      <PbImage src={pbThumb(c.primaryImageUrl, '1280x800f')} alt={c.name} width={1280} height={800} eager />
     </figure>
   )}
 
@@ -96,7 +97,7 @@ const galleryUrls = c.imageUrls.slice(1);
       <span class="md-eyebrow cdetail__gallery-label">{t('customersPage.galleryLabel')}</span>
       <div class="cdetail__gallery-grid">
         {galleryUrls.map((src) => (
-          <figure class="cdetail__shot"><PbImage src={src} alt="" width={800} height={500} /></figure>
+          <figure class="cdetail__shot"><PbImage src={pbThumb(src, '800x500f')} alt="" width={800} height={500} /></figure>
         ))}
       </div>
     </div>
