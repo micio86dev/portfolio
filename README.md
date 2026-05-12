@@ -413,7 +413,11 @@ portfolio/
 ├── docker-compose.yml          local dev (builds from source)
 ├── docker-compose.prod.yml     production (GHCR :latest, ports 3000/8090) — also the base for stage
 ├── docker-compose.stage.yml    staging overrides (GHCR :develop, ports 3001/8091)
-├── nginx/portfolio.conf        host-nginx reverse proxy (reference copy; deploy to the VPS)
+├── nginx/                      host-nginx vhosts (reference copies; placed on the VPS by hand)
+│   ├── micio86dev.conf             prod app  → :3000  (+ www→apex redirect)
+│   ├── pb.micio86dev.it.conf       prod PB   → :8090
+│   ├── stage.micio86dev.it.conf    stage app → :3001  (HTTP Basic Auth, noindex)
+│   └── pb-stage.micio86dev.it.conf stage PB  → :8091  (noindex)
 └── .github/workflows/
     ├── ci.yml                  PR → astro check + build
     ├── deploy-stage.yml        push develop → build/push :develop → SSH deploy staging
@@ -482,37 +486,40 @@ sudo chown -R 1001:1001 /var/www/html/micio86dev.it/pb_data
 ```
 
 Host nginx — **none of this is touched by CI**; the deploy user is non-root and
-not a sudoer. You place the site files by hand, once, as root, and re-do it only
-when one of these files changes in the repo:
+not a sudoer. One vhost file per domain, named after the domain; you place them
+by hand, once, as root, and re-do it only when one changes in the repo:
 
-| repo file | → `/etc/nginx/sites-available/` | host |
+| repo file | → `/etc/nginx/sites-available/` | upstream |
 |---|---|---|
-| `nginx/portfolio.conf` | `portfolio` | prod app + prod PB (`micio86dev.it`, `pb.micio86dev.it`) |
-| `nginx/stage.conf` | `portfolio-stage` | staging app (`stage.micio86dev.it`, HTTP Basic Auth) |
-| `nginx/stage-pb.conf` | `portfolio-stage-pb` | staging PB (`pb-stage.micio86dev.it`) |
+| `nginx/micio86dev.conf` | `micio86dev` | prod app `:3000` (+ `www`→apex) |
+| `nginx/pb.micio86dev.it.conf` | `pb.micio86dev.it` | prod PocketBase `:8090` |
+| `nginx/stage.micio86dev.it.conf` | `stage.micio86dev.it` | stage app `:3001` (HTTP Basic Auth, noindex) |
+| `nginx/pb-stage.micio86dev.it.conf` | `pb-stage.micio86dev.it` | stage PocketBase `:8091` (noindex) |
+
+Each file is self-contained and carries its own `:443` + `ssl_certificate` block,
+so Certbot only ever **renews** the certs — it never has to rewrite these configs.
 
 ```bash
-sudo cp nginx/portfolio.conf  /etc/nginx/sites-available/portfolio
-sudo cp nginx/stage.conf      /etc/nginx/sites-available/portfolio-stage
-sudo cp nginx/stage-pb.conf   /etc/nginx/sites-available/portfolio-stage-pb
-sudo ln -sf /etc/nginx/sites-available/portfolio        /etc/nginx/sites-enabled/
-sudo ln -sf /etc/nginx/sites-available/portfolio-stage  /etc/nginx/sites-enabled/
-sudo ln -sf /etc/nginx/sites-available/portfolio-stage-pb /etc/nginx/sites-enabled/
-# basic-auth for the staging app (never committed):
+# 1. issue the certs first (so `nginx -t` passes — the files reference live certs)
+sudo certbot certonly --nginx -d micio86dev.it -d www.micio86dev.it
+sudo certbot certonly --nginx -d pb.micio86dev.it
+sudo certbot certonly --nginx -d stage.micio86dev.it
+sudo certbot certonly --nginx -d pb-stage.micio86dev.it
+
+# 2. basic-auth for the staging app (never committed)
 sudo apt install apache2-utils -y
 sudo htpasswd -c /etc/nginx/.htpasswd_portfolio_stage YOUR_USERNAME
-sudo nginx -t && sudo systemctl reload nginx
-# TLS — stage.conf / stage-pb.conf already contain the :443 + ssl_certificate
-# block, so issue the certs first (then `nginx -t` passes):
-sudo certbot certonly --nginx -d stage.micio86dev.it -d pb-stage.micio86dev.it
-# prod block in portfolio.conf still uses Certbot's --nginx rewrite:
-sudo certbot --nginx -d micio86dev.it -d www.micio86dev.it -d pb.micio86dev.it
-```
 
-`stage.conf` / `stage-pb.conf` **supersede** the `stage.micio86dev.it` /
-`pb-stage.micio86dev.it` server blocks still present in `portfolio.conf` — delete
-those two blocks on the VPS once the standalone files are in place, or you'll get
-duplicate-`server_name` warnings.
+# 3. drop the vhosts in and enable them
+sudo cp nginx/micio86dev.conf            /etc/nginx/sites-available/micio86dev
+sudo cp nginx/pb.micio86dev.it.conf      /etc/nginx/sites-available/pb.micio86dev.it
+sudo cp nginx/stage.micio86dev.it.conf   /etc/nginx/sites-available/stage.micio86dev.it
+sudo cp nginx/pb-stage.micio86dev.it.conf /etc/nginx/sites-available/pb-stage.micio86dev.it
+for s in micio86dev pb.micio86dev.it stage.micio86dev.it pb-stage.micio86dev.it; do
+  sudo ln -sf /etc/nginx/sites-available/$s /etc/nginx/sites-enabled/$s
+done
+sudo nginx -t && sudo systemctl reload nginx
+```
 
 ## PocketBase: collections & migrations
 

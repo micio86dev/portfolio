@@ -71,10 +71,10 @@ jobs:
 
       # NOTE: nginx is NOT touched by this workflow (same as deploy-prod.yml). The
       # deploy user is non-root and must not be a sudoer. The staging vhosts
-      # (nginx/stage.conf → /etc/nginx/sites-available/portfolio-stage and
-      # nginx/stage-pb.conf → …/portfolio-stage-pb) are placed on the VPS ONCE, by
-      # hand, as root — see README "VPS layout". They carry their own :443/SSL
-      # block, so Certbot only has to renew the certs, never rewrite the configs.
+      # (nginx/stage.micio86dev.it.conf and nginx/pb-stage.micio86dev.it.conf) are
+      # placed in /etc/nginx/sites-available on the VPS ONCE, by hand, as root —
+      # see README "Host nginx". They carry their own :443/SSL block, so Certbot
+      # only has to renew the certs, never rewrite the configs.
 
       - name: Write runtime env on VPS
         # docker-compose.stage.yml reads ${STAGE_PB_URL} from this .env. The
