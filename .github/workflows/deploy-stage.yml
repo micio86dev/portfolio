@@ -69,42 +69,12 @@ jobs:
             docker-compose.prod.yml docker-compose.stage.yml \
             "${SSH_TARGET}:/var/www/html/stage.micio86dev.it/"
 
-      - name: Sync nginx stage configs to VPS
-        # Two site files: portfolio-stage (the Astro app, stage.micio86dev.it) and
-        # portfolio-stage-pb (PocketBase, pb-stage.micio86dev.it). Both are
-        # authoritative — they carry their own :443/SSL blocks, so re-copying them
-        # on every deploy does not clobber Certbot (which only renews the certs).
-        #
-        # The deploy user is non-root, so /etc/nginx isn't directly writable: we scp
-        # into the user's home, then `sudo install` the files into place. This needs
-        # PASSWORDLESS SUDO on the VPS for that user — it already has Docker-group
-        # access (≈ root-equivalent), so the simplest is /etc/sudoers.d/portfolio-deploy
-        # (chmod 0440):
-        #     <deploy-user> ALL=(ALL) NOPASSWD:ALL
-        # …or narrow it to: install, ln, /usr/sbin/nginx, /usr/bin/systemctl reload nginx.
-        # (If `sudo` complains "sorry, you must have a tty", add `Defaults:<user> !requiretty`.)
-        #
-        # /etc/nginx/.htpasswd_portfolio_stage must also already exist (basic-auth for
-        # the staging app), created once by hand, never committed:
-        #   sudo apt install apache2-utils -y
-        #   sudo htpasswd -c /etc/nginx/.htpasswd_portfolio_stage YOUR_USERNAME
-        env:
-          SSH_TARGET: ${{ secrets.VPS_SSH_USER }}@${{ secrets.VPS_SSH_HOST }}
-        run: |
-          scp -o StrictHostKeyChecking=accept-new \
-            nginx/stage.conf    "${SSH_TARGET}:.deploy-nginx-stage.conf"
-          scp -o StrictHostKeyChecking=accept-new \
-            nginx/stage-pb.conf "${SSH_TARGET}:.deploy-nginx-stage-pb.conf"
-          ssh -o StrictHostKeyChecking=accept-new "${SSH_TARGET}" 'bash -se' <<'REMOTE'
-          set -euo pipefail
-          sudo install -m 0644 -o root -g root "$HOME/.deploy-nginx-stage.conf"    /etc/nginx/sites-available/portfolio-stage
-          sudo install -m 0644 -o root -g root "$HOME/.deploy-nginx-stage-pb.conf" /etc/nginx/sites-available/portfolio-stage-pb
-          rm -f "$HOME/.deploy-nginx-stage.conf" "$HOME/.deploy-nginx-stage-pb.conf"
-          sudo ln -sf /etc/nginx/sites-available/portfolio-stage    /etc/nginx/sites-enabled/portfolio-stage
-          sudo ln -sf /etc/nginx/sites-available/portfolio-stage-pb /etc/nginx/sites-enabled/portfolio-stage-pb
-          sudo nginx -t
-          sudo systemctl reload nginx
-          REMOTE
+      # NOTE: nginx is NOT touched by this workflow (same as deploy-prod.yml). The
+      # deploy user is non-root and must not be a sudoer. The staging vhosts
+      # (nginx/stage.conf → /etc/nginx/sites-available/portfolio-stage and
+      # nginx/stage-pb.conf → …/portfolio-stage-pb) are placed on the VPS ONCE, by
+      # hand, as root — see README "VPS layout". They carry their own :443/SSL
+      # block, so Certbot only has to renew the certs, never rewrite the configs.
 
       - name: Write runtime env on VPS
         # docker-compose.stage.yml reads ${STAGE_PB_URL} from this .env. The

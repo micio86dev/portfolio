@@ -481,25 +481,38 @@ sudo chown -R 1001:1001 /var/www/html/micio86dev.it/pb_data
 # .env is created by the first deploy; nothing to paste by hand.
 ```
 
-Host nginx: copy `nginx/portfolio.conf` → `/etc/nginx/sites-available/portfolio`,
-symlink into `sites-enabled/`, `nginx -t && systemctl reload nginx`, then run
-Certbot:
+Host nginx — **none of this is touched by CI**; the deploy user is non-root and
+not a sudoer. You place the site files by hand, once, as root, and re-do it only
+when one of these files changes in the repo:
+
+| repo file | → `/etc/nginx/sites-available/` | host |
+|---|---|---|
+| `nginx/portfolio.conf` | `portfolio` | prod app + prod PB (`micio86dev.it`, `pb.micio86dev.it`) |
+| `nginx/stage.conf` | `portfolio-stage` | staging app (`stage.micio86dev.it`, HTTP Basic Auth) |
+| `nginx/stage-pb.conf` | `portfolio-stage-pb` | staging PB (`pb-stage.micio86dev.it`) |
 
 ```bash
-certbot --nginx -d micio86dev.it -d www.micio86dev.it \
-                -d stage.micio86dev.it \
-                -d pb.micio86dev.it -d pb-stage.micio86dev.it
+sudo cp nginx/portfolio.conf  /etc/nginx/sites-available/portfolio
+sudo cp nginx/stage.conf      /etc/nginx/sites-available/portfolio-stage
+sudo cp nginx/stage-pb.conf   /etc/nginx/sites-available/portfolio-stage-pb
+sudo ln -sf /etc/nginx/sites-available/portfolio        /etc/nginx/sites-enabled/
+sudo ln -sf /etc/nginx/sites-available/portfolio-stage  /etc/nginx/sites-enabled/
+sudo ln -sf /etc/nginx/sites-available/portfolio-stage-pb /etc/nginx/sites-enabled/
+# basic-auth for the staging app (never committed):
+sudo apt install apache2-utils -y
+sudo htpasswd -c /etc/nginx/.htpasswd_portfolio_stage YOUR_USERNAME
+sudo nginx -t && sudo systemctl reload nginx
+# TLS — stage.conf / stage-pb.conf already contain the :443 + ssl_certificate
+# block, so issue the certs first (then `nginx -t` passes):
+sudo certbot certonly --nginx -d stage.micio86dev.it -d pb-stage.micio86dev.it
+# prod block in portfolio.conf still uses Certbot's --nginx rewrite:
+sudo certbot --nginx -d micio86dev.it -d www.micio86dev.it -d pb.micio86dev.it
 ```
 
-The two **staging** site files are managed by the repo, not by Certbot:
-`nginx/stage.conf` (→ `portfolio-stage`, the app on `stage.micio86dev.it`) and
-`nginx/stage-pb.conf` (→ `portfolio-stage-pb`, PocketBase on `pb-stage.micio86dev.it`).
-The deploy-stage workflow `scp`s both on every run and reloads nginx; each carries
-its own `:443`/`ssl_certificate` block, so the re-copy never clobbers TLS. Certbot
-still owns renewal. Once these are live, delete the `stage.micio86dev.it` and
-`pb-stage.micio86dev.it` server blocks from `portfolio.conf` on the VPS (they're
-superseded — see the notes in that file). The basic-auth file for the staging app
-must exist first: `sudo htpasswd -c /etc/nginx/.htpasswd_portfolio_stage USER`.
+`stage.conf` / `stage-pb.conf` **supersede** the `stage.micio86dev.it` /
+`pb-stage.micio86dev.it` server blocks still present in `portfolio.conf` — delete
+those two blocks on the VPS once the standalone files are in place, or you'll get
+duplicate-`server_name` warnings.
 
 ## PocketBase: collections & migrations
 
