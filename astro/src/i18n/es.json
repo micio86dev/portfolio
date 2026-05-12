@@ -109,6 +109,11 @@
       "pillDefault": "ocasional"
     }
   },
+  "career": {
+    "eyebrow": "§ · Sobre mí",
+    "title": "El camino que me trajo hasta aquí",
+    "intro": "Hola, soy desarrollador web full-stack con foco en el alto rendimiento."
+  },
   "contact": {
     "eyebrow": "§ 05 · Contacto",
     "title": "Cuéntame el proyecto.",
@@ -214,6 +219,7 @@
   "dividers": {
     "services": "§ 02 — Servicios",
     "work": "§ 03 — Trabajos seleccionados",
+    "career": "§ — Sobre mí",
     "skills": "§ 04 — Habilidades",
     "contact": "§ 05 — Contacto"
   },

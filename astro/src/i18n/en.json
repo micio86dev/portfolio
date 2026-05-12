@@ -109,6 +109,11 @@
       "pillDefault": "reach for"
     }
   },
+  "career": {
+    "eyebrow": "§ · About",
+    "title": "The path that got me here",
+    "intro": "Hi, I'm a full-stack web developer skilled in high performance."
+  },
   "contact": {
     "eyebrow": "§ 05 · Contact",
     "title": "Tell me about the project.",
@@ -214,6 +219,7 @@
   "dividers": {
     "services": "§ 02 — Services",
     "work": "§ 03 — Selected work",
+    "career": "§ — About",
     "skills": "§ 04 — Skills",
     "contact": "§ 05 — Contact"
   },

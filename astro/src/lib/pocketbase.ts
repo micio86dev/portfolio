@@ -9,6 +9,7 @@
  *   - Services / §02    → `services`        → getServices(locale)
  *   - Projects / §03    → `projects`        → getProjects(locale)
  *   - Skills / §04      → `skills`          → getSkills()
+ *   - Career / About    → `career`          → getCareer(locale)
  *   - News              → `news`            → getNews(locale)
  *   - Customers         → `customers`       → getCustomers(locale)
  *
@@ -29,12 +30,15 @@ import {
   PROJECTS_SEED,
   SERVICES_SEED,
   SKILLS_SEED,
+  CAREER_SEED,
   NEWS_SEED,
   CUSTOMERS_SEED,
   PAGES_SEED,
   type ProjectRecord,
   type ServiceRecord,
   type SkillRecord,
+  type CareerRecord,
+  type CareerItem,
   type NewsRecord,
   type NewsItem,
   type CustomerRecord,
@@ -189,6 +193,34 @@ export async function getSkills(): Promise<SkillRecord[]> {
     }
   }
   return [...SKILLS_SEED];
+}
+
+// ── Career path (the "About" section) ──────────────────────────────────
+
+function toCareerItem(r: CareerRecord, locale: Locale): CareerItem {
+  const rec = r as unknown as Record<string, unknown>;
+  return {
+    id: r.id,
+    period: r.period,
+    company: r.company,
+    body: pick(rec, 'body', locale),
+    tech: Array.isArray(r.tech) ? r.tech : [],
+  };
+}
+
+export async function getCareer(locale: Locale): Promise<CareerItem[]> {
+  if (pb) {
+    try {
+      const items = await pb.collection('career').getFullList<CareerRecord>({
+        sort: '+order',
+        requestKey: null,
+      });
+      return items.map((r) => toCareerItem(r, locale));
+    } catch (err) {
+      console.warn('[pocketbase] getCareer failed — using seed data:', (err as Error)?.message);
+    }
+  }
+  return [...CAREER_SEED].sort((a, b) => a.order - b.order).map((r) => toCareerItem(r, locale));
 }
 
 // ── News ───────────────────────────────────────────────────────────────

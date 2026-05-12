@@ -109,6 +109,11 @@
       "pillDefault": "occasionale"
     }
   },
+  "career": {
+    "eyebrow": "§ · Chi sono",
+    "title": "Il percorso che mi ha portato qui",
+    "intro": "Ciao, sono uno sviluppatore web full-stack con una passione per le alte prestazioni."
+  },
   "contact": {
     "eyebrow": "§ 05 · Contatti",
     "title": "Raccontami il progetto.",
@@ -214,6 +219,7 @@
   "dividers": {
     "services": "§ 02 — Servizi",
     "work": "§ 03 — Lavori selezionati",
+    "career": "§ — Chi sono",
     "skills": "§ 04 — Competenze",
     "contact": "§ 05 — Contatti"
   },
