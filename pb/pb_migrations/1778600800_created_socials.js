@@ -60,6 +60,8 @@ migrate(
             'instagram',
             'facebook',
             'youtube',
+            'tiktok',
+            'udemy',
             'codepen',
             'dribbble',
             'telegram',
@@ -80,12 +82,17 @@ migrate(
 
     app.save(collection);
 
-    // Seed the links currently hard-coded in the footer. Placeholder URLs —
-    // update them to the real profiles from the admin dashboard.
+    // Seed MicioDev's real social profiles (source: data/socials.md). Order is
+    // dev-first: GitHub, LinkedIn, then the media channels, Udemy last. The
+    // admin can reorder via /{pb}/socials-order.
     const rows = [
-      { icon: 'github', url: 'https://github.com/', label: 'GitHub', order: 1 },
-      { icon: 'linkedin', url: 'https://linkedin.com/', label: 'LinkedIn', order: 2 },
-      { icon: 'youtube', url: 'https://youtube.com/', label: 'YouTube', order: 3 },
+      { icon: 'github', url: 'https://github.com/micio86dev', label: 'GitHub', order: 1 },
+      { icon: 'linkedin', url: 'https://linkedin.com/in/miciodev', label: 'LinkedIn', order: 2 },
+      { icon: 'youtube', url: 'https://youtube.com/@miciodev', label: 'YouTube', order: 3 },
+      { icon: 'instagram', url: 'https://instagram.com/miciodev', label: 'Instagram', order: 4 },
+      { icon: 'tiktok', url: 'https://tiktok.com/@miciodev', label: 'TikTok', order: 5 },
+      { icon: 'facebook', url: 'https://facebook.com/profile.php?id=61576394360974', label: 'Facebook', order: 6 },
+      { icon: 'udemy', url: 'https://www.udemy.com/user/alessandro-micelli', label: 'Udemy', order: 7 },
     ];
     for (const row of rows) {
       app.save(new Record(collection, row));
