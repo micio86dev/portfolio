@@ -4,8 +4,11 @@ import Hero from './Hero.astro';
 import SectionDivider from './SectionDivider.astro';
 import Services from './Services.astro';
 import Projects from './Projects.astro';
+import Career from './Career.astro';
 import Skills from './Skills.astro';
+import Courses from './Courses.astro';
 import Contact from './Contact.astro';
+import Colophon from './Colophon.astro';
 import { useTranslations, type Locale } from '../../i18n/utils';
 
 interface Props {
@@ -23,11 +26,20 @@ const t = useTranslations(lang);
 <SectionDivider label={t('dividers.work')} />
 <Projects lang={lang} />
 
+<SectionDivider label={t('dividers.career')} />
+<Career lang={lang} />
+
 <SectionDivider label={t('dividers.skills')} />
 <Skills lang={lang} />
 
+<SectionDivider label={t('dividers.courses')} />
+<Courses lang={lang} />
+
 <SectionDivider label={t('dividers.contact')} />
 <Contact lang={lang} />
+
+<SectionDivider label={t('dividers.colophon')} />
+<Colophon lang={lang} />
 
 <script>
   // Scroll-reveal for the homepage section stack (self-initialises on import).

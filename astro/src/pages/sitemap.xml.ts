@@ -14,7 +14,7 @@ import { LOCALES, siteUrl, localizedPath, xmlEscape, type Locale } from '../lib/
 export const prerender = false;
 
 interface Entry {
-  /** Neutral path, e.g. `/projects` or `/projects/atelier-nove`. */
+  /** Neutral path, e.g. `/projects` or `/projects/devboards-io`. */
   path: string;
   priority: string;
   changefreq: string;

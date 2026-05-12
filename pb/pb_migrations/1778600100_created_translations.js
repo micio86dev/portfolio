@@ -554,6 +554,69 @@ migrate(
         "es": "ocasional"
       },
       {
+        "key": "courses.eyebrow",
+        "group": "courses",
+        "en": "§ 04b · Courses",
+        "it": "§ 04b · Corsi",
+        "es": "§ 04b · Cursos"
+      },
+      {
+        "key": "courses.title",
+        "group": "courses",
+        "en": "Courses I teach, in three tracks",
+        "it": "Corsi che insegno, in tre percorsi",
+        "es": "Cursos que imparto, en tres vías"
+      },
+      {
+        "key": "courses.meta",
+        "group": "courses",
+        "en": "Three courses · Udemy & YouTube",
+        "it": "Tre corsi · Udemy e YouTube",
+        "es": "Tres cursos · Udemy y YouTube"
+      },
+      {
+        "key": "courses.viewCourse",
+        "group": "courses",
+        "en": "View course",
+        "it": "Vai al corso",
+        "es": "Ir al curso"
+      },
+      {
+        "key": "courses.platform.udemy",
+        "group": "courses",
+        "en": "Udemy",
+        "it": "Udemy",
+        "es": "Udemy"
+      },
+      {
+        "key": "courses.platform.youtube",
+        "group": "courses",
+        "en": "YouTube",
+        "it": "YouTube",
+        "es": "YouTube"
+      },
+      {
+        "key": "career.eyebrow",
+        "group": "career",
+        "en": "§ · About",
+        "it": "§ · Chi sono",
+        "es": "§ · Sobre mí"
+      },
+      {
+        "key": "career.title",
+        "group": "career",
+        "en": "The path that got me here",
+        "it": "Il percorso che mi ha portato qui",
+        "es": "El camino que me trajo hasta aquí"
+      },
+      {
+        "key": "career.intro",
+        "group": "career",
+        "en": "Hi, I'm a full-stack web developer skilled in high performance.",
+        "it": "Ciao, sono uno sviluppatore web full-stack con una passione per le alte prestazioni.",
+        "es": "Hola, soy desarrollador web full-stack con foco en el alto rendimiento."
+      },
+      {
         "key": "contact.eyebrow",
         "group": "contact",
         "en": "§ 05 · Contact",
@@ -1079,11 +1142,25 @@ migrate(
         "es": "§ 03 — Trabajos seleccionados"
       },
       {
+        "key": "dividers.career",
+        "group": "dividers",
+        "en": "§ — About",
+        "it": "§ — Chi sono",
+        "es": "§ — Sobre mí"
+      },
+      {
         "key": "dividers.skills",
         "group": "dividers",
         "en": "§ 04 — Skills",
         "it": "§ 04 — Competenze",
         "es": "§ 04 — Habilidades"
+      },
+      {
+        "key": "dividers.courses",
+        "group": "dividers",
+        "en": "§ 04b — Courses",
+        "it": "§ 04b — Corsi",
+        "es": "§ 04b — Cursos"
       },
       {
         "key": "dividers.contact",

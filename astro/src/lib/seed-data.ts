@@ -10,9 +10,9 @@
  * collection at runtime.)
  *
  * The service copy here mirrors the `services.items.*` strings in the i18n
- * files. Project titles/descriptions are deliberately generic — the real
- * case-study content lives in PocketBase. News & Customers fall back to empty
- * arrays (their historical content is loaded by a migration).
+ * files. Projects and Customers carry the real content (kept in sync with the
+ * `1778602000_seed_projects_customers.js` migration); News falls back to an
+ * empty array (its historical content is loaded by a future migration).
  */
 
 import type { Locale } from '../i18n/utils';
@@ -39,9 +39,15 @@ export interface ProjectRecord {
   id: string;
   slug: string;
   idx: string;
+  /** Display name of the client (= the linked customer's name, or "Personal project"). */
   client: string;
   clientInitials: string;
+  /** Human display string for the span (e.g. "2019 — 2021", "2024 — present"). */
   period: string;
+  /** Project span start — datetime ("YYYY-MM-01 00:00:00.000Z"). */
+  started: string;
+  /** Project span end — datetime; empty ⇒ ongoing. Client projects inherit their customer's span. */
+  ended: string;
   featured: boolean;
   order: number;
   title_en: string;
@@ -54,6 +60,13 @@ export interface ProjectRecord {
   kpis: { label: string; value: string }[];
   live_url: string;
   repo_url: string;
+  /** Relation → `customers.id`; empty for personal projects. */
+  customer?: string;
+  /** Gallery filenames stored in PocketBase; resolve with the SDK against `collectionId`. */
+  images: string[];
+  /** Filename within `images` to treat as the primary one (empty ⇒ first/none). */
+  primary_image: string;
+  collectionId?: string;
 }
 
 /** Resolved record with the locale-specific `title` / `desc` flattened in. */
@@ -115,75 +128,79 @@ export const SERVICES_SEED: ServiceRecord[] = [
 
 export const PROJECTS_SEED: ProjectRecord[] = [
   {
-    id: 'seed-prj-01', slug: 'atelier-nove', idx: '01',
-    client: 'ATELIER NOVE', clientInitials: 'A9', period: '2022 — present',
-    featured: true, order: 1,
-    title_en: 'Multilingual editorial platform',
-    title_it: 'Piattaforma editoriale multilingua',
-    title_es: 'Plataforma editorial multilingüe',
-    desc_en: "Full case study in progress — the brief, the build decisions and the outcomes will land here once it's written up.",
-    desc_it: 'Case study in lavorazione — il brief, le scelte di sviluppo e i risultati arriveranno qui non appena sarà scritto.',
-    desc_es: 'Caso de estudio en preparación — el brief, las decisiones de desarrollo y los resultados estarán aquí cuando esté redactado.',
-    stack: ['Laravel 11', 'Nuxt 3', 'TypeScript', 'PostgreSQL', 'DigitalOcean', 'Meilisearch'],
-    kpis: [
-      { label: 'Pagespeed', value: '99 / 100' },
-      { label: 'Languages', value: '4' },
-      { label: 'Editors', value: '12' },
-      { label: 'Uptime · 24m', value: '99.98%' },
-    ],
-    live_url: '', repo_url: '',
+    id: 'seed-prj-01', slug: 'fiberdroid-customer-area', idx: '01',
+    client: 'Fiberdroid', clientInitials: 'FD', period: '2019 — 2021',
+    started: '2019-03-01 00:00:00.000Z', ended: '2021-02-01 00:00:00.000Z',
+    featured: true, order: 2, customer: 'seed-cus-fiberdroid',
+    title_en: 'Customer area & operations portal', title_it: '', title_es: '',
+    desc_en:
+      "A PWA (single-page app) backed by a REST API. It packs a lot: a notification system over push, WebSocket and email; user roles and permissions; automated invoicing for end customers; appointment management; product shipments; and full contract management and workflow — among much more. Development is a continuous stream of improvements, but it rests on a stable base built since 2021, is well documented, and ships with unit tests covering the system's core functions.",
+    desc_it: '', desc_es: '',
+    stack: ['Laravel 9', 'Nuxt 2', 'REST API', 'PWA / SPA', 'WebSockets', 'Push notifications'],
+    kpis: [], live_url: 'https://area-clienti.fiberdroid.it', repo_url: '',
+    images: [], primary_image: '',
   },
   {
-    id: 'seed-prj-02', slug: 'crescendo', idx: '02',
-    client: 'CRESCENDO', clientInitials: 'CR', period: '2023 — 2024',
-    featured: false, order: 2,
-    title_en: 'Subscription billing portal',
-    title_it: 'Portale di fatturazione in abbonamento',
-    title_es: 'Portal de facturación por suscripción',
-    desc_en: "Full case study in progress — the brief, the build decisions and the outcomes will land here once it's written up.",
-    desc_it: 'Case study in lavorazione — il brief, le scelte di sviluppo e i risultati arriveranno qui non appena sarà scritto.',
-    desc_es: 'Caso de estudio en preparación — el brief, las decisiones de desarrollo y los resultados estarán aquí cuando esté redactado.',
-    stack: ['Laravel', 'Vue 3', 'Stripe', 'Redis', 'Hetzner'],
-    kpis: [], live_url: '', repo_url: '',
+    id: 'seed-prj-02', slug: 'inspxt', idx: '02',
+    client: 'TC2 Group', clientInitials: 'T2', period: '2019 — 2020',
+    started: '2019-01-01 00:00:00.000Z', ended: '2020-08-01 00:00:00.000Z',
+    featured: false, order: 3, customer: 'seed-cus-tc2-group',
+    title_en: 'INspxt — inspections management platform', title_it: '', title_es: '',
+    desc_en:
+      'An app for managing inspectors and the inspections they carry out. The Laravel REST API handles user roles and permissions — chiefly administrators and inspectors — while the React front end fully separates the two roles, showing a simplified interface to inspectors, who can reach only a subset of features. The system is stable and performant given the access and data traffic it handles, and it mainly drives inspection activities that certify the quality of customer products. A complete refactoring improved the UX, simplified the database structure, migrated the data to the new schema, and streamlined the server-side code both syntactically and logically.',
+    desc_it: '', desc_es: '',
+    stack: ['Laravel 9', 'React', 'REST API', 'Redis'],
+    kpis: [], live_url: 'https://inspxt.tc2services.app', repo_url: '',
+    images: [], primary_image: '',
   },
   {
-    id: 'seed-prj-03', slug: 'fiore-it', idx: '03',
-    client: 'FIORE.IT', clientInitials: 'FI', period: '2021 — 2023',
-    featured: false, order: 3,
-    title_en: 'E-commerce storefront',
-    title_it: 'Vetrina e-commerce',
-    title_es: 'Tienda e-commerce',
-    desc_en: "Full case study in progress — the brief, the build decisions and the outcomes will land here once it's written up.",
-    desc_it: 'Case study in lavorazione — il brief, le scelte di sviluppo e i risultati arriveranno qui non appena sarà scritto.',
-    desc_es: 'Caso de estudio en preparación — el brief, las decisiones de desarrollo y los resultados estarán aquí cuando esté redactado.',
-    stack: ['Laravel', 'Livewire', 'Tailwind', 'MySQL'],
-    kpis: [], live_url: '', repo_url: '',
+    id: 'seed-prj-03', slug: 'standup-way-platform', idx: '03',
+    client: 'Nuovavita', clientInitials: 'NV', period: '2023 — 2026',
+    started: '2023-05-01 00:00:00.000Z', ended: '2026-02-01 00:00:00.000Z',
+    featured: true, order: 1, customer: 'seed-cus-nuovavita',
+    title_en: 'StandUp Way platform', title_it: '', title_es: '',
+    desc_en:
+      "A PWA (SPA) connected to a REST API. Features include a notification system over push, WebSocket and email; user roles and permissions; automated scheduling for the group's video calls (via agora.io); appointment management; dynamic clinical record cards for customers; and much more. Development keeps evolving, but it rests on a stable base built since 2023, is well documented, and ships with Playwright tests covering the system's core flows from the front end.",
+    desc_it: '', desc_es: '',
+    stack: ['Laravel 12', 'Nuxt 4', 'MySQL', 'Redis', 'agora.io', 'SSR / PWA', 'Playwright'],
+    kpis: [], live_url: 'https://admin.metodostandup.it', repo_url: '',
+    images: [], primary_image: '',
   },
   {
-    id: 'seed-prj-04', slug: 'nordstern', idx: '04',
-    client: 'NORDSTERN', clientInitials: 'NS', period: '2020 — 2022',
-    featured: true, order: 4,
-    title_en: 'Realtime logistics dashboard',
-    title_it: 'Dashboard logistica in tempo reale',
-    title_es: 'Panel de logística en tiempo real',
-    desc_en: "Full case study in progress — the brief, the build decisions and the outcomes will land here once it's written up.",
-    desc_it: 'Case study in lavorazione — il brief, le scelte di sviluppo e i risultati arriveranno qui non appena sarà scritto.',
-    desc_es: 'Caso de estudio en preparación — el brief, las decisiones de desarrollo y los resultados estarán aquí cuando esté redactado.',
-    stack: ['Nuxt', 'Node.js', 'WebSockets', 'Mapbox', 'TimescaleDB'],
-    kpis: [], live_url: '', repo_url: '',
-  },
-  {
-    id: 'seed-prj-05', slug: 'oficina-6', idx: '05',
-    client: 'OFICINA / 6', clientInitials: 'O6', period: '2019 — 2021',
+    id: 'seed-prj-04', slug: 'silent-hill-web', idx: '04',
+    client: 'Personal project', clientInitials: 'SH', period: '2022 — 2023',
+    started: '2022-09-01 00:00:00.000Z', ended: '2023-06-01 00:00:00.000Z',
     featured: false, order: 5,
-    title_en: 'Internal operations tool',
-    title_it: 'Strumento operativo interno',
-    title_es: 'Herramienta de operaciones interna',
-    desc_en: "Full case study in progress — the brief, the build decisions and the outcomes will land here once it's written up.",
-    desc_it: 'Case study in lavorazione — il brief, le scelte di sviluppo e i risultati arriveranno qui non appena sarà scritto.',
-    desc_es: 'Caso de estudio en preparación — el brief, las decisiones de desarrollo y los resultados estarán aquí cuando esté redactado.',
-    stack: ['Laravel', 'Vue', 'Inertia', 'Postgres'],
-    kpis: [], live_url: '', repo_url: '',
+    title_en: 'Silent Hill Web', title_it: '', title_es: '',
+    desc_en:
+      'After the announcements of new entries in the saga I built a PWA in Nuxt 3 + Laravel 10 for my favourite game series. It is server-side rendered and tuned across accessibility and usability for SEO. It has an event notification system, interactive maps built on the in-game map images, and a two-axis navigation — a horizontal menu to pick the game, a vertical one for its sub-sections and the generic sections. Users sign up by email or via Facebook Login. The admin panel — built in Nuxt 2 to move faster, then fully refactored to Nuxt 4 + shadcn — manages multiple user roles with configurable permissions and uploads images and YouTube videos quickly. Both the site and the panel are trilingual: Italian, English and Spanish. It is a fully non-profit project, so the main thing missing is content — collaborators who know Silent Hill well are welcome.',
+    desc_it: '', desc_es: '',
+    stack: ['Laravel 12', 'Nuxt 4', 'Reverb · WebSockets', 'Redis', 'SSR / PWA', 'shadcn', 'i18n · it/en/es'],
+    kpis: [
+      { label: 'Languages', value: '3' },
+      { label: 'Rendering', value: 'SSR' },
+    ],
+    live_url: 'https://silenthillweb.com', repo_url: '',
+    images: [], primary_image: '',
+  },
+  {
+    id: 'seed-prj-05', slug: 'devboards-io', idx: '05',
+    client: 'Personal project', clientInitials: 'DB', period: '2024 — present',
+    started: '2024-06-01 00:00:00.000Z', ended: '',
+    featured: true, order: 4,
+    title_en: 'DevBoards.io', title_it: '', title_es: '',
+    desc_en:
+      'An IT job-discovery and tech-news platform aimed at the European and U.S. markets. It aggregates job listings from 10+ sources using AI-powered APIs, serves multilingual tech news, and includes a custom CMS admin dashboard for content management. Two Python scripts import jobs every 12 hours via RSS feeds and public job-portal APIs, filtering Tech/IT roles and auto-categorising each listing with relevant metadata — so users discover thousands of opportunities a day from a single platform in five languages, with fast filters for skills, availability and seniority. Each user gets a compatibility score for every posting, and companies get a trust score based on the quality of their ads plus a community-driven like/dislike rating. GitHub repo (6 submodules + CI/CD): https://github.com/micio86dev/itjobhub-antigravity-config',
+    desc_it: '', desc_es: '',
+    stack: ['ElysiaJS', 'Bun', 'Qwik', 'Python 3.11', 'MongoDB', 'Redis'],
+    kpis: [
+      { label: 'Job sources', value: '10+' },
+      { label: 'Languages', value: '5' },
+      { label: 'Import cycle', value: '12h' },
+    ],
+    live_url: 'https://devboards.io',
+    repo_url: 'https://github.com/micio86dev/itjobhub-antigravity-config',
+    images: [], primary_image: '',
   },
 ];
 
@@ -229,6 +246,115 @@ export const SKILLS_SEED: SkillRecord[] = [
   { id: 'seed-sk-18', group: 'apis', name: 'ImageKit', weight: 'default', order: 2 },
   { id: 'seed-sk-19', group: 'apis', name: 'Supabase', weight: 'default', order: 3 },
   { id: 'seed-sk-20', group: 'apis', name: 'PocketBase', weight: 'default', order: 4 },
+];
+
+// ── Courses ────────────────────────────────────────────────────────────
+
+export interface CourseRecord {
+  id: string;
+  slug: string;
+  title_en: string;
+  title_it: string;
+  title_es: string;
+  desc_en: string;
+  desc_it: string;
+  desc_es: string;
+  platform: 'udemy' | 'youtube';
+  url: string;
+  image: string;
+  collectionId?: string;
+  featured: boolean;
+  order: number;
+}
+
+/** Mirrors the rows seeded by `1778604000_created_courses.js`. */
+export const COURSES_SEED: CourseRecord[] = [
+  {
+    id: 'seed-course-01', slug: 'devops', platform: 'udemy', featured: true, order: 1,
+    title_en: 'DevOps', title_it: '', title_es: '',
+    desc_en: 'Hands-on DevOps fundamentals — CI/CD, containers, automation.',
+    desc_it: '', desc_es: '',
+    url: 'https://www.udemy.com/course/devops-base/?referralCode=9E9B8A6F662F2D7045B7&couponCode=E623B44A3C89CEF9F9B6',
+    image: '',
+  },
+  {
+    id: 'seed-course-02', slug: 'php-base', platform: 'youtube', featured: false, order: 2,
+    title_en: 'PHP Base', title_it: '', title_es: '',
+    desc_en: 'PHP from scratch — a full beginner playlist.',
+    desc_it: '', desc_es: '',
+    url: 'https://www.youtube.com/watch?v=UttHm-Mwqfc&list=PLpT9bDwYZoZtT6aV8aB2ZR7K4RkqSULeu&index=2',
+    image: '',
+  },
+  {
+    id: 'seed-course-03', slug: 'sql-base', platform: 'youtube', featured: false, order: 3,
+    title_en: 'SQL Base', title_it: '', title_es: '',
+    desc_en: 'SQL fundamentals — queries, joins, schema design.',
+    desc_it: '', desc_es: '',
+    url: 'https://www.youtube.com/watch?v=gv0Bz48YLD4&list=PLpT9bDwYZoZstOfTkzHLVa3RDYE2PRqWz',
+    image: '',
+  },
+];
+
+// ── Career path (the "About" section · §) ──────────────────────────────
+
+/** Mirrors the `career` collection (1778606000_created_career.js): one row per
+ *  milestone, with `body_*` columns per locale and an optional `tech` tag list.
+ *  The section intro line is *not* here — it's a UI string (`career.intro`). */
+export interface CareerRecord {
+  id: string;
+  /** Short label, e.g. "2010" or "2018 — present". */
+  period: string;
+  /** Employer / context, e.g. "Proxime S.r.l." or "Freelance · Canary Islands". */
+  company: string;
+  body_en: string;
+  body_it: string;
+  body_es: string;
+  /** Optional tech-tag chips for the milestone. */
+  tech: string[];
+  /** Display order — oldest first; the component decides the visual direction. */
+  order: number;
+}
+
+/** Localized career milestone exposed to components — `body` flattened. */
+export interface CareerItem {
+  id: string;
+  period: string;
+  company: string;
+  body: string;
+  tech: string[];
+}
+
+/** Fallback for the `career` collection — mirrors the rows seeded by
+ *  `1778606000_created_career.js` (English bodies only; it/es fall back). */
+export const CAREER_SEED: CareerRecord[] = [
+  {
+    id: 'seed-career-01', period: '2010', company: 'Proxime S.r.l.',
+    body_en:
+      'Monitored photovoltaic systems and built websites for public administration. In charge of the PA sites and their back-end in pure PHP / XHTML; also wrote Perl scripts so the photovoltaic-system inverters could talk to the monitoring system.',
+    body_it: '', body_es: '',
+    tech: ['PHP', 'XHTML', 'Perl'], order: 1,
+  },
+  {
+    id: 'seed-career-02', period: '2013', company: 'Alcos Digital S.r.l.',
+    body_en:
+      'Learned to work with PHP frameworks (including Laravel); also developed native iOS apps in Objective-C.',
+    body_it: '', body_es: '',
+    tech: ['PHP', 'Laravel', 'Objective-C', 'iOS'], order: 2,
+  },
+  {
+    id: 'seed-career-03', period: '2015', company: 'SiComunicaWeb S.r.l.',
+    body_en:
+      'Worked on PrestaShop e-commerce; built mobile apps with Ionic (AngularJS); shipped first Laravel REST APIs; fell in love with real-time tech like WebSockets.',
+    body_it: '', body_es: '',
+    tech: ['PrestaShop', 'Ionic', 'AngularJS', 'Laravel', 'WebSockets'], order: 3,
+  },
+  {
+    id: 'seed-career-04', period: '2018 — present', company: 'Freelance · Canary Islands',
+    body_en:
+      'Varied clients; moved to NuxtJS (Vue) as a current favourite front-end tech; still developing in Laravel; in spare time always experimenting with whatever improves web-app performance.',
+    body_it: '', body_es: '',
+    tech: ['Nuxt', 'Vue', 'Laravel'], order: 4,
+  },
 ];
 
 // ── News (carried over from the previous portfolio) ────────────────────
@@ -277,10 +403,19 @@ export interface CustomerRecord {
   name: string;
   sector: string;
   url: string;
+  /** Optional brand mark (single file). */
   logo: string;
+  /** Gallery filenames; resolve with the SDK against `collectionId`. */
+  images: string[];
+  /** Filename within `images` to treat as the primary one (empty ⇒ first/none). */
+  primary_image: string;
   collectionId?: string;
   featured: boolean;
   order: number;
+  /** Collaboration span start — datetime ("YYYY-MM-01 00:00:00.000Z"). */
+  started: string;
+  /** Collaboration span end — datetime; empty ⇒ ongoing. */
+  ended: string;
   description_en: string;
   description_it: string;
   description_es: string;
@@ -299,13 +434,89 @@ export interface CustomerItem {
   url: string;
   logoUrl: string;
   featured: boolean;
+  /** Collaboration span start — datetime; empty ⇒ unknown. */
+  started: string;
+  /** Collaboration span end — datetime; empty ⇒ ongoing. */
+  ended: string;
   description: string;
   testimonial: string;
   testimonialAuthor: string;
 }
 
-/** Empty by default — the historical clients live in PocketBase (`customers`). */
-export const CUSTOMERS_SEED: CustomerRecord[] = [];
+/** Mirrors the rows seeded by `1778602000_seed_projects_customers.js`
+ *  (most-recent-collaboration-first). */
+export const CUSTOMERS_SEED: CustomerRecord[] = [
+  {
+    id: 'seed-cus-nuovavita', slug: 'nuovavita', name: 'Nuovavita',
+    sector: 'Health · addiction recovery', url: 'https://metodostandup.it',
+    logo: '', images: [], primary_image: '', featured: true, order: 1,
+    started: '2023-05-01 00:00:00.000Z', ended: '2026-02-01 00:00:00.000Z',
+    description_en:
+      'The Standup Method is the first remote addiction-recovery programme. In its first year alone it changed the lives of over 100 people across Europe, with the mission of helping thousands quit cocaine addiction. It is a six-month programme followed from home, created by Danilo Cuccagna — a certified coach who definitively overcame his own addiction — together with internationally qualified psychologists, psychotherapists, psychiatrists and professional educators who went through addiction and came out of it thanks to the method.',
+    description_it: '', description_es: '',
+    testimonial_en: '', testimonial_it: '', testimonial_es: '', testimonial_author: '',
+  },
+  {
+    id: 'seed-cus-fiberdroid', slug: 'fiberdroid', name: 'Fiberdroid',
+    sector: 'Telecommunications', url: 'https://fiberdroid.it',
+    logo: '', images: [], primary_image: '', featured: true, order: 2,
+    started: '2019-03-01 00:00:00.000Z', ended: '2021-02-01 00:00:00.000Z',
+    description_en:
+      'A telecommunications company that connects businesses and professionals to the internet over VoIP, WiFi, cloud and optical fibre. It builds cloud and IT solutions tailored to each client, helping companies integrate every communication service — the Internet included — to make their business fly.',
+    description_it: '', description_es: '',
+    testimonial_en: '', testimonial_it: '', testimonial_es: '', testimonial_author: '',
+  },
+  {
+    id: 'seed-cus-tc2-group', slug: 'tc2-group', name: 'TC2 Group',
+    sector: 'Quality control & inspection', url: 'https://www.tc2group.it',
+    logo: '', images: [], primary_image: '', featured: true, order: 3,
+    started: '2019-01-01 00:00:00.000Z', ended: '2020-08-01 00:00:00.000Z',
+    description_en:
+      'A long-standing client, and currently the largest of my career. TC2 works in quality control and manages the agents who carry it out; the web-development group I belong to handles a small slice of what the company does. The collaboration began in 2022 — first a demo of a management system, then a full rewrite of the API behind their main management system, given the low quality of the previously written code.',
+    description_it: '', description_es: '',
+    testimonial_en: '', testimonial_it: '', testimonial_es: '', testimonial_author: '',
+  },
+  {
+    id: 'seed-cus-formafarm', slug: 'formafarm', name: 'FormaFarm',
+    sector: 'E-learning · knowledge management', url: 'https://lp.formafarm.com',
+    logo: '', images: [], primary_image: '', featured: false, order: 4,
+    started: '2018-05-01 00:00:00.000Z', ended: '2019-06-01 00:00:00.000Z',
+    description_en:
+      'My first client when I went freelance. Forma Farm provides highly specialised IT and software-development services for e-learning and knowledge-management projects based on Forma LMS. It merges 16 years of e-learning consulting from E-learnit with the cloud-computing and web-solutions expertise of Purple Network — both partners and founders of the Forma Association and developers of Forma LMS, the award-winning open-source learning management system. The "Farm" is the natural evolution of years of collaboration: creating space to grow your e-learning business and ideas.',
+    description_it: '', description_es: '',
+    testimonial_en: '', testimonial_it: '', testimonial_es: '', testimonial_author: '',
+  },
+  {
+    id: 'seed-cus-kotuko', slug: 'kotuko', name: 'Kotuko',
+    sector: 'Digital marketing · web design', url: 'https://www.kotuko.it/',
+    logo: '', images: [], primary_image: '', featured: false, order: 5,
+    started: '2015-07-01 00:00:00.000Z', ended: '2017-11-01 00:00:00.000Z',
+    description_en:
+      'Kotuko supports companies through their digital-evolution process, offering solutions across digital marketing, web design and IT technology. A dynamic team powered by change — convinced that the greatest danger is not having the courage to transform.',
+    description_it: '', description_es: '',
+    testimonial_en: '', testimonial_it: '', testimonial_es: '', testimonial_author: '',
+  },
+  {
+    id: 'seed-cus-alcos-digital', slug: 'alcos-digital', name: 'Alcos Digital',
+    sector: 'Communication & marketing', url: 'https://alcoscomunicazione.com',
+    logo: '', images: [], primary_image: '', featured: false, order: 6,
+    started: '2014-02-01 00:00:00.000Z', ended: '2015-07-01 00:00:00.000Z',
+    description_en:
+      'The agency where I actually learned to work with PHP and a range of frameworks — including my favourite, Laravel. For two years I was also involved in native iOS development in Objective-C. The company eventually went into layoffs and I moved on; there is little information about it on the web today.',
+    description_it: '', description_es: '',
+    testimonial_en: '', testimonial_it: '', testimonial_es: '', testimonial_author: '',
+  },
+  {
+    id: 'seed-cus-proxime', slug: 'proxime', name: 'Proxime',
+    sector: 'Photovoltaic monitoring · PA portals', url: 'http://www.sunguard.it',
+    logo: '', images: [], primary_image: '', featured: false, order: 7,
+    started: '2010-10-01 00:00:00.000Z', ended: '2014-01-01 00:00:00.000Z',
+    description_en:
+      'Proxime conceives, designs and builds solutions grounded in advanced communication theory and innovative open-source technology. Its staff combines heterogeneous skills across communication, IT, marketing, design and human–machine interaction, applies usability and accessibility throughout, and ships products with initial training and real coaching so users are productive immediately. Work spans SUAP / OpenTRIUM territorial-marketing portals, accessible web portals for public administration, corporate e-learning and training, hardware and software sales, and photovoltaic-systems monitoring.',
+    description_it: '', description_es: '',
+    testimonial_en: '', testimonial_it: '', testimonial_es: '', testimonial_author: '',
+  },
+];
 
 // ── Pages (arbitrary trilingual content pages: /privacy, /imprint, …) ──
 
