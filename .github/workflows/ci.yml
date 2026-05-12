@@ -1,10 +1,13 @@
 name: CI
 
-# Fast PR gate: lint + type-check + tests (unit / component / E2E) + production
-# build. No Docker build here — that runs only on merges to develop/main
-# (deploy-stage / deploy-prod).
+# Lint + type-check + tests (unit / component / E2E with the ≥85% coverage gate)
+# + production build. Runs on PRs to develop/main AND on pushes to those branches
+# (git-flow "feature finish" merges in directly), so the test suite is always a
+# gate before deploy-stage / deploy-prod fire. No Docker build here.
 on:
   pull_request:
+    branches: [develop, main]
+  push:
     branches: [develop, main]
 
 permissions:
