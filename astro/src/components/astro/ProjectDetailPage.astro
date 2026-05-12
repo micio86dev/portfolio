@@ -29,10 +29,10 @@ const galleryUrls = (p.imageUrls ?? []).slice(1);
 
   <header class="pdetail__head">
     <div class="pdetail__client">
-      <span class="pdetail__crest" class:list={{ 'pdetail__crest--logo': !!p.customerLogoUrl }} aria-hidden="true">
-        {p.customerLogoUrl ? (
-          <img class="pdetail__crest-img" src={p.customerLogoUrl} alt="" loading="lazy" decoding="async" />
-        ) : p.clientInitials}
+      <span class="pdetail__crest" class:list={{ 'pdetail__crest--logo': !!p.crestUrl }} aria-hidden="true">
+        {p.crestUrl ? (
+          <img class="pdetail__crest-img" src={p.crestUrl} alt="" loading="lazy" decoding="async" />
+        ) : p.crestInitials}
       </span>
       <div class="pdetail__client-meta">
         <span class="pdetail__client-name">

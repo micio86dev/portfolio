@@ -46,10 +46,10 @@ const isFeatured = variant === 'featured';
   <div class="pcard__body">
     <header class="pcard__head">
       <div class="pcard__client">
-        <span class="pcard__crest" class:list={{ 'pcard__crest--logo': !!p.customerLogoUrl }} aria-hidden="true">
-          {p.customerLogoUrl ? (
-            <img class="pcard__crest-img" src={p.customerLogoUrl} alt="" loading="lazy" decoding="async" />
-          ) : p.clientInitials}
+        <span class="pcard__crest" class:list={{ 'pcard__crest--logo': !!p.crestUrl }} aria-hidden="true">
+          {p.crestUrl ? (
+            <img class="pcard__crest-img" src={p.crestUrl} alt="" loading="lazy" decoding="async" />
+          ) : p.crestInitials}
         </span>
         <div class="pcard__client-meta">
           <span class="pcard__client-name">{p.client} · / {p.idx}</span>

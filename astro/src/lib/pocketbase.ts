@@ -349,9 +349,19 @@ function imagesPrimaryFirst(images: unknown, primary: unknown): string[] {
   return list;
 }
 
-/** Fill the derived `*Url` / `customer*` fields on a localized project record
- *  from its raw PB record (file fields + the expanded `customer` relation).
- *  Mutates and returns `p`. */
+/** Up to two leading letters of `name` (e.g. "TC2 Group" → "TG"); '' if empty. */
+function initialsFrom(name: string): string {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase() ?? '')
+    .join('');
+}
+
+/** Fill the derived `*Url` / `customer*` / `crest*` fields on a localized
+ *  project record from its raw PB record (file fields + the expanded `customer`
+ *  relation). Mutates and returns `p`. */
 function enrichProject(p: Localized<ProjectRecord>, raw: ProjectRecord): Localized<ProjectRecord> {
   const ordered = imagesPrimaryFirst(raw.images, raw.primary_image);
   p.imageUrls = fileUrls(raw.collectionId, raw.id, ordered);
@@ -361,6 +371,7 @@ function enrichProject(p: Localized<ProjectRecord>, raw: ProjectRecord): Localiz
   const cust =
     (raw as unknown as { expand?: { customer?: CustomerRecord } }).expand?.customer ??
     (raw.customer ? CUSTOMERS_SEED.find((c) => c.id === raw.customer) : undefined);
+  const ownLogoUrl = fileUrl(raw.collectionId, raw.id, raw.logo);
   if (cust) {
     p.customerName = cust.name;
     p.customerSlug = cust.slug;
@@ -370,6 +381,11 @@ function enrichProject(p: Localized<ProjectRecord>, raw: ProjectRecord): Localiz
     p.customerSlug = '';
     p.customerLogoUrl = '';
   }
+  // Crest: the project's own logo wins; then the linked customer's; then
+  // initials — `clientInitials`, falling back to initials off the customer or
+  // client name.
+  p.crestUrl = ownLogoUrl || p.customerLogoUrl || '';
+  p.crestInitials = p.clientInitials || initialsFrom(p.customerName || p.client || '');
   return p;
 }
 

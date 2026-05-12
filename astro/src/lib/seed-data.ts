@@ -62,6 +62,9 @@ export interface ProjectRecord {
   repo_url: string;
   /** Relation → `customers.id`; empty for personal projects. */
   customer?: string;
+  /** Optional brand mark for the project itself (single file) — wins over the
+   *  linked customer's logo when resolving the crest. */
+  logo: string;
   /** Gallery filenames stored in PocketBase; resolve with the SDK against `collectionId`. */
   images: string[];
   /** Filename within `images` to treat as the primary one (empty ⇒ first/none). */
@@ -79,6 +82,12 @@ export interface ProjectRecord {
   customerName?: string;
   /** Linked customer's slug, for `/customers/<slug>`; '' for personal projects. */
   customerSlug?: string;
+  /** Resolved crest image: the project's own `logo`, else the linked customer's
+   *  `logo`; '' when neither is uploaded (fall back to `crestInitials`). */
+  crestUrl?: string;
+  /** Crest fallback text: the project's `clientInitials`, else initials derived
+   *  from the customer/client name. */
+  crestInitials?: string;
 }
 
 /** Resolved record with the locale-specific `title` / `desc` flattened in. */
@@ -150,7 +159,7 @@ export const PROJECTS_SEED: ProjectRecord[] = [
     desc_it: '', desc_es: '',
     stack: ['Laravel 9', 'Nuxt 2', 'REST API', 'PWA / SPA', 'WebSockets', 'Push notifications'],
     kpis: [], live_url: 'https://area-clienti.fiberdroid.it', repo_url: '',
-    images: [], primary_image: '',
+    logo: '', images: [], primary_image: '',
   },
   {
     id: 'seed-prj-02', slug: 'inspxt', idx: '02',
@@ -163,7 +172,7 @@ export const PROJECTS_SEED: ProjectRecord[] = [
     desc_it: '', desc_es: '',
     stack: ['Laravel 9', 'React', 'REST API', 'Redis'],
     kpis: [], live_url: 'https://inspxt.tc2services.app', repo_url: '',
-    images: [], primary_image: '',
+    logo: '', images: [], primary_image: '',
   },
   {
     id: 'seed-prj-03', slug: 'standup-way-platform', idx: '03',
@@ -176,7 +185,7 @@ export const PROJECTS_SEED: ProjectRecord[] = [
     desc_it: '', desc_es: '',
     stack: ['Laravel 12', 'Nuxt 4', 'MySQL', 'Redis', 'agora.io', 'SSR / PWA', 'Playwright'],
     kpis: [], live_url: 'https://admin.metodostandup.it', repo_url: '',
-    images: [], primary_image: '',
+    logo: '', images: [], primary_image: '',
   },
   {
     id: 'seed-prj-04', slug: 'silent-hill-web', idx: '04',
@@ -193,7 +202,7 @@ export const PROJECTS_SEED: ProjectRecord[] = [
       { label: 'Rendering', value: 'SSR' },
     ],
     live_url: 'https://silenthillweb.com', repo_url: '',
-    images: [], primary_image: '',
+    logo: '', images: [], primary_image: '',
   },
   {
     id: 'seed-prj-05', slug: 'devboards-io', idx: '05',
@@ -212,7 +221,7 @@ export const PROJECTS_SEED: ProjectRecord[] = [
     ],
     live_url: 'https://devboards.io',
     repo_url: 'https://github.com/micio86dev/itjobhub-antigravity-config',
-    images: [], primary_image: '',
+    logo: '', images: [], primary_image: '',
   },
 ];
 
