@@ -468,7 +468,7 @@ PocketBase URL — written by the deploy workflow from the `PROD_PB_URL` /
 └── docker-compose.prod.yml
 
 /var/www/html/stage.micio86dev.it/        ← staging     (compose: -f docker-compose.prod.yml -f docker-compose.stage.yml)
-├── .env                         ← STAGE_PB_URL=https://pb.stage.micio86dev.it   (CI writes this)
+├── .env                         ← STAGE_PB_URL=https://pb-stage.micio86dev.it   (CI writes this)
 ├── pb_data/
 ├── docker-compose.prod.yml
 └── docker-compose.stage.yml
@@ -488,8 +488,18 @@ Certbot:
 ```bash
 certbot --nginx -d micio86dev.it -d www.micio86dev.it \
                 -d stage.micio86dev.it \
-                -d pb.micio86dev.it -d pb.stage.micio86dev.it
+                -d pb.micio86dev.it -d pb-stage.micio86dev.it
 ```
+
+The two **staging** site files are managed by the repo, not by Certbot:
+`nginx/stage.conf` (→ `portfolio-stage`, the app on `stage.micio86dev.it`) and
+`nginx/stage-pb.conf` (→ `portfolio-stage-pb`, PocketBase on `pb-stage.micio86dev.it`).
+The deploy-stage workflow `scp`s both on every run and reloads nginx; each carries
+its own `:443`/`ssl_certificate` block, so the re-copy never clobbers TLS. Certbot
+still owns renewal. Once these are live, delete the `stage.micio86dev.it` and
+`pb-stage.micio86dev.it` server blocks from `portfolio.conf` on the VPS (they're
+superseded — see the notes in that file). The basic-auth file for the staging app
+must exist first: `sudo htpasswd -c /etc/nginx/.htpasswd_portfolio_stage USER`.
 
 ## PocketBase: collections & migrations
 
@@ -541,7 +551,7 @@ Add these under **Settings → Secrets and variables → Actions → New reposit
 | `VPS_SSH_PRIVATE_KEY` | ED25519 **private** key the workflows use to SSH into the VPS | `-----BEGIN OPENSSH PRIVATE KEY-----`<br>`b3BlbnNzaC1rZXkt...`<br>`-----END OPENSSH PRIVATE KEY-----` | deploy-stage, deploy-prod |
 | `VPS_SSH_HOST` | VPS IP address or hostname | `203.0.113.10` or `vps.micio86dev.it` | deploy-stage, deploy-prod |
 | `VPS_SSH_USER` | SSH user on the VPS (a dedicated low-privilege deploy user, in the `docker` group) | `deploy` | deploy-stage, deploy-prod |
-| `STAGE_PB_URL` | Runtime URL of the staging PocketBase. The deploy workflow writes it into `/var/www/html/stage.micio86dev.it/.env`; `docker-compose.stage.yml` injects it as the astro container's `PUBLIC_PB_URL` at start — **not** at build time. | `https://pb.stage.micio86dev.it` | deploy-stage |
+| `STAGE_PB_URL` | Runtime URL of the staging PocketBase. The deploy workflow writes it into `/var/www/html/stage.micio86dev.it/.env`; `docker-compose.stage.yml` injects it as the astro container's `PUBLIC_PB_URL` at start — **not** at build time. | `https://pb-stage.micio86dev.it` | deploy-stage |
 | `PROD_PB_URL` | Runtime URL of the production PocketBase. The deploy workflow writes it into `/var/www/html/micio86dev.it/.env`; `docker-compose.prod.yml` injects it as the astro container's `PUBLIC_PB_URL` at start — **not** at build time. | `https://pb.micio86dev.it` | deploy-prod |
 
 These are public hostnames, not secrets — they're stored as repo secrets only so

@@ -69,7 +69,12 @@ jobs:
             docker-compose.prod.yml docker-compose.stage.yml \
             "${SSH_TARGET}:/var/www/html/stage.micio86dev.it/"
 
-      - name: Sync nginx stage config to VPS
+      - name: Sync nginx stage configs to VPS
+        # Two site files: portfolio-stage (the Astro app, stage.micio86dev.it) and
+        # portfolio-stage-pb (PocketBase, pb-stage.micio86dev.it). Both are
+        # authoritative — they carry their own :443/SSL blocks, so re-copying them
+        # on every deploy does not clobber Certbot (which only renews the certs).
+        #
         # /etc/nginx/.htpasswd_portfolio_stage must already exist on the VPS — create it
         # once, manually, and never commit it:
         #   sudo apt install apache2-utils -y
@@ -77,9 +82,16 @@ jobs:
         env:
           SSH_TARGET: ${{ secrets.VPS_SSH_USER }}@${{ secrets.VPS_SSH_HOST }}
         run: |
-          scp -o StrictHostKeyChecking=accept-new nginx/stage.conf "${SSH_TARGET}:/etc/nginx/sites-available/portfolio-stage"
-          ssh -o StrictHostKeyChecking=accept-new "${SSH_TARGET}" \
-            'ln -sf /etc/nginx/sites-available/portfolio-stage /etc/nginx/sites-enabled/portfolio-stage && nginx -t && systemctl reload nginx'
+          scp -o StrictHostKeyChecking=accept-new \
+            nginx/stage.conf    "${SSH_TARGET}:/etc/nginx/sites-available/portfolio-stage"
+          scp -o StrictHostKeyChecking=accept-new \
+            nginx/stage-pb.conf "${SSH_TARGET}:/etc/nginx/sites-available/portfolio-stage-pb"
+          ssh -o StrictHostKeyChecking=accept-new "${SSH_TARGET}" 'bash -se' <<'REMOTE'
+          set -euo pipefail
+          ln -sf /etc/nginx/sites-available/portfolio-stage    /etc/nginx/sites-enabled/portfolio-stage
+          ln -sf /etc/nginx/sites-available/portfolio-stage-pb /etc/nginx/sites-enabled/portfolio-stage-pb
+          nginx -t && systemctl reload nginx
+          REMOTE
 
       - name: Write runtime env on VPS
         # docker-compose.stage.yml reads ${STAGE_PB_URL} from this .env. The
