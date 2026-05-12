@@ -1,7 +1,9 @@
 name: Deploy — staging
 
-# Triggered by merges to develop. Builds + pushes :develop images to GHCR,
-# then SSHes into the VPS and rolls the staging stack.
+# Triggered by merges to develop. First runs the shared test workflow
+# (lint + astro check + Vitest ≥85% coverage + Playwright E2E + build); only if
+# that passes does it build + push the :develop images to GHCR and SSH into the
+# VPS to roll the staging stack.
 on:
   push:
     branches: [develop]
@@ -24,8 +26,12 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
+  test:
+    uses: ./.github/workflows/tests.yml
+
   deploy:
     name: build → push → deploy
+    needs: test
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
