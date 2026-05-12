@@ -1,0 +1,27 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CustomerDetailPage from '../../components/astro/CustomerDetailPage.astro';
+import { getCustomer } from '../../lib/pocketbase';
+
+const lang = 'en' as const;
+const customer = await getCustomer(Astro.params.slug ?? '', lang);
+if (!customer) return new Response(null, { status: 404 });
+
+const pageUrl = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin).toString();
+const description = (
+  customer.description || `${customer.name}${customer.sector ? ` — ${customer.sector}` : ''}`
+).slice(0, 200);
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: customer.name,
+  url: customer.url || pageUrl,
+  ...(customer.logoUrl ? { logo: customer.logoUrl } : {}),
+  mainEntityOfPage: pageUrl,
+};
+---
+
+<BaseLayout lang={lang} title={customer.name} description={description}>
+  <CustomerDetailPage lang={lang} customer={customer} />
+  <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)} />
+</BaseLayout>

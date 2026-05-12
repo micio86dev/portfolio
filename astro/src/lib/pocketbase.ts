@@ -50,6 +50,8 @@ import {
   type NewsItem,
   type CustomerRecord,
   type CustomerItem,
+  type CustomerProjectRef,
+  type CustomerDetail,
   type PageRecord,
   type PageItem,
   type SocialRecord,
@@ -193,14 +195,15 @@ export async function getProjects(locale: Locale): Promise<Localized<ProjectReco
     try {
       const items = await pb.collection('projects').getFullList<ProjectRecord>({
         sort: '+order',
+        expand: 'customer',
         requestKey: null,
       });
-      return byRecencyPersonalLast(items).map((r) => localize(r, locale));
+      return byRecencyPersonalLast(items).map((r) => enrichProject(localize(r, locale), r));
     } catch (err) {
       console.warn('[pocketbase] getProjects failed — using seed data:', (err as Error)?.message);
     }
   }
-  return byRecencyPersonalLast(PROJECTS_SEED).map((r) => localize(r, locale));
+  return byRecencyPersonalLast(PROJECTS_SEED).map((r) => enrichProject(localize(r, locale), r));
 }
 
 export async function getProject(
@@ -212,15 +215,16 @@ export async function getProject(
       const r = await pb
         .collection('projects')
         .getFirstListItem<ProjectRecord>(pb.filter('slug = {:slug}', { slug }), {
+          expand: 'customer',
           requestKey: null,
         });
-      return localize(r, locale);
+      return enrichProject(localize(r, locale), r);
     } catch {
       return null;
     }
   }
   const seed = PROJECTS_SEED.find((r) => r.slug === slug);
-  return seed ? localize(seed, locale) : null;
+  return seed ? enrichProject(localize(seed, locale), seed) : null;
 }
 
 // ── Courses ────────────────────────────────────────────────────────────
@@ -329,6 +333,46 @@ function fileUrl(collectionId: string | undefined, id: string, filename: string)
   return pb.files.getURL({ id, collectionId } as never, filename);
 }
 
+/** URL for every filename in `filenames` (drops blanks); [] when PB is unset. */
+function fileUrls(collectionId: string | undefined, id: string, filenames: unknown): string[] {
+  if (!pb || !collectionId || !Array.isArray(filenames)) return [];
+  return filenames.filter((f): f is string => typeof f === 'string' && f !== '').map((f) => fileUrl(collectionId, id, f));
+}
+
+/** `images` reordered with the primary file first: `primary` if it's one of
+ *  `images`, otherwise the original order (so `[0]` is still the cover). */
+function imagesPrimaryFirst(images: unknown, primary: unknown): string[] {
+  const list = Array.isArray(images) ? images.filter((f): f is string => typeof f === 'string' && f !== '') : [];
+  if (typeof primary === 'string' && primary && list.includes(primary)) {
+    return [primary, ...list.filter((f) => f !== primary)];
+  }
+  return list;
+}
+
+/** Fill the derived `*Url` / `customer*` fields on a localized project record
+ *  from its raw PB record (file fields + the expanded `customer` relation).
+ *  Mutates and returns `p`. */
+function enrichProject(p: Localized<ProjectRecord>, raw: ProjectRecord): Localized<ProjectRecord> {
+  const ordered = imagesPrimaryFirst(raw.images, raw.primary_image);
+  p.imageUrls = fileUrls(raw.collectionId, raw.id, ordered);
+  p.coverUrl = p.imageUrls[0] ?? '';
+  // Prefer the expanded relation (live PB); fall back to a seed lookup by id so
+  // the no-backend build links customers too.
+  const cust =
+    (raw as unknown as { expand?: { customer?: CustomerRecord } }).expand?.customer ??
+    (raw.customer ? CUSTOMERS_SEED.find((c) => c.id === raw.customer) : undefined);
+  if (cust) {
+    p.customerName = cust.name;
+    p.customerSlug = cust.slug;
+    p.customerLogoUrl = fileUrl(cust.collectionId, cust.id, cust.logo);
+  } else {
+    p.customerName = '';
+    p.customerSlug = '';
+    p.customerLogoUrl = '';
+  }
+  return p;
+}
+
 function toNewsItem(r: NewsRecord, locale: Locale): NewsItem {
   const rec = r as unknown as Record<string, unknown>;
   return {
@@ -377,6 +421,7 @@ export async function getNewsPost(slug: string, locale: Locale): Promise<NewsIte
 
 function toCustomerItem(r: CustomerRecord, locale: Locale): CustomerItem {
   const rec = r as unknown as Record<string, unknown>;
+  const imageUrls = fileUrls(r.collectionId, r.id, imagesPrimaryFirst(r.images, r.primary_image));
   return {
     id: r.id,
     slug: r.slug,
@@ -384,6 +429,8 @@ function toCustomerItem(r: CustomerRecord, locale: Locale): CustomerItem {
     sector: r.sector,
     url: r.url,
     logoUrl: fileUrl(r.collectionId, r.id, r.logo),
+    primaryImageUrl: imageUrls[0] ?? '',
+    imageUrls,
     featured: !!r.featured,
     started: r.started ?? '',
     ended: r.ended ?? '',
@@ -391,6 +438,41 @@ function toCustomerItem(r: CustomerRecord, locale: Locale): CustomerItem {
     testimonial: pick(rec, 'testimonial', locale),
     testimonialAuthor: r.testimonial_author,
   };
+}
+
+/** A customer plus the case studies that link to it (most-recent-first). The
+ *  `/customers/<slug>` detail page reads this; falls back to seed data. */
+export async function getCustomer(slug: string, locale: Locale): Promise<CustomerDetail | null> {
+  const projectRef = (p: ProjectRecord): CustomerProjectRef => {
+    const rec = p as unknown as Record<string, unknown>;
+    const title = (rec[`title_${locale}`] as string) || (rec['title_en'] as string) || '';
+    return { slug: p.slug, idx: p.idx, period: p.period, title };
+  };
+  if (pb) {
+    try {
+      const r = await pb
+        .collection('customers')
+        .getFirstListItem<CustomerRecord>(pb.filter('slug = {:slug}', { slug }), { requestKey: null });
+      let projects: CustomerProjectRef[] = [];
+      try {
+        const ps = await pb.collection('projects').getFullList<ProjectRecord>({
+          filter: pb.filter('customer = {:id}', { id: r.id }),
+          sort: '+order',
+          requestKey: null,
+        });
+        projects = byRecencyPersonalLast(ps).map(projectRef);
+      } catch {
+        /* leave projects empty */
+      }
+      return { ...toCustomerItem(r, locale), projects };
+    } catch {
+      return null;
+    }
+  }
+  const seed = CUSTOMERS_SEED.find((r) => r.slug === slug);
+  if (!seed) return null;
+  const projects = byRecencyPersonalLast(PROJECTS_SEED.filter((p) => p.customer === seed.id)).map(projectRef);
+  return { ...toCustomerItem(seed, locale), projects };
 }
 
 export async function getCustomers(locale: Locale): Promise<CustomerItem[]> {

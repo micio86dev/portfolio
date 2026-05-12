@@ -3,6 +3,7 @@
 // 404; this component just renders a resolved (localized) project. Shared
 // across all locale routes.
 import { useTranslations, useTranslatedPath, type Locale } from '../../i18n/utils';
+import PbImage from '../vue/PbImage.vue';
 import type { ProjectRecord, Localized } from '../../lib/seed-data';
 
 interface Props {
@@ -15,6 +16,10 @@ const path = useTranslatedPath(lang);
 
 // PB `desc` is plain text; treat blank lines as paragraph breaks.
 const paragraphs = p.desc.split(/\n\s*\n/).map((s) => s.trim()).filter(Boolean);
+
+// `coverUrl` is the project's hero shot; `imageUrls` is the full gallery (cover
+// first), so the "extra" shots are everything after index 0.
+const galleryUrls = (p.imageUrls ?? []).slice(1);
 ---
 
 <article class="pdetail">
@@ -24,9 +29,17 @@ const paragraphs = p.desc.split(/\n\s*\n/).map((s) => s.trim()).filter(Boolean);
 
   <header class="pdetail__head">
     <div class="pdetail__client">
-      <span class="pdetail__crest" aria-hidden="true">{p.clientInitials}</span>
+      <span class="pdetail__crest" class:list={{ 'pdetail__crest--logo': !!p.customerLogoUrl }} aria-hidden="true">
+        {p.customerLogoUrl ? (
+          <img class="pdetail__crest-img" src={p.customerLogoUrl} alt="" loading="lazy" decoding="async" />
+        ) : p.clientInitials}
+      </span>
       <div class="pdetail__client-meta">
-        <span class="pdetail__client-name">{p.client} · / {p.idx}</span>
+        <span class="pdetail__client-name">
+          {p.customerSlug ? (
+            <a class="pdetail__client-link" href={path(`/customers/${p.customerSlug}`)}>{p.client}</a>
+          ) : p.client} · / {p.idx}
+        </span>
         {p.period && <span class="pdetail__period">{p.period}</span>}
       </div>
       {p.featured && (
@@ -35,6 +48,12 @@ const paragraphs = p.desc.split(/\n\s*\n/).map((s) => s.trim()).filter(Boolean);
     </div>
     <h1 class="pdetail__title">{p.title}</h1>
   </header>
+
+  {p.coverUrl && (
+    <figure class="pdetail__cover">
+      <PbImage src={p.coverUrl} alt={p.title} width={1280} height={800} eager />
+    </figure>
+  )}
 
   {p.kpis.length > 0 && (
     <div class="pdetail__kpis">
@@ -53,6 +72,17 @@ const paragraphs = p.desc.split(/\n\s*\n/).map((s) => s.trim()).filter(Boolean);
   <div class="pdetail__body">
     {paragraphs.map((para) => <p>{para}</p>)}
   </div>
+
+  {galleryUrls.length > 0 && (
+    <div class="pdetail__gallery">
+      <span class="md-eyebrow pdetail__gallery-label">{t('projectsPage.galleryLabel')}</span>
+      <div class="pdetail__gallery-grid">
+        {galleryUrls.map((src) => (
+          <figure class="pdetail__shot"><PbImage src={src} alt="" width={800} height={500} /></figure>
+        ))}
+      </div>
+    </div>
+  )}
 
   {p.stack.length > 0 && (
     <div class="pdetail__stack">
@@ -108,6 +138,8 @@ const paragraphs = p.desc.split(/\n\s*\n/).map((s) => s.trim()).filter(Boolean);
     width: 44px; height: 44px;
     display: inline-flex; align-items: center; justify-content: center;
     border-radius: 999px;
+    overflow: hidden;
+    flex: 0 0 auto;
     background: var(--surface-2);
     border: 1px solid var(--line-2);
     color: var(--text);
@@ -115,6 +147,8 @@ const paragraphs = p.desc.split(/\n\s*\n/).map((s) => s.trim()).filter(Boolean);
     font-size: 13px;
     font-weight: 500;
   }
+  .pdetail__crest--logo { background: #fff; }
+  .pdetail__crest-img { width: 100%; height: 100%; object-fit: contain; padding: 6px; }
   .pdetail__client-meta { display: grid; gap: 2px; }
   .pdetail__client-name {
     font-family: var(--font-mono);
@@ -123,6 +157,30 @@ const paragraphs = p.desc.split(/\n\s*\n/).map((s) => s.trim()).filter(Boolean);
     letter-spacing: 0.16em;
     text-transform: uppercase;
   }
+  .pdetail__client-link { color: inherit; text-decoration: none; border-bottom: 1px solid color-mix(in oklab, currentColor 35%, transparent); }
+  .pdetail__client-link:hover { color: var(--brand); }
+
+  /* Hero shot + extra screenshots */
+  .pdetail__cover {
+    margin: 0 0 36px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-3);
+    overflow: hidden;
+    background: var(--surface-2);
+  }
+  .pdetail__cover :global(img) { display: block; width: 100%; height: auto; }
+  .pdetail__gallery { margin: 36px 0; display: grid; gap: 14px; }
+  .pdetail__gallery-label { margin: 0; }
+  .pdetail__gallery-grid { display: grid; gap: 14px; grid-template-columns: 1fr; }
+  @media (min-width: 720px) { .pdetail__gallery-grid { grid-template-columns: 1fr 1fr; } }
+  .pdetail__shot {
+    margin: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--r-2);
+    overflow: hidden;
+    background: var(--surface-2);
+  }
+  .pdetail__shot :global(img) { display: block; width: 100%; height: auto; }
   .pdetail__period { font-family: var(--font-mono); font-size: 11px; color: var(--text-2); }
   .pdetail__badge {
     display: inline-flex; align-items: center; gap: 6px;

@@ -101,11 +101,13 @@ const customers = await getCustomers(lang);
         {customers.map((c) => (
           <li class="hero__logo">
             <span class="hero__logo-dot" aria-hidden="true"></span>
-            {c.logoUrl ? (
-              <img class="hero__logo-img" src={c.logoUrl} alt={c.name} loading="lazy" decoding="async" />
-            ) : (
-              <span>{c.name}</span>
-            )}
+            <a class="hero__logo-link" href={path(`/customers/${c.slug}`)}>
+              {c.logoUrl ? (
+                <img class="hero__logo-img" src={c.logoUrl} alt={c.name} loading="lazy" decoding="async" />
+              ) : (
+                <span>{c.name}</span>
+              )}
+            </a>
           </li>
         ))}
       </ul>
@@ -417,6 +419,14 @@ const customers = await getCustomers(lang);
     flex: 0 0 auto;
     opacity: 0.7;
   }
+  .hero__logo-link {
+    display: inline-flex;
+    align-items: center;
+    color: inherit;
+    text-decoration: none;
+    transition: color var(--dur-1) var(--ease), opacity var(--dur-1) var(--ease);
+  }
+  .hero__logo-link:hover { color: var(--text); }
   .hero__logo-img {
     height: 18px;
     width: auto;
@@ -424,4 +434,5 @@ const customers = await getCustomers(lang);
     object-fit: contain;
     opacity: 0.85;
   }
+  .hero__logo-link:hover .hero__logo-img { opacity: 1; }
 </style>

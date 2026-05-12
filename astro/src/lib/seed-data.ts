@@ -67,6 +67,18 @@ export interface ProjectRecord {
   /** Filename within `images` to treat as the primary one (empty ⇒ first/none). */
   primary_image: string;
   collectionId?: string;
+
+  // ── Derived at fetch time by getProjects()/getProject() — not DB columns. ──
+  /** Cover image URL (the `primary_image`, else the first of `images`); '' if none. */
+  coverUrl?: string;
+  /** URLs of every file in `images`, the primary one first. */
+  imageUrls?: string[];
+  /** Linked customer's logo URL — set only when the project has a `customer` whose `logo` is uploaded. */
+  customerLogoUrl?: string;
+  /** Linked customer's display name (= `client` for client projects). */
+  customerName?: string;
+  /** Linked customer's slug, for `/customers/<slug>`; '' for personal projects. */
+  customerSlug?: string;
 }
 
 /** Resolved record with the locale-specific `title` / `desc` flattened in. */
@@ -456,14 +468,20 @@ export interface CustomerRecord {
   testimonial_author: string;
 }
 
-/** Localized customer exposed to components — locale-specific fields flattened. */
+/** Localized customer exposed to components — locale-specific fields flattened,
+ *  file fields resolved to URLs. */
 export interface CustomerItem {
   id: string;
   slug: string;
   name: string;
   sector: string;
   url: string;
+  /** Brand-mark URL; '' if no `logo` uploaded. */
   logoUrl: string;
+  /** Primary screenshot URL (the `primary_image`, else the first of `images`); '' if none. */
+  primaryImageUrl: string;
+  /** URLs of every file in `images`, the primary one first; [] if none. */
+  imageUrls: string[];
   featured: boolean;
   /** Collaboration span start — datetime; empty ⇒ unknown. */
   started: string;
@@ -473,6 +491,17 @@ export interface CustomerItem {
   testimonial: string;
   testimonialAuthor: string;
 }
+
+/** A linked project as listed on a customer's detail page. */
+export interface CustomerProjectRef {
+  slug: string;
+  idx: string;
+  title: string;
+  period: string;
+}
+
+/** A customer plus the case studies that link to it — returned by `getCustomer()`. */
+export type CustomerDetail = CustomerItem & { projects: CustomerProjectRef[] };
 
 /** Mirrors the rows seeded by `1778602000_seed_projects_customers.js`
  *  (most-recent-collaboration-first). */

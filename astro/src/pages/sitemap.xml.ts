@@ -8,7 +8,7 @@
  */
 
 import type { APIContext } from 'astro';
-import { getProjects, getNews } from '../lib/pocketbase';
+import { getProjects, getNews, getCustomers } from '../lib/pocketbase';
 import { LOCALES, siteUrl, localizedPath, xmlEscape, type Locale } from '../lib/seo';
 
 export const prerender = false;
@@ -63,7 +63,11 @@ export async function GET({ request, site }: APIContext): Promise<Response> {
     { path: '/imprint', priority: '0.3', changefreq: 'yearly' },
   ];
 
-  const [projects, news] = await Promise.all([getProjects('en'), getNews('en')]);
+  const [projects, news, customers] = await Promise.all([
+    getProjects('en'),
+    getNews('en'),
+    getCustomers('en'),
+  ]);
 
   for (const p of projects) {
     const rec = p as unknown as Record<string, unknown>;
@@ -74,6 +78,11 @@ export async function GET({ request, site }: APIContext): Promise<Response> {
       changefreq: 'monthly',
       lastmod: toIsoDate(rec.updated) ?? toIsoDate(rec.created),
     });
+  }
+
+  for (const c of customers) {
+    if (!c.slug) continue;
+    entries.push({ path: `/customers/${c.slug}`, priority: '0.6', changefreq: 'monthly' });
   }
 
   for (const n of news) {

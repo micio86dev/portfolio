@@ -22,9 +22,13 @@ const isFeatured = variant === 'featured';
           <span class="pcard__dot"></span><span class="pcard__dot"></span><span class="pcard__dot"></span>
           <span class="pcard__urlbar"></span>
         </div>
-        <div class="pcard__stripes">
-          <span class="pcard__mockup-label">{mockupLabel}</span>
-        </div>
+        {p.coverUrl ? (
+          <img class="pcard__shot" src={p.coverUrl} alt="" loading="lazy" decoding="async" />
+        ) : (
+          <div class="pcard__stripes">
+            <span class="pcard__mockup-label">{mockupLabel}</span>
+          </div>
+        )}
       </div>
       {p.kpis.length > 0 && (
         <div class="pcard__kpis">
@@ -42,7 +46,11 @@ const isFeatured = variant === 'featured';
   <div class="pcard__body">
     <header class="pcard__head">
       <div class="pcard__client">
-        <span class="pcard__crest" aria-hidden="true">{p.clientInitials}</span>
+        <span class="pcard__crest" class:list={{ 'pcard__crest--logo': !!p.customerLogoUrl }} aria-hidden="true">
+          {p.customerLogoUrl ? (
+            <img class="pcard__crest-img" src={p.customerLogoUrl} alt="" loading="lazy" decoding="async" />
+          ) : p.clientInitials}
+        </span>
         <div class="pcard__client-meta">
           <span class="pcard__client-name">{p.client} · / {p.idx}</span>
           <span class="pcard__period">{p.period}</span>
@@ -151,6 +159,14 @@ const isFeatured = variant === 'featured';
     position: relative;
     background: repeating-linear-gradient(135deg, var(--surface) 0 12px, var(--surface-2) 12px 24px);
   }
+  /* Real screenshot — fills the 16:10 mockup body (the chrome row sits above). */
+  .pcard__shot {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    display: block;
+  }
   .pcard__mockup-label {
     position: absolute;
     left: 50%;
@@ -201,6 +217,7 @@ const isFeatured = variant === 'featured';
     align-items: center;
     justify-content: center;
     border-radius: 999px;
+    overflow: hidden;
     background: var(--surface-2);
     border: 1px solid var(--line-2);
     color: var(--text);
@@ -208,7 +225,11 @@ const isFeatured = variant === 'featured';
     font-size: 11px;
     font-weight: 500;
     letter-spacing: 0.04em;
+    flex: 0 0 auto;
   }
+  /* When it carries a logo, give it a white plate so brand marks read cleanly. */
+  .pcard__crest--logo { background: #fff; }
+  .pcard__crest-img { width: 100%; height: 100%; object-fit: contain; padding: 5px; }
   .pcard--featured .pcard__crest { width: 44px; height: 44px; font-size: 13px; }
   .pcard__client-meta { display: grid; gap: 2px; }
   .pcard__client-name {

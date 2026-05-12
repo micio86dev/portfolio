@@ -199,7 +199,18 @@
     "live": "Vai al sito",
     "repo": "Guarda il codice",
     "stackLabel": "Stack",
-    "resultsLabel": "Risultati"
+    "resultsLabel": "Risultati",
+    "galleryLabel": "Galleria"
+  },
+  "customersPage": {
+    "back": "← Torna ai lavori",
+    "sectorLabel": "Settore",
+    "periodLabel": "Collaborazione",
+    "ongoing": "oggi",
+    "visit": "Visita il sito ↗",
+    "testimonialLabel": "Le loro parole",
+    "galleryLabel": "Galleria",
+    "workLabel": "Lavori selezionati"
   },
   "notesPage": {
     "eyebrow": "§ Note · Articoli e changelog",
