@@ -119,6 +119,12 @@
       "youtube": "YouTube"
     }
   },
+  "videos": {
+    "eyebrow": "§ 04c · Videos",
+    "title": "From the YouTube channel",
+    "meta": "Hand-picked · YouTube",
+    "watch": "Watch on YouTube"
+  },
   "career": {
     "eyebrow": "§ · About",
     "title": "The path that got me here",
@@ -229,9 +235,7 @@
   "colophon": {
     "eyebrow": "§ 06 · Colophon",
     "title": "Built in the open",
-    "body": "This portfolio runs on Astro with hybrid SSR, a self-hosted PocketBase backend, Docker for packaging, and CI/CD through GitHub Actions — built with Claude Code, in the open.",
-    "repoCta": "View the source ↗",
-    "repoUrl": "https://github.com/micio86dev/itjobhub-antigravity-config"
+    "body": "This portfolio runs on Astro with hybrid SSR, a self-hosted PocketBase backend, Docker for packaging, and CI/CD through GitHub Actions — built with Claude Code, in the open."
   },
   "dividers": {
     "services": "§ 02 — Services",
@@ -239,6 +243,7 @@
     "career": "§ — About",
     "skills": "§ 04 — Skills",
     "courses": "§ 04b — Courses",
+    "videos": "§ 04c — Videos",
     "contact": "§ 05 — Contact",
     "colophon": "§ 06 — Colophon"
   },

@@ -1,6 +1,6 @@
 # Staging overrides — layered ON TOP of docker-compose.prod.yml on the VPS:
 #
-#   cd /var/www/portfolio-stage
+#   cd /var/www/html/stage.micio86dev.it
 #   docker compose -f docker-compose.prod.yml -f docker-compose.stage.yml pull
 #   docker compose -f docker-compose.prod.yml -f docker-compose.stage.yml up -d --remove-orphans
 #
@@ -24,4 +24,4 @@ services:
     ports: !override
       - "127.0.0.1:8091:8090"
     volumes: !override
-      - /var/www/portfolio-stage/pb_data:/pb/pb_data
+      - /var/www/html/stage.micio86dev.it/pb_data:/pb/pb_data

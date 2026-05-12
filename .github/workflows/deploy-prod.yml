@@ -67,7 +67,7 @@ jobs:
         run: |
           scp -o StrictHostKeyChecking=accept-new \
             docker-compose.prod.yml \
-            "${SSH_TARGET}:/var/www/portfolio/"
+            "${SSH_TARGET}:/var/www/html/micio86dev.it/"
 
       - name: Write runtime env on VPS
         # docker-compose.prod.yml reads ${PROD_PB_URL} from this .env. The value
@@ -78,7 +78,7 @@ jobs:
         run: |
           printf 'PROD_PB_URL=%s\n' "$PROD_PB_URL" \
             | ssh -o StrictHostKeyChecking=accept-new "${SSH_TARGET}" \
-              'umask 077 && cat > /var/www/portfolio/.env'
+              'umask 077 && cat > /var/www/html/micio86dev.it/.env'
 
       - name: Deploy on VPS
         env:
@@ -86,7 +86,7 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=accept-new "${SSH_TARGET}" 'bash -se' <<'REMOTE'
           set -euo pipefail
-          cd /var/www/portfolio
+          cd /var/www/html/micio86dev.it
           docker compose -f docker-compose.prod.yml pull
           docker compose -f docker-compose.prod.yml up -d --remove-orphans
           docker exec portfolio-pocketbase \

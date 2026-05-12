@@ -462,13 +462,13 @@ PocketBase URL — written by the deploy workflow from the `PROD_PB_URL` /
 `scp` the compose files in on every run, so they stay in sync with the repo.
 
 ```
-/var/www/portfolio/            ← production  (compose: -f docker-compose.prod.yml)
-├── .env                       ← PROD_PB_URL=https://pb.micio86dev.it   (CI writes this)
-├── pb_data/                   ← chown to uid 1001 (the container's pocketbase user)
+/var/www/html/micio86dev.it/              ← production  (compose: -f docker-compose.prod.yml)
+├── .env                         ← PROD_PB_URL=https://pb.micio86dev.it   (CI writes this)
+├── pb_data/                     ← chown to uid 1001 (the container's pocketbase user)
 └── docker-compose.prod.yml
 
-/var/www/portfolio-stage/      ← staging     (compose: -f docker-compose.prod.yml -f docker-compose.stage.yml)
-├── .env                       ← STAGE_PB_URL=https://pb.stage.micio86dev.it   (CI writes this)
+/var/www/html/stage.micio86dev.it/        ← staging     (compose: -f docker-compose.prod.yml -f docker-compose.stage.yml)
+├── .env                         ← STAGE_PB_URL=https://pb.stage.micio86dev.it   (CI writes this)
 ├── pb_data/
 ├── docker-compose.prod.yml
 └── docker-compose.stage.yml
@@ -476,8 +476,8 @@ PocketBase URL — written by the deploy workflow from the `PROD_PB_URL` /
 
 ```bash
 # one-time per stack, on the VPS:
-sudo mkdir -p /var/www/portfolio/pb_data
-sudo chown -R 1001:1001 /var/www/portfolio/pb_data
+sudo mkdir -p /var/www/html/micio86dev.it/pb_data
+sudo chown -R 1001:1001 /var/www/html/micio86dev.it/pb_data
 # .env is created by the first deploy; nothing to paste by hand.
 ```
 
@@ -541,8 +541,8 @@ Add these under **Settings → Secrets and variables → Actions → New reposit
 | `VPS_SSH_PRIVATE_KEY` | ED25519 **private** key the workflows use to SSH into the VPS | `-----BEGIN OPENSSH PRIVATE KEY-----`<br>`b3BlbnNzaC1rZXkt...`<br>`-----END OPENSSH PRIVATE KEY-----` | deploy-stage, deploy-prod |
 | `VPS_SSH_HOST` | VPS IP address or hostname | `203.0.113.10` or `vps.micio86dev.it` | deploy-stage, deploy-prod |
 | `VPS_SSH_USER` | SSH user on the VPS (a dedicated low-privilege deploy user, in the `docker` group) | `deploy` | deploy-stage, deploy-prod |
-| `STAGE_PB_URL` | Runtime URL of the staging PocketBase. The deploy workflow writes it into `/var/www/portfolio-stage/.env`; `docker-compose.stage.yml` injects it as the astro container's `PUBLIC_PB_URL` at start — **not** at build time. | `https://pb.stage.micio86dev.it` | deploy-stage |
-| `PROD_PB_URL` | Runtime URL of the production PocketBase. The deploy workflow writes it into `/var/www/portfolio/.env`; `docker-compose.prod.yml` injects it as the astro container's `PUBLIC_PB_URL` at start — **not** at build time. | `https://pb.micio86dev.it` | deploy-prod |
+| `STAGE_PB_URL` | Runtime URL of the staging PocketBase. The deploy workflow writes it into `/var/www/html/stage.micio86dev.it/.env`; `docker-compose.stage.yml` injects it as the astro container's `PUBLIC_PB_URL` at start — **not** at build time. | `https://pb.stage.micio86dev.it` | deploy-stage |
+| `PROD_PB_URL` | Runtime URL of the production PocketBase. The deploy workflow writes it into `/var/www/html/micio86dev.it/.env`; `docker-compose.prod.yml` injects it as the astro container's `PUBLIC_PB_URL` at start — **not** at build time. | `https://pb.micio86dev.it` | deploy-prod |
 
 These are public hostnames, not secrets — they're stored as repo secrets only so
 the deploy workflow can drop them onto the VPS without anyone editing files

@@ -7,6 +7,7 @@ import Projects from './Projects.astro';
 import Career from './Career.astro';
 import Skills from './Skills.astro';
 import Courses from './Courses.astro';
+import Videos from './Videos.astro';
 import Contact from './Contact.astro';
 import Colophon from './Colophon.astro';
 import { useTranslations, type Locale } from '../../i18n/utils';
@@ -34,6 +35,9 @@ const t = useTranslations(lang);
 
 <SectionDivider label={t('dividers.courses')} />
 <Courses lang={lang} />
+
+<SectionDivider label={t('dividers.videos')} />
+<Videos lang={lang} />
 
 <SectionDivider label={t('dividers.contact')} />
 <Contact lang={lang} />

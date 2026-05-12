@@ -295,6 +295,37 @@ export const COURSES_SEED: CourseRecord[] = [
   },
 ];
 
+// ── Videos (the "Videos" box · § 04c) ──────────────────────────────────
+
+/** Mirrors the `videos` collection (1778608000_created_videos.js): one row per
+ *  hand-picked YouTube video shown in the home-page "Videos" box. `url` is the
+ *  YouTube watch link (the 11-char id is derived from it for the thumbnail and
+ *  the outbound link); `title` is the card title (not per-locale — a video has
+ *  one title); `order` is the manual sort (lower = first). */
+export interface VideoRecord {
+  id: string;
+  url: string;
+  title: string;
+  order: number;
+}
+
+/** A video as exposed to components — `url`/`title` plus the derived 11-char
+ *  YouTube id and its thumbnail URL. Built by `getVideos()`. */
+export interface VideoItem {
+  id: string;
+  url: string;
+  title: string;
+  videoId: string;
+  thumbUrl: string;
+}
+
+/** Mirrors the rows seeded by `1778608000_created_videos.js`. Just a fallback
+ *  for when PocketBase is unreachable — the real picks are managed in /_/. */
+export const VIDEOS_SEED: VideoRecord[] = [
+  { id: 'seed-video-01', url: 'https://www.youtube.com/watch?v=UttHm-Mwqfc', title: 'PHP da zero — la serie completa', order: 1 },
+  { id: 'seed-video-02', url: 'https://www.youtube.com/watch?v=gv0Bz48YLD4', title: 'SQL da zero — fondamenti', order: 2 },
+];
+
 // ── Career path (the "About" section · §) ──────────────────────────────
 
 /** Mirrors the `career` collection (1778606000_created_career.js): one row per

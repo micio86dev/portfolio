@@ -32,6 +32,7 @@ import {
   SERVICES_SEED,
   SKILLS_SEED,
   COURSES_SEED,
+  VIDEOS_SEED,
   CAREER_SEED,
   NEWS_SEED,
   CUSTOMERS_SEED,
@@ -40,6 +41,8 @@ import {
   type ServiceRecord,
   type SkillRecord,
   type CourseRecord,
+  type VideoRecord,
+  type VideoItem,
   type CareerRecord,
   type CareerItem,
   type NewsRecord,
@@ -222,6 +225,44 @@ export async function getCourses(locale: Locale): Promise<Localized<CourseRecord
     }
   }
   return [...COURSES_SEED].sort((a, b) => a.order - b.order).map((r) => localize(r, locale));
+}
+
+// ── Videos (§ 04c — the "Videos" box) ──────────────────────────────────
+
+/** Extract the 11-char YouTube id from a watch / youtu.be / shorts / embed /
+ *  live URL. Returns '' if it can't be found. */
+export function ytVideoId(url: string): string {
+  const m = String(url ?? '').match(
+    /(?:youtube\.com\/(?:watch\?(?:[^#]*&)?v=|shorts\/|embed\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/,
+  );
+  return m ? m[1] : '';
+}
+
+function toVideoItem(r: VideoRecord): VideoItem {
+  const videoId = ytVideoId(r.url);
+  return {
+    id: r.id,
+    url: r.url,
+    title: r.title,
+    videoId,
+    // hqdefault is always available; the section crops the 4:3 frame to 16:9.
+    thumbUrl: videoId ? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` : '',
+  };
+}
+
+export async function getVideos(): Promise<VideoItem[]> {
+  if (pb) {
+    try {
+      const items = await pb.collection('videos').getFullList<VideoRecord>({
+        sort: '+order',
+        requestKey: null,
+      });
+      return [...items].sort((a, b) => a.order - b.order).map(toVideoItem);
+    } catch (err) {
+      console.warn('[pocketbase] getVideos failed — using seed data:', (err as Error)?.message);
+    }
+  }
+  return [...VIDEOS_SEED].sort((a, b) => a.order - b.order).map(toVideoItem);
 }
 
 // ── Skills (§04) ───────────────────────────────────────────────────────

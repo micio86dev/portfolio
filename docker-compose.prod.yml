@@ -1,6 +1,6 @@
 # Production overrides — used on the VPS, on its own:
 #
-#   cd /var/www/portfolio
+#   cd /var/www/html/micio86dev.it
 #   docker compose -f docker-compose.prod.yml pull
 #   docker compose -f docker-compose.prod.yml up -d --remove-orphans
 #
@@ -33,5 +33,5 @@ services:
       # Loopback only — host nginx reverse-proxies pb.micio86dev.it → here.
       - "127.0.0.1:8090:8090"
     volumes:
-      - /var/www/portfolio/pb_data:/pb/pb_data
+      - /var/www/html/micio86dev.it/pb_data:/pb/pb_data
     restart: unless-stopped
