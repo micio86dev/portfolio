@@ -7,7 +7,15 @@ import globals from "globals";
 /** @type {import("eslint").Linter.Config[]} */
 export default [
   {
-    ignores: ["dist/", ".astro/", "node_modules/", "**/*.d.ts"],
+    ignores: [
+      "dist/",
+      ".astro/",
+      "node_modules/",
+      "coverage/",
+      "playwright-report/",
+      "test-results/",
+      "**/*.d.ts",
+    ],
   },
 
   js.configs.recommended,
