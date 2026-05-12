@@ -75,22 +75,35 @@ jobs:
         # authoritative — they carry their own :443/SSL blocks, so re-copying them
         # on every deploy does not clobber Certbot (which only renews the certs).
         #
-        # /etc/nginx/.htpasswd_portfolio_stage must already exist on the VPS — create it
-        # once, manually, and never commit it:
+        # The deploy user is non-root, so /etc/nginx isn't directly writable: we scp
+        # into the user's home, then `sudo install` the files into place. This needs
+        # PASSWORDLESS SUDO on the VPS for that user — it already has Docker-group
+        # access (≈ root-equivalent), so the simplest is /etc/sudoers.d/portfolio-deploy
+        # (chmod 0440):
+        #     <deploy-user> ALL=(ALL) NOPASSWD:ALL
+        # …or narrow it to: install, ln, /usr/sbin/nginx, /usr/bin/systemctl reload nginx.
+        # (If `sudo` complains "sorry, you must have a tty", add `Defaults:<user> !requiretty`.)
+        #
+        # /etc/nginx/.htpasswd_portfolio_stage must also already exist (basic-auth for
+        # the staging app), created once by hand, never committed:
         #   sudo apt install apache2-utils -y
         #   sudo htpasswd -c /etc/nginx/.htpasswd_portfolio_stage YOUR_USERNAME
         env:
           SSH_TARGET: ${{ secrets.VPS_SSH_USER }}@${{ secrets.VPS_SSH_HOST }}
         run: |
           scp -o StrictHostKeyChecking=accept-new \
-            nginx/stage.conf    "${SSH_TARGET}:/etc/nginx/sites-available/portfolio-stage"
+            nginx/stage.conf    "${SSH_TARGET}:.deploy-nginx-stage.conf"
           scp -o StrictHostKeyChecking=accept-new \
-            nginx/stage-pb.conf "${SSH_TARGET}:/etc/nginx/sites-available/portfolio-stage-pb"
+            nginx/stage-pb.conf "${SSH_TARGET}:.deploy-nginx-stage-pb.conf"
           ssh -o StrictHostKeyChecking=accept-new "${SSH_TARGET}" 'bash -se' <<'REMOTE'
           set -euo pipefail
-          ln -sf /etc/nginx/sites-available/portfolio-stage    /etc/nginx/sites-enabled/portfolio-stage
-          ln -sf /etc/nginx/sites-available/portfolio-stage-pb /etc/nginx/sites-enabled/portfolio-stage-pb
-          nginx -t && systemctl reload nginx
+          sudo install -m 0644 -o root -g root "$HOME/.deploy-nginx-stage.conf"    /etc/nginx/sites-available/portfolio-stage
+          sudo install -m 0644 -o root -g root "$HOME/.deploy-nginx-stage-pb.conf" /etc/nginx/sites-available/portfolio-stage-pb
+          rm -f "$HOME/.deploy-nginx-stage.conf" "$HOME/.deploy-nginx-stage-pb.conf"
+          sudo ln -sf /etc/nginx/sites-available/portfolio-stage    /etc/nginx/sites-enabled/portfolio-stage
+          sudo ln -sf /etc/nginx/sites-available/portfolio-stage-pb /etc/nginx/sites-enabled/portfolio-stage-pb
+          sudo nginx -t
+          sudo systemctl reload nginx
           REMOTE
 
       - name: Write runtime env on VPS
