@@ -2,13 +2,15 @@
 
 // `customers` — clients carried over from the previous portfolio
 // (micio86dev.it). One row per client, with `description_*` / `testimonial_*`
-// columns for en / it / es. `logo` is an optional image; `url` an optional
-// link; `sector` a short label; `featured` / `order` drive placement. The
-// Astro frontend reads this via getCustomers(locale) and falls back to
-// CUSTOMERS_SEED if PocketBase is unreachable.
+// columns for en / it / es. `logo` is an optional brand mark; `images` a small
+// gallery (file, multi-select) with `primary_image` naming the primary file;
+// `url` an optional link; `sector` a short label; `featured` / `order` drive
+// placement. The Astro frontend reads this via getCustomers(locale) and falls
+// back to CUSTOMERS_SEED if PocketBase is unreachable.
 //
-// SEED: left empty here — the historical clients are loaded by a follow-up
-// migration once their content has been recovered from the old site.
+// SEED: rows are inserted by `1778602000_seed_projects_customers.js` (it owns
+// both this collection's content and `projects`', and the projects → customers
+// link).
 //
 // API rules: public read; writes superusers-only.
 //   listRule = viewRule = ""                    → public read
@@ -41,6 +43,14 @@ migrate(
         { type: 'text', name: 'sector', max: 100 },
         { type: 'url', name: 'url', required: false },
         { type: 'file', name: 'logo', maxSelect: 1, maxSize: 2097152, mimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'image/svg+xml'] },
+        {
+          type: 'file',
+          name: 'images',
+          maxSelect: 12,
+          maxSize: 5242880,
+          mimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'image/gif'],
+        },
+        { type: 'text', name: 'primary_image', max: 255 },
         { type: 'bool', name: 'featured' },
         { type: 'number', name: 'order', onlyInt: true },
         { type: 'text', name: 'description_en', max: 2000 },

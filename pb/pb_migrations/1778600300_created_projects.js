@@ -3,10 +3,19 @@
 // `projects` — the case-study cards in §03 of the home page. One row per
 // project, with `title_*` / `desc_*` columns for en / it / es. `featured`
 // promotes a card to the big slot; `order` drives the rest. `stack` is a JSON
-// array of strings; `kpis` is a JSON array of `{ label, value }`. The Astro
-// frontend reads this via getProjects(locale) on each request (featured-first,
-// then by `order`) and falls back to PROJECTS_SEED if PocketBase is
-// unreachable.
+// array of strings; `kpis` a JSON array of `{ label, value }`. `client` /
+// `clientInitials` are the display crest; `customer` (a relation to the
+// `customers` collection — added in 1778602000, since `customers` doesn't
+// exist yet at this point in the migration order) links the case study to its
+// client. Personal projects have no `customer`. `images` is a small gallery
+// (file, multi-select); `primary_image` names which uploaded file is the
+// primary one.
+//
+// Seed rows are inserted by `1778602000_seed_projects_customers.js` (it owns
+// both this collection's content and `customers`', and the cross-collection
+// link). The Astro frontend reads this via getProjects(locale) on each request
+// (featured-first, then by `order`) and falls back to PROJECTS_SEED if
+// PocketBase is unreachable.
 //
 // API rules: public read; writes superusers-only.
 //   listRule = viewRule = ""                    → public read
@@ -51,6 +60,14 @@ migrate(
         { type: 'json', name: 'kpis', maxSize: 4000 },
         { type: 'url', name: 'live_url', required: false },
         { type: 'url', name: 'repo_url', required: false },
+        {
+          type: 'file',
+          name: 'images',
+          maxSelect: 12,
+          maxSize: 5242880,
+          mimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'image/gif'],
+        },
+        { type: 'text', name: 'primary_image', max: 255 },
         { type: 'autodate', name: 'created', onCreate: true, onUpdate: false },
         { type: 'autodate', name: 'updated', onCreate: true, onUpdate: true },
       ],
@@ -60,85 +77,7 @@ migrate(
       ],
     });
 
-    app.save(collection);
-
-    const rows = [
-      {
-        slug: 'atelier-nove', idx: '01',
-        client: 'ATELIER NOVE', clientInitials: 'A9', period: '2022 — present',
-        featured: true, order: 1,
-        title_en: 'Multilingual editorial platform',
-        title_it: 'Piattaforma editoriale multilingua',
-        title_es: 'Plataforma editorial multilingüe',
-        desc_en: "Full case study in progress — the brief, the build decisions and the outcomes will land here once it's written up.",
-        desc_it: 'Case study in lavorazione — il brief, le scelte di sviluppo e i risultati arriveranno qui non appena sarà scritto.',
-        desc_es: 'Caso de estudio en preparación — el brief, las decisiones de desarrollo y los resultados estarán aquí cuando esté redactado.',
-        stack: ['Laravel 11', 'Nuxt 3', 'TypeScript', 'PostgreSQL', 'DigitalOcean', 'Meilisearch'],
-        kpis: [
-          { label: 'Pagespeed', value: '99 / 100' },
-          { label: 'Languages', value: '4' },
-          { label: 'Editors', value: '12' },
-          { label: 'Uptime · 24m', value: '99.98%' },
-        ],
-        live_url: '', repo_url: '',
-      },
-      {
-        slug: 'crescendo', idx: '02',
-        client: 'CRESCENDO', clientInitials: 'CR', period: '2023 — 2024',
-        featured: false, order: 2,
-        title_en: 'Subscription billing portal',
-        title_it: 'Portale di fatturazione in abbonamento',
-        title_es: 'Portal de facturación por suscripción',
-        desc_en: "Full case study in progress — the brief, the build decisions and the outcomes will land here once it's written up.",
-        desc_it: 'Case study in lavorazione — il brief, le scelte di sviluppo e i risultati arriveranno qui non appena sarà scritto.',
-        desc_es: 'Caso de estudio en preparación — el brief, las decisiones de desarrollo y los resultados estarán aquí cuando esté redactado.',
-        stack: ['Laravel', 'Vue 3', 'Stripe', 'Redis', 'Hetzner'],
-        kpis: [], live_url: '', repo_url: '',
-      },
-      {
-        slug: 'fiore-it', idx: '03',
-        client: 'FIORE.IT', clientInitials: 'FI', period: '2021 — 2023',
-        featured: false, order: 3,
-        title_en: 'E-commerce storefront',
-        title_it: 'Vetrina e-commerce',
-        title_es: 'Tienda e-commerce',
-        desc_en: "Full case study in progress — the brief, the build decisions and the outcomes will land here once it's written up.",
-        desc_it: 'Case study in lavorazione — il brief, le scelte di sviluppo e i risultati arriveranno qui non appena sarà scritto.',
-        desc_es: 'Caso de estudio en preparación — el brief, las decisiones de desarrollo y los resultados estarán aquí cuando esté redactado.',
-        stack: ['Laravel', 'Livewire', 'Tailwind', 'MySQL'],
-        kpis: [], live_url: '', repo_url: '',
-      },
-      {
-        slug: 'nordstern', idx: '04',
-        client: 'NORDSTERN', clientInitials: 'NS', period: '2020 — 2022',
-        featured: true, order: 4,
-        title_en: 'Realtime logistics dashboard',
-        title_it: 'Dashboard logistica in tempo reale',
-        title_es: 'Panel de logística en tiempo real',
-        desc_en: "Full case study in progress — the brief, the build decisions and the outcomes will land here once it's written up.",
-        desc_it: 'Case study in lavorazione — il brief, le scelte di sviluppo e i risultati arriveranno qui non appena sarà scritto.',
-        desc_es: 'Caso de estudio en preparación — el brief, las decisiones de desarrollo y los resultados estarán aquí cuando esté redactado.',
-        stack: ['Nuxt', 'Node.js', 'WebSockets', 'Mapbox', 'TimescaleDB'],
-        kpis: [], live_url: '', repo_url: '',
-      },
-      {
-        slug: 'oficina-6', idx: '05',
-        client: 'OFICINA / 6', clientInitials: 'O6', period: '2019 — 2021',
-        featured: false, order: 5,
-        title_en: 'Internal operations tool',
-        title_it: 'Strumento operativo interno',
-        title_es: 'Herramienta de operaciones interna',
-        desc_en: "Full case study in progress — the brief, the build decisions and the outcomes will land here once it's written up.",
-        desc_it: 'Case study in lavorazione — il brief, le scelte di sviluppo e i risultati arriveranno qui non appena sarà scritto.',
-        desc_es: 'Caso de estudio en preparación — el brief, las decisiones de desarrollo y los resultados estarán aquí cuando esté redactado.',
-        stack: ['Laravel', 'Vue', 'Inertia', 'Postgres'],
-        kpis: [], live_url: '', repo_url: '',
-      },
-    ];
-
-    for (const row of rows) {
-      app.save(new Record(collection, row));
-    }
+    return app.save(collection);
   },
   (app) => {
     const collection = app.findCollectionByNameOrId('projects');
