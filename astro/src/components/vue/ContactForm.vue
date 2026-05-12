@@ -21,7 +21,8 @@ interface Messages {
   message: string;
   messagePlaceholder: string;
   charCounter: string; // contains "{count}"
-  privacy: string;
+  privacy: string; // contains "{link}" — replaced with the privacy-policy link
+  privacyLinkText: string; // the linked text inside `privacy`
   submit: string;
   sending: string;
   success: string;
@@ -48,6 +49,8 @@ const props = defineProps<{
    *  generic-failure message. Provided by Contact.astro from CONTACT_EMAIL
    *  (src/lib/site.ts) at request time. */
   contactEmail: string;
+  /** Locale-aware href of the privacy policy page (e.g. `/privacy`, `/it/privacy`). */
+  privacyHref: string;
 }>();
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
@@ -96,6 +99,8 @@ watch(status, async (s) => {
 const messageCount = computed(() => form.message.length);
 const counterText = computed(() => props.messages.charCounter.replace('{count}', String(messageCount.value)));
 const errorText = computed(() => props.messages.error.replace('{email}', props.contactEmail));
+// Split the privacy line around the `{link}` token so the policy link is real.
+const privacyParts = computed(() => props.messages.privacy.split('{link}'));
 
 const errors = computed(() => {
   const e: Partial<Record<'name' | 'email' | 'subject' | 'message', string>> = {};
@@ -182,6 +187,7 @@ async function onSubmit() {
           type="text"
           name="name"
           autocomplete="name"
+          aria-required="true"
           :maxlength="MAX_NAME"
           :placeholder="messages.namePlaceholder"
           :data-state="showError('name') ? 'error' : undefined"
@@ -205,6 +211,7 @@ async function onSubmit() {
           type="email"
           name="email"
           autocomplete="email"
+          aria-required="true"
           :placeholder="messages.emailPlaceholder"
           :data-state="showError('email') ? 'error' : undefined"
           :aria-invalid="showError('email') || undefined"
@@ -227,6 +234,7 @@ async function onSubmit() {
         class="md-input"
         type="text"
         name="subject"
+        aria-required="true"
         :maxlength="MAX_SUBJECT"
         :placeholder="messages.subjectPlaceholder"
         :data-state="showError('subject') ? 'error' : undefined"
@@ -255,6 +263,7 @@ async function onSubmit() {
         class="md-input"
         name="message"
         rows="6"
+        aria-required="true"
         :maxlength="MAX_MESSAGE + 200"
         :placeholder="messages.messagePlaceholder"
         :data-state="showError('message') ? 'error' : undefined"
@@ -297,7 +306,10 @@ async function onSubmit() {
     </p>
 
     <div class="cf__row cf__submit-row">
-      <span class="cf__privacy">{{ messages.privacy }}</span>
+      <span class="cf__privacy">{{ privacyParts[0] }}<a
+        :href="privacyHref"
+        class="cf__privacy-link"
+      >{{ messages.privacyLinkText }}</a>{{ privacyParts[1] ?? '' }}</span>
       <button
         type="submit"
         class="md-btn cf__submit"
@@ -380,6 +392,12 @@ async function onSubmit() {
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
+.cf__privacy-link {
+  color: var(--text-2);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.cf__privacy-link:hover { color: var(--brand); }
 .cf__submit { height: 48px; padding: 0 24px; }
 /* Loading-state press; transform-only so no layout shift. The .md-btn base
    already transitions `transform`. Gated on reduced-motion (reduced-motion

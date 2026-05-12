@@ -1,5 +1,5 @@
 ---
-import { useTranslations, type Locale } from '../../i18n/utils';
+import { useTranslations, useTranslatedPath, type Locale } from '../../i18n/utils';
 import { CONTACT_EMAIL } from '../../lib/site';
 import ContactForm from '../vue/ContactForm.vue';
 
@@ -8,6 +8,7 @@ interface Props {
 }
 const { lang } = Astro.props;
 const t = useTranslations(lang);
+const path = useTranslatedPath(lang);
 
 // Strings handed to the Vue island as a prop (the island can't read i18n itself).
 const formMessages = {
@@ -23,6 +24,7 @@ const formMessages = {
   messagePlaceholder: t('contact.form.messagePlaceholder'),
   charCounter: t('contact.form.charCounter'),
   privacy: t('contact.form.privacy'),
+  privacyLinkText: t('contact.form.privacyLinkText'),
   submit: t('contact.form.submit'),
   sending: t('contact.form.sending'),
   success: t('contact.form.success'),
@@ -55,7 +57,7 @@ const pbUrl =
 
   <div class="contact__layout">
     <div class="contact__panel">
-      <ContactForm client:visible messages={formMessages} pbUrl={pbUrl} contactEmail={CONTACT_EMAIL} />
+      <ContactForm client:visible messages={formMessages} pbUrl={pbUrl} contactEmail={CONTACT_EMAIL} privacyHref={path('/privacy')} />
     </div>
 
     <aside class="contact__aside">
