@@ -7,15 +7,20 @@
 // `clientInitials` are the display crest; `customer` (a relation to the
 // `customers` collection — added in 1778602000, since `customers` doesn't
 // exist yet at this point in the migration order) links the case study to its
-// client. Personal projects have no `customer`. `images` is a small gallery
-// (file, multi-select); `primary_image` names which uploaded file is the
-// primary one.
+// client. Personal projects have no `customer`. `started` / `ended` are the
+// project span (datetimes — empty `ended` ⇒ ongoing); client projects inherit
+// their customer's span. `period` is the human display string ("2019 — 2021").
+// `images` is a small gallery (file, multi-select); `primary_image` names
+// which uploaded file is the primary one.
 //
 // Seed rows are inserted by `1778602000_seed_projects_customers.js` (it owns
 // both this collection's content and `customers`', and the cross-collection
-// link). The Astro frontend reads this via getProjects(locale) on each request
-// (featured-first, then by `order`) and falls back to PROJECTS_SEED if
-// PocketBase is unreachable.
+// link); the `started`/`ended`/`period`/`order` values are also re-asserted
+// by `1778605000_update_collaboration_dates.js` for already-migrated
+// instances. The Astro frontend reads this via getProjects(locale) on each
+// request (sorted most-recent-first by `ended` ?? `started`, with personal
+// projects — those with no `customer` — pushed to the end) and falls back to
+// PROJECTS_SEED if PocketBase is unreachable.
 //
 // API rules: public read; writes superusers-only.
 //   listRule = viewRule = ""                    → public read
@@ -50,6 +55,8 @@ migrate(
         { type: 'text', name: 'period', max: 50 },
         { type: 'bool', name: 'featured' },
         { type: 'number', name: 'order', onlyInt: true },
+        { type: 'date', name: 'started' },
+        { type: 'date', name: 'ended' },
         { type: 'text', name: 'title_en', required: true, max: 200 },
         { type: 'text', name: 'title_it', max: 200 },
         { type: 'text', name: 'title_es', max: 200 },

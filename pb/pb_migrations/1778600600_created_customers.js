@@ -2,15 +2,25 @@
 
 // `customers` — clients carried over from the previous portfolio
 // (micio86dev.it). One row per client, with `description_*` / `testimonial_*`
-// columns for en / it / es. `logo` is an optional brand mark; `images` a small
-// gallery (file, multi-select) with `primary_image` naming the primary file;
-// `url` an optional link; `sector` a short label; `featured` / `order` drive
-// placement. The Astro frontend reads this via getCustomers(locale) and falls
+// columns for en / it / es. `url` an optional link; `sector` a short label;
+// `featured` / `order` drive placement. `started` / `ended` are the
+// collaboration span (datetimes — `ended` empty ⇒ the collaboration is
+// ongoing). The Astro frontend reads this via getCustomers(locale) and falls
 // back to CUSTOMERS_SEED if PocketBase is unreachable.
+//
+// Image semantics (all editable from the PB backoffice):
+//   - `logo`          — the company / brand logo (single file). Shown on the
+//                       frontend (Hero "trusted by" strip) via `logoUrl`.
+//   - `primary_image` — names the file (within `images`) used as the main
+//                       visual; for a customer this is a SCREENSHOT of the
+//                       client's portal (uploaded later via admin).
+//   - `images`        — an extra gallery (file, multi-select) of additional
+//                       screenshots / shots.
 //
 // SEED: rows are inserted by `1778602000_seed_projects_customers.js` (it owns
 // both this collection's content and `projects`', and the projects → customers
-// link).
+// link). The collaboration dates are also re-asserted by
+// `1778605000_update_collaboration_dates.js` for already-migrated instances.
 //
 // API rules: public read; writes superusers-only.
 //   listRule = viewRule = ""                    → public read
@@ -53,6 +63,8 @@ migrate(
         { type: 'text', name: 'primary_image', max: 255 },
         { type: 'bool', name: 'featured' },
         { type: 'number', name: 'order', onlyInt: true },
+        { type: 'date', name: 'started' },
+        { type: 'date', name: 'ended' },
         { type: 'text', name: 'description_en', max: 2000 },
         { type: 'text', name: 'description_it', max: 2000 },
         { type: 'text', name: 'description_es', max: 2000 },

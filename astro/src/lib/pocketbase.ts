@@ -82,6 +82,31 @@ function featuredFirst<T extends { featured: boolean; order: number }>(items: T[
   });
 }
 
+/**
+ * Homepage project ordering: personal projects (no/empty `customer`) come
+ * AFTER all client ones; within each group, sorted most-recent-first by the
+ * recency key = `ended` if non-empty, else `started` (an empty `ended` —
+ * "ongoing" — counts as the most recent). `order` is the final tiebreaker.
+ *
+ * Distinct from `featuredFirst` (still used for `customers` and elsewhere) —
+ * don't conflate the two.
+ */
+function byRecencyPersonalLast<
+  T extends { customer?: string; started?: string; ended?: string; order: number },
+>(items: T[]): T[] {
+  const isPersonal = (x: T) => !x.customer;
+  // Recency key: `ended` if set; otherwise (ongoing) a '￿'-prefixed string
+  // so it sorts above every real `ended` date, sub-ordered by `started`.
+  const recencyKey = (x: T) => (x.ended ? x.ended : `￿${x.started ?? ''}`);
+  return [...items].sort((a, b) => {
+    if (isPersonal(a) !== isPersonal(b)) return isPersonal(a) ? 1 : -1;
+    const ka = recencyKey(a);
+    const kb = recencyKey(b);
+    if (ka !== kb) return ka < kb ? 1 : -1; // DESC — most recent first
+    return a.order - b.order;
+  });
+}
+
 // ── UI strings: PocketBase `translations` → i18n overlay ───────────────
 
 interface TranslationRow {
@@ -147,12 +172,12 @@ export async function getProjects(locale: Locale): Promise<Localized<ProjectReco
         sort: '+order',
         requestKey: null,
       });
-      return featuredFirst(items).map((r) => localize(r, locale));
+      return byRecencyPersonalLast(items).map((r) => localize(r, locale));
     } catch (err) {
       console.warn('[pocketbase] getProjects failed — using seed data:', (err as Error)?.message);
     }
   }
-  return featuredFirst(PROJECTS_SEED).map((r) => localize(r, locale));
+  return byRecencyPersonalLast(PROJECTS_SEED).map((r) => localize(r, locale));
 }
 
 export async function getProject(
@@ -254,6 +279,8 @@ function toCustomerItem(r: CustomerRecord, locale: Locale): CustomerItem {
     url: r.url,
     logoUrl: fileUrl(r.collectionId, r.id, r.logo),
     featured: !!r.featured,
+    started: r.started ?? '',
+    ended: r.ended ?? '',
     description: pick(rec, 'description', locale),
     testimonial: pick(rec, 'testimonial', locale),
     testimonialAuthor: r.testimonial_author,
