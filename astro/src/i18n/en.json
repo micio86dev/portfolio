@@ -211,11 +211,19 @@
       "fallbackBody": "This page is being updated. In the meantime, if you have any legal or data-protection questions, please reach me through the contact form on this site."
     }
   },
+  "colophon": {
+    "eyebrow": "§ 06 · Colophon",
+    "title": "Built in the open",
+    "body": "This portfolio runs on Astro with hybrid SSR, a self-hosted PocketBase backend, Docker for packaging, and CI/CD through GitHub Actions — built with Claude Code, in the open.",
+    "repoCta": "View the source ↗",
+    "repoUrl": "https://github.com/micio86dev/itjobhub-antigravity-config"
+  },
   "dividers": {
     "services": "§ 02 — Services",
     "work": "§ 03 — Selected work",
     "skills": "§ 04 — Skills",
-    "contact": "§ 05 — Contact"
+    "contact": "§ 05 — Contact",
+    "colophon": "§ 06 — Colophon"
   },
   "a11y": {
     "skipToContent": "Skip to content",

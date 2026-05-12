@@ -211,11 +211,19 @@
       "fallbackBody": "Esta página se está actualizando. Mientras tanto, si tienes cualquier duda legal o sobre protección de datos, escríbeme a través del formulario de contacto del sitio."
     }
   },
+  "colophon": {
+    "eyebrow": "§ 06 · Colofón",
+    "title": "Hecho a la vista",
+    "body": "Este portfolio funciona con Astro y SSR híbrido, un backend PocketBase autoalojado, Docker para el empaquetado y CI/CD mediante GitHub Actions — hecho con Claude Code, a la vista de todos.",
+    "repoCta": "Ver el código ↗",
+    "repoUrl": "https://github.com/micio86dev/itjobhub-antigravity-config"
+  },
   "dividers": {
     "services": "§ 02 — Servicios",
     "work": "§ 03 — Trabajos seleccionados",
     "skills": "§ 04 — Habilidades",
-    "contact": "§ 05 — Contacto"
+    "contact": "§ 05 — Contacto",
+    "colophon": "§ 06 — Colofón"
   },
   "a11y": {
     "skipToContent": "Saltar al contenido",
