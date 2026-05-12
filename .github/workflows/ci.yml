@@ -28,19 +28,25 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v5
+      - uses: oven-sh/setup-bun@v2
         with:
-          node-version: 24
-          cache: npm
-          cache-dependency-path: astro/package-lock.json
+          bun-version: latest
 
-      - run: npm ci
+      - name: Cache Bun install cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('astro/bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - run: bun install --frozen-lockfile
 
       - name: Lint
-        run: npm run lint
+        run: bun run lint
 
       - name: Type check
-        run: npm run check
+        run: bun run check
 
       - name: Build
         # PB_URL is left empty so the build uses the bundled seed data (no
@@ -48,4 +54,4 @@ jobs:
         env:
           PB_URL: ""
           SITE_URL: https://micio86dev.it
-        run: npm run build
+        run: bun run build

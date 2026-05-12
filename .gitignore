@@ -8,10 +8,10 @@ node_modules/
 dist/
 .output/
 .astro/
-# The lockfiles MUST be committed (CI runs `npm ci`; Husky installs from the
-# root package.json). Re-include them in case a global ~/.gitignore ignores
-# package-lock.json.
-!astro/package-lock.json
+# The lockfiles MUST be committed (CI runs `bun install --frozen-lockfile` in
+# astro/; the root still uses npm + Husky). Re-include them in case a global
+# ~/.gitignore ignores bun.lock or package-lock.json.
+!astro/bun.lock
 !/package-lock.json
 
 # ── PocketBase ─────────────────────────────────────────────────────────
