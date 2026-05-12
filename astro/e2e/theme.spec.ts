@@ -1,32 +1,37 @@
 import { test, expect } from './fixtures';
+import type { Page } from '@playwright/test';
+
+// The Nav (and its nested ThemeToggle) hydrates with `client:idle`, so after a
+// navigation the toggle isn't interactive until the island chunk has loaded and
+// run. Wait for the network to settle — that's when the deferred island/Vue
+// chunks have arrived and hydration has run — before clicking it.
+async function clickThemeToggle(page: Page) {
+  await page.waitForLoadState('networkidle');
+  await page.locator('.theme-toggle').first().click();
+}
 
 test.describe('theme toggle', () => {
   test('flips data-theme, persists to localStorage and survives a reload', async ({ page }) => {
     await page.goto('/');
 
     const html = page.locator('html');
-    const initial = await html.getAttribute('data-theme');
-    expect(initial).toBe('light'); // jsdom-less browser, no saved pref → light
+    expect(await html.getAttribute('data-theme')).toBe('light'); // no saved pref → light
 
-    // The desktop nav renders the first ThemeToggle; the drawer copy is hidden.
-    const toggle = page.locator('.theme-toggle').first();
-    await toggle.click();
-
+    await clickThemeToggle(page);
     await expect(html).toHaveAttribute('data-theme', 'dark');
-    const stored = await page.evaluate(() => window.localStorage.getItem('miciodev-theme'));
-    expect(stored).toBe('dark');
-    await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+    expect(await page.evaluate(() => window.localStorage.getItem('miciodev-theme'))).toBe('dark');
+    await expect(page.locator('.theme-toggle').first()).toHaveAttribute('aria-pressed', 'true');
 
     // Reload — the inline bootstrap in <head> must re-apply the saved choice
     // before paint.
     await page.reload();
-    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+    await expect(html).toHaveAttribute('data-theme', 'dark');
 
     // Toggle back to light and confirm it persists too.
-    await page.locator('.theme-toggle').first().click();
-    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+    await clickThemeToggle(page);
+    await expect(html).toHaveAttribute('data-theme', 'light');
     expect(await page.evaluate(() => window.localStorage.getItem('miciodev-theme'))).toBe('light');
     await page.reload();
-    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+    await expect(html).toHaveAttribute('data-theme', 'light');
   });
 });
