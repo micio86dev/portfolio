@@ -275,9 +275,9 @@ matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
 
 Two fonts — **Instrument Serif** (display, italic + roman) and **Geist** + **Geist Mono** (body & code accents). Performance first:
 
-1. **Self-host.** Don't use Google Fonts CDN — it adds a third-party round trip. Download woff2 files from `fonts.google.com` or `vercel.com/font` (Geist) and put them in `public/fonts/`.
+1. **Self-host.** Don't use Google Fonts CDN — it adds a third-party round trip. The woff2 files live in `astro/public/fonts/` (committed), pulled from the Fontsource CDN — `https://cdn.jsdelivr.net/fontsource/fonts/<id>@latest/latin-<wght>-<style>.woff2`, ids `instrument-serif`, `geist`, `geist-mono`. To refresh them, re-download the same files (names listed in `public/fonts/.gitkeep`).
 
-2. **Subset to the languages you ship.** Use [glyphhanger](https://github.com/zachleat/glyphhanger) or fonttools `pyftsubset` to keep only Latin (covers IT/EN/ES). Cuts each weight ~70%.
+2. **Subset to the languages you ship.** The Fontsource `latin` subset already covers IT/EN/ES. To re-subset further, use [glyphhanger](https://github.com/zachleat/glyphhanger) or fonttools `pyftsubset`.
 
 3. **Preload the two critical files only** (display italic + body regular):
 

@@ -560,9 +560,13 @@ faint two-radial `--brand-glow` atmosphere, `overflow:hidden`.
   1.55 blurb; (b) "Site" column — Work / Services / About / Contact, each link
   `#F1F1EA` 14 with a `rgba(255,255,255,.4)` `↳` prefix, hover → `--brand-glow`;
   (c) "More" column — Notes / Archive / Privacy / Imprint, same style; (d)
-  "Elsewhere" — three 38 px circular social buttons (GitHub / LinkedIn / YouTube
-  inline SVGs, 1 px `rgba(255,255,255,.14)` border, hover → `--brand-glow`
-  border+icon) + a dark-variant `LangSwitch` (size sm, `client:visible`).
+  "Elsewhere" — 38 px circular social buttons, one per row in the `socials`
+  PocketBase collection (in its `order`; the seed set is GitHub / LinkedIn /
+  YouTube / Instagram / TikTok / Facebook / Udemy). Each button's `icon` key
+  picks an inline line-SVG from the `ICONS` map in `Footer.astro` (1 px
+  `rgba(255,255,255,.14)` border, hover → `--brand-glow` border+icon; unknown
+  keys fall back to a generic globe). Followed by a dark-variant `LangSwitch`
+  (size sm, `client:visible`).
 - **Colophon** (top-bordered, mono 11 `rgba(255,255,255,.7)` `.08em` uppercase):
   "© 2010 — 2026 · Alessandro · MicioDev" on the left; "Fuerteventura · IC · ES" +
   "Built with Astro + PocketBase · v 0.1.0" on the right.

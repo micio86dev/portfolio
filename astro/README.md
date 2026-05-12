@@ -39,7 +39,7 @@ Trilingual (English · Italian · Spanish), light + dark, mobile-first.
 | Interactive islands | **Vue 3** | `Nav` (`client:load`), `ThemeToggle` & `LangSwitch` (child islands / `client:visible` in the footer), `ContactForm` (`client:visible`). |
 | Styling | **Tailwind CSS v4** via `@tailwindcss/vite` | Tokens live in `src/styles/tokens.css` as CSS custom properties; `src/styles/app.css` imports Tailwind, maps tokens into a `@theme` block, declares `@font-face`, and defines the `.md-*` component utilities. |
 | i18n | **Astro built-in i18n** | `defaultLocale: 'en'`, `locales: ['en','it','es']`, default locale served at `/` (no prefix). |
-| Data | **PocketBase JS SDK** | Per-request fetch of `projects` + `services` (server-only, `src/lib/pocketbase.ts`); falls back to `src/lib/seed-data.ts` when PocketBase is unset/unreachable so the site still renders. |
+| Data | **PocketBase JS SDK** | Per-request fetch of all content collections — `projects`, `services`, `skills`, `courses`, `videos`, `career`, `news`, `customers`, `pages`, `socials` (server-only, `src/lib/pocketbase.ts`); falls back to `src/lib/seed-data.ts` when PocketBase is unset/unreachable so the site still renders. |
 | Contact | **PocketBase** | The form (browser) POSTs straight to `${PUBLIC_PB_URL}/api/collections/contacts/records`; submissions land in the `contacts` collection. No email service. |
 
 ---
@@ -110,7 +110,7 @@ micio86dev/
 │  ├─ favicon.ico              # MicioDev cat mark
 │  ├─ logo.svg                 # mark + wordmark, standalone
 │  ├─ robots.txt
-│  └─ fonts/.gitkeep           # expected woff2 filenames are documented here
+│  └─ fonts/                   # self-hosted woff2 files (Latin subset, from Fontsource); .gitkeep documents the exact names
 └─ src/
    ├─ assets/                  # images processed by astro:assets — logo-miciodev.jpg, hero.webp
    ├─ env.d.ts                 # ImportMetaEnv typings for the env vars above
@@ -129,7 +129,7 @@ micio86dev/
    │  │  ├─ Skills.astro       # 4 group columns; pill cloud with primary / daily / default weights; legend
    │  │  ├─ Contact.astro      # section header + form panel (ContactForm island) + direct-contact aside
    │  │  ├─ SectionDivider.astro # aria-hidden hairline + mono "§ NN — name" label between sections
-   │  │  ├─ Footer.astro       # always-dark surface (#0A0B0A); big italic email; columns; social icons; LangSwitch island
+   │  │  ├─ Footer.astro       # always-dark surface (#0A0B0A); big italic email; columns; social icons from the `socials` collection (getSocials() + an ICONS map); LangSwitch island
    │  │  └─ SectionsHome.astro # the full landing-page section stack, shared across all locale routes
    │  └─ vue/                  # interactive islands
    │     ├─ Nav.vue            # sticky w/ backdrop blur; status strip; desktop links + mobile drawer; hosts ThemeToggle + LangSwitch
@@ -140,7 +140,7 @@ micio86dev/
    │  ├─ en.json / it.json / es.json   # all UI copy as PLACEHOLDER keys (e.g. "EN — hero · headline line 1")
    │  └─ utils.ts              # useTranslations(lang), useTranslatedPath(lang), getLangFromUrl, stripLocale, LOCALES, DEFAULT_LOCALE
    ├─ lib/
-   │  ├─ pocketbase.ts         # PocketBase singleton (server-only) + getProjects(locale) / getServices(locale) with seed fallback
+   │  ├─ pocketbase.ts         # PocketBase singleton (server-only) + per-request getters (getProjects/getServices/getSkills/getCourses/getVideos/getCareer/getNews/getCustomers/getPages/getSocials), all with seed fallback
    │  └─ seed-data.ts          # structural placeholder data mirroring the PocketBase schema (the seed fallback)
    └─ styles/
       ├─ tokens.css            # design tokens as CSS custom properties (+ [data-theme="dark"] overrides, reduced-motion guard, coarse-pointer hit area)
@@ -219,24 +219,26 @@ Source of truth: `document.documentElement.dataset.theme` — `"light"` |
 ## Fonts
 
 Self-host three families: **Instrument Serif** (display — italic + roman),
-**Geist** (body — 400/500/600), **Geist Mono** (400/500). Until you add the
-files, the system fallbacks (`Times New Roman` / `system-ui`) render and
-nothing breaks.
+**Geist** (body — 400/500/600), **Geist Mono** (400/500). The woff2 files are
+committed under `public/fonts/` (Latin subset — covers en/it/es), pulled from
+the Fontsource CDN. If a file goes missing the system fallbacks
+(`Times New Roman` / `system-ui`) render and nothing breaks.
 
-1. Download: Instrument Serif from [fonts.google.com](https://fonts.google.com/specimen/Instrument+Serif),
-   Geist + Geist Mono from [vercel.com/font](https://vercel.com/font).
-2. Subset to Latin (covers en/it/es) with
-   [glyphhanger](https://github.com/zachleat/glyphhanger) or `pyftsubset`.
-3. Drop the woff2 files into `public/fonts/` with **exactly these names** (also
-   listed in `public/fonts/.gitkeep`):
+1. The files are already there. To refresh, re-download from the Fontsource CDN
+   — `https://cdn.jsdelivr.net/fontsource/fonts/<id>@latest/latin-<wght>-<style>.woff2`
+   (ids `instrument-serif`, `geist`, `geist-mono`) — and save them under
+   `public/fonts/` with **exactly these names** (also listed in
+   `public/fonts/.gitkeep`):
    `instrument-serif-regular.woff2`, `instrument-serif-italic.woff2`,
    `geist-regular.woff2`, `geist-medium.woff2`, `geist-semibold.woff2`,
    `geist-mono-regular.woff2`, `geist-mono-medium.woff2`.
-4. `app.css` already declares the `@font-face` rules with `font-display: swap`
+2. To re-subset further (the Fontsource `latin` subset is already small), use
+   [glyphhanger](https://github.com/zachleat/glyphhanger) or `pyftsubset`.
+3. `app.css` declares the `@font-face` rules with `font-display: swap`
    (+ `size-adjust` / `ascent-override` on Geist to minimize layout shift), and
    `BaseLayout.astro` preloads the two critical files
    (`instrument-serif-italic.woff2`, `geist-regular.woff2`).
-5. On your host, cache `public/fonts/*` immutably
+4. On your host, cache `public/fonts/*` immutably
    (`Cache-Control: public, max-age=31536000, immutable`).
 
 ---
@@ -276,28 +278,44 @@ Services, Projects, Skills, the Contact section shell, and the Footer shell.
 
 `src/lib/pocketbase.ts` builds a singleton from `PUBLIC_PB_URL` (read at
 **runtime** — `process.env.PUBLIC_PB_URL`, then `import.meta.env` as a dev
-fallback) and exposes `getProjects(locale)` and `getServices(locale)`, called
-from page/component frontmatter. With `output: 'server'` those run **per
-request**, so content is always fresh. If `PUBLIC_PB_URL` is unset or the
-request fails, both fall back to `src/lib/seed-data.ts` — so a clean checkout
-still renders with no backend. This module is server-only; don't import it from
-client components.
+fallback) and exposes one getter per content collection — `getProjects(locale)`,
+`getServices(locale)`, `getSkills()`, `getCourses(locale)`, `getVideos()`,
+`getCareer(locale)`, `getNews(locale)` / `getNewsPost(slug, locale)`,
+`getCustomers(locale)`, `getPages(locale)` / `getPage(slug, locale)`,
+`getSocials()` — called from page/component frontmatter. It also exports
+`PB_ORIGIN` (the PocketBase origin), used to whitelist it in the page CSP. With
+`output: 'server'` those run **per request**, so content is always fresh. If
+`PUBLIC_PB_URL` is unset or the request fails, every getter falls back to
+`src/lib/seed-data.ts` — so a clean checkout still renders with no backend. This
+module is server-only; don't import it from client components.
 
-Expected collections (full field list in `../README.md` → "PocketBase
-collections schema"):
+Collections (full field list in `../README.md` → "PocketBase collections
+schema"; all have a **public read rule**, writes superuser-only):
 
 - **`projects`** — `slug` (unique), `idx`, `client`, `period`, `featured`,
   `order`, `title_{en,it,es}`, `desc_{en,it,es}`, `stack` (json string[]),
   `kpis` (json `{label,value}[]`), `cover` (file), `gallery` (file[]),
-  `live_url`, `repo_url`. **Public read rule.** The first featured project
+  `live_url`, `repo_url`, `customers` (relation). The first featured project
   renders as the wide featured card.
 - **`services`** — `idx`, `order`, `icon`
   (`stack` | `api` | `vps` | `compass` | `magnifier` → maps to an inline SVG in
   `Services.astro`), `featured`, `title_{en,it,es}`, `desc_{en,it,es}`,
-  `tags` (json string[]). **Public read rule.**
+  `tags` (json string[]).
+- **`skills`**, **`courses`**, **`videos`**, **`career`**, **`news`**,
+  **`customers`**, **`pages`** — see the per-collection migrations in
+  `../pb/pb_migrations/`.
+- **`socials`** — `icon` (select: `github` | `gitlab` | `linkedin` | `x` |
+  `instagram` | `facebook` | `youtube` | `tiktok` | `udemy` | `codepen` |
+  `dribbble` | `telegram` | `mastodon` | `email` | `rss` | `website`), `url`,
+  `label`, `order`. Rendered as the footer's "Elsewhere" buttons; the `icon`
+  key picks an SVG from the `ICONS` map in `Footer.astro`. Reorder them by drag
+  & drop at `{PUBLIC_PB_URL}/socials-order` (served by
+  `pb/pb_hooks/socials_order.pb.js`) — no redeploy needed.
 
 Content is re-read on every request (SSR), so no rebuild/webhook is needed when
-projects or services change in PocketBase.
+anything changes in PocketBase. File fields (`cover`, `gallery`, customer
+`logo`, news `cover`) become `https://<pb-origin>/api/files/…` URLs, which is
+why `BaseLayout.astro`'s CSP `img-src` / `connect-src` include `PB_ORIGIN`.
 
 ---
 
@@ -406,7 +424,7 @@ Lighthouse 100 / 100 / 100 / 100 on the `/` route before launching the others.
 - [ ] Stand up PocketBase locally, create the `projects` + `services`
       collections (public read rule), seed them, point `PUBLIC_PB_URL` at it.
       (The `contacts` collection is created by `pb/pb_migrations/`.)
-- [ ] Add the self-hosted, subsetted woff2 font files to `public/fonts/`.
+- [x] Add the self-hosted woff2 font files to `public/fonts/` (Latin subset, from Fontsource).
 - [ ] Build `src/pages/projects/[slug].astro` case-study detail pages
       (`getStaticPaths` over `getProjects`).
 - [ ] Generate per-locale Open Graph images at `public/og/{en,it,es}.png` (1200×630).
