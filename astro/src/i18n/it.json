@@ -204,6 +204,13 @@
     "settingsLink": "Impostazioni cookie",
     "ariaLabel": "Avviso cookie"
   },
+  "pages": {
+    "imprint": {
+      "description": "Note legali di miciodev.com — titolare del sito, hosting, proprietà intellettuale e informazioni sulla responsabilità.",
+      "fallbackTitle": "Note legali",
+      "fallbackBody": "Questa pagina è in aggiornamento. Nel frattempo, per qualsiasi domanda legale o sulla protezione dei dati, scrivimi tramite il modulo di contatto del sito."
+    }
+  },
   "dividers": {
     "services": "§ 02 — Servizi",
     "work": "§ 03 — Lavori selezionati",

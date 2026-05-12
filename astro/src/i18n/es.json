@@ -204,6 +204,13 @@
     "settingsLink": "Ajustes de cookies",
     "ariaLabel": "Aviso de cookies"
   },
+  "pages": {
+    "imprint": {
+      "description": "Aviso legal de miciodev.com — titular del sitio, alojamiento, propiedad intelectual e información sobre responsabilidad.",
+      "fallbackTitle": "Aviso legal",
+      "fallbackBody": "Esta página se está actualizando. Mientras tanto, si tienes cualquier duda legal o sobre protección de datos, escríbeme a través del formulario de contacto del sitio."
+    }
+  },
   "dividers": {
     "services": "§ 02 — Servicios",
     "work": "§ 03 — Trabajos seleccionados",

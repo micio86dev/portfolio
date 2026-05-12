@@ -204,6 +204,13 @@
     "settingsLink": "Cookie settings",
     "ariaLabel": "Cookie notice"
   },
+  "pages": {
+    "imprint": {
+      "description": "Legal notice for miciodev.com — site operator, hosting, intellectual property and liability information.",
+      "fallbackTitle": "Legal notice",
+      "fallbackBody": "This page is being updated. In the meantime, if you have any legal or data-protection questions, please reach me through the contact form on this site."
+    }
+  },
   "dividers": {
     "services": "§ 02 — Services",
     "work": "§ 03 — Selected work",

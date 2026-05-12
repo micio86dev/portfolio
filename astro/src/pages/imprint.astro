@@ -3,13 +3,21 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PageView from '../components/astro/PageView.astro';
 import { getPage } from '../lib/pocketbase';
 import { useTranslations } from '../i18n/utils';
+import type { PageItem } from '../lib/seed-data';
 
 const lang = 'en' as const;
-const page = await getPage('imprint', lang);
-if (!page) return new Response(null, { status: 404 });
 const t = useTranslations(lang);
+
+// Never 404 just because PocketBase is empty: fall back to a polite i18n notice.
+const page: PageItem =
+  (await getPage('imprint', lang)) ?? {
+    id: 'fallback-imprint',
+    slug: 'imprint',
+    title: t('pages.imprint.fallbackTitle'),
+    body: `<p>${t('pages.imprint.fallbackBody')}</p>`,
+  };
 ---
 
-<BaseLayout lang={lang} title={page.title}>
+<BaseLayout lang={lang} title={page.title} description={t('pages.imprint.description')} noindex>
   <PageView lang={lang} page={page} eyebrow={`§ ${t('footer.colMore.imprint')}`} />
 </BaseLayout>

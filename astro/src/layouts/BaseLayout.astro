@@ -20,9 +20,11 @@ interface Props {
   title?: string;
   /** override <meta description>; falls back to i18n meta.description */
   description?: string;
+  /** emit <meta name="robots" content="noindex"> — for thin / legal pages */
+  noindex?: boolean;
 }
 
-const { lang } = Astro.props;
+const { lang, noindex = false } = Astro.props;
 const t = useTranslations(lang);
 const path = useTranslatedPath(lang);
 
@@ -116,6 +118,7 @@ const cookiePrivacyHref = path('/privacy');
 
     <title>{title} · {siteName}</title>
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
     <link rel="canonical" href={canonicalUrl.toString()} />
     <link rel="sitemap" href="/sitemap-index.xml" />
 

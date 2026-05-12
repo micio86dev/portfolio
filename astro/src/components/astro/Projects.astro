@@ -17,15 +17,6 @@ const mockupLabel = t('projects.mockupLabel');
 
 // First project (featured-first sorted in lib) renders as the wide featured card.
 const [first, ...rest] = projects;
-
-const filters = [
-  t('projects.filters.all'),
-  t('projects.filters.saas'),
-  t('projects.filters.ecommerce'),
-  t('projects.filters.dashboards'),
-  t('projects.filters.editorial'),
-];
-const stackFilters = ['Laravel', 'Vue', 'Nuxt', 'TypeScript', 'Node'];
 ---
 
 <section class="projects" aria-labelledby="work-heading" id="work">
@@ -34,20 +25,6 @@ const stackFilters = ['Laravel', 'Vue', 'Nuxt', 'TypeScript', 'Node'];
     <h2 id="work-heading" class="projects__title">{t('projects.title')}</h2>
     <p class="projects__meta">{t('projects.meta')}</p>
   </header>
-
-  <!-- Filter bar — placeholder controls, not yet wired -->
-  <div class="projects__filters" role="group" aria-label={t('projects.filterLabel')}>
-    <div class="projects__filter-group">
-      <span class="md-eyebrow projects__filter-label">{t('projects.filterLabel')}</span>
-      {filters.map((f, i) => (
-        <button type="button" class:list={['projects__chip', { 'is-active': i === 0 }]} aria-pressed={i === 0}>{f}</button>
-      ))}
-    </div>
-    <div class="projects__filter-group projects__filter-group--stack">
-      <span class="md-eyebrow projects__filter-label">{t('projects.stackLabel')}</span>
-      {stackFilters.map((s) => <button type="button" class="projects__chip projects__chip--ghost">{s}</button>)}
-    </div>
-  </div>
 
   <div class="projects__grid">
     {first && (
