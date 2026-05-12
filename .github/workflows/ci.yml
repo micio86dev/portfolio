@@ -1,83 +1,20 @@
 name: CI
 
-# Lint + type-check + tests (unit / component / E2E with the ≥85% coverage gate)
-# + production build. Runs on PRs to develop/main AND on pushes to those branches
-# (git-flow "feature finish" merges in directly), so the test suite is always a
-# gate before deploy-stage / deploy-prod fire. No Docker build here.
+# PR gate for develop/main: runs the shared test workflow (lint + astro check +
+# Vitest with the ≥85% coverage gate + Playwright E2E + production build). On
+# pushes to develop/main the deploy workflows run the same `tests.yml` as a
+# `needs:` gate, so it isn't duplicated here.
 on:
   pull_request:
-    branches: [develop, main]
-  push:
     branches: [develop, main]
 
 permissions:
   contents: read
 
-env:
-  # Run JavaScript-based actions on Node 24 (default from June 2026).
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
+  group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build:
-    name: lint + astro check + test + build
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    defaults:
-      run:
-        working-directory: astro
-    steps:
-      - uses: actions/checkout@v5
-
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-
-      - name: Cache Bun install cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.bun/install/cache
-          key: ${{ runner.os }}-bun-${{ hashFiles('astro/bun.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-bun-
-
-      - run: bun install --frozen-lockfile
-
-      - name: Lint
-        run: bun run lint
-
-      - name: Type check
-        run: bun run check
-
-      # Unit + component tests with the V8 coverage gate. `vitest` is configured
-      # (astro/vitest.config.ts) to fail if lines / functions / branches /
-      # statements drop below 85% — same effect as `test:all`'s vitest legs plus
-      # the threshold check.
-      - name: Unit & component tests (coverage ≥ 85%)
-        run: bun run test:coverage
-
-      - name: Install Playwright browser
-        run: bunx playwright install --with-deps chromium
-
-      - name: E2E tests
-        run: bun run test:e2e
-
-      - name: Upload Playwright report
-        if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report
-          path: astro/playwright-report
-          retention-days: 7
-          if-no-files-found: ignore
-
-      - name: Build
-        # PB_URL is left empty so the build uses the bundled seed data (no
-        # network dependency in CI). SITE_URL is a harmless placeholder.
-        env:
-          PB_URL: ""
-          SITE_URL: https://micio86dev.it
-        run: bun run build
+  test:
+    uses: ./.github/workflows/tests.yml

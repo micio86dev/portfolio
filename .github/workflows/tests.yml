@@ -1,0 +1,75 @@
+name: Tests
+
+# Reusable workflow: lint + astro check + Vitest (unit/component with the ≥85%
+# coverage gate) + Playwright E2E + production build. Called by `ci.yml` (PR
+# gate) and by the deploy workflows (`deploy-stage.yml` / `deploy-prod.yml`, via
+# `needs: test`) so a deploy never fires on an untested tree.
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+env:
+  # Run JavaScript-based actions on Node 24 (default from June 2026).
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  test:
+    name: lint + astro check + test + build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: astro
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Cache Bun install cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('astro/bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - run: bun install --frozen-lockfile
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Type check
+        run: bun run check
+
+      # Unit + component tests with the V8 coverage gate. `vitest` is configured
+      # (astro/vitest.config.ts) to fail if lines / functions / branches /
+      # statements drop below 85%.
+      - name: Unit & component tests (coverage ≥ 85%)
+        run: bun run test:coverage
+
+      - name: Install Playwright browser
+        run: bunx playwright install --with-deps chromium
+
+      - name: E2E tests
+        run: bun run test:e2e
+
+      - name: Upload Playwright report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: astro/playwright-report
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Build
+        # PB_URL is left empty so the build uses the bundled seed data (no
+        # network dependency in CI). SITE_URL is a harmless placeholder.
+        env:
+          PB_URL: ""
+          SITE_URL: https://micio86dev.it
+        run: bun run build
