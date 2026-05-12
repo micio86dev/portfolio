@@ -14,6 +14,16 @@ const path = useTranslatedPath(lang);
 const clientShapes = ['circle', 'diamond', 'triangle', 'hex', 'square', 'arc', 'dot'] as const;
 ---
 
+<!-- FOUC guard — runs synchronously *before* the hero paints, so the entrance
+     start-states (scoped under `html.hero-anim-ready` + `prefers-reduced-motion:
+     no-preference` in the <style> below) apply with no flash. If JS is disabled
+     the class never lands and everything renders fully visible. -->
+<script is:inline>
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.documentElement.classList.add('hero-anim-ready');
+  }
+</script>
+
 <section class="hero" aria-labelledby="hero-heading" id="about">
   <!-- SVG grain filter, defined once. Fine grayscale fractal noise (opaque):
        blended with soft-light it reads identically on light and dark surfaces. -->
@@ -105,6 +115,56 @@ const clientShapes = ['circle', 'diamond', 'triangle', 'hex', 'square', 'arc', '
   </div>
 </section>
 
+<script>
+  // Hero entrance — plays on load. The FOUC-guard `is:inline` script above
+  // already added `html.hero-anim-ready` (synchronously, pre-paint) which
+  // applies the opacity:0 start-states via CSS, so there's no flash and JS-off
+  // users still see everything. Here we just run the GSAP timeline.
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!reduced) {
+    // Safety net: if GSAP fails to load for any reason, drop the guard class
+    // so nothing is left invisible.
+    const reveal = () => document.documentElement.classList.remove('hero-anim-ready');
+    const run = async () => {
+      try {
+        const { default: gsap } = await import('gsap');
+        const lines = document.querySelectorAll<HTMLElement>('.hero__headline .hero__line');
+        const sub = document.querySelector<HTMLElement>('.hero__subhead');
+        const ctas = document.querySelectorAll<HTMLElement>('.hero__cta');
+        const atmosphere = document.querySelector<HTMLElement>('.hero__atmosphere');
+
+        const tl = gsap.timeline({
+          defaults: { ease: 'power2.out' },
+          // Once it's running, the guard class has done its job; clear it so the
+          // CSS start-states never linger after GSAP took over inline styles.
+          onStart: reveal,
+        });
+        // Atmosphere/photo: fade only. Photo is loading="eager" fetchpriority="high"
+        // (LCP candidate) — start from 0.4 (not 0) so it paints fast, settle to 1.
+        if (atmosphere) {
+          tl.fromTo(atmosphere, { opacity: 0.4 }, { opacity: 1, duration: 0.8 }, 0);
+        }
+        if (lines.length) {
+          tl.fromTo(lines, { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.6, stagger: 0.08 }, 0);
+        }
+        if (sub) {
+          tl.fromTo(sub, { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.6 }, 0.15);
+        }
+        if (ctas.length) {
+          tl.fromTo(ctas, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.1 }, 0.3);
+        }
+      } catch {
+        reveal();
+      }
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', run, { once: true });
+    } else {
+      run();
+    }
+  }
+</script>
+
 <style>
   .hero {
     position: relative;
@@ -115,6 +175,16 @@ const clientShapes = ['circle', 'diamond', 'triangle', 'hex', 'square', 'arc', '
     min-height: 720px;
   }
   .hero__grain-def { position: absolute; }
+
+  /* Entrance start-states — only when JS is ready AND motion is allowed, so
+     there's no FOUC and no stuck-invisible content if JS fails. The hero
+     atmosphere keeps a partial opacity (not 0) so the LCP photo paints fast. */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html.hero-anim-ready) .hero__atmosphere { opacity: 0.4; }
+    :global(html.hero-anim-ready) .hero__headline .hero__line,
+    :global(html.hero-anim-ready) .hero__subhead,
+    :global(html.hero-anim-ready) .hero__cta { opacity: 0; }
+  }
 
   /* Atmosphere */
   .hero__atmosphere { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }

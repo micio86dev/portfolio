@@ -14,7 +14,7 @@ const { project: p, variant, featuredBadgeLabel, openCaseStudyLabel, mockupLabel
 const isFeatured = variant === 'featured';
 ---
 
-<a href={href} class:list={['pcard', `pcard--${variant}`]} aria-label={`${p.title} — ${openCaseStudyLabel}`}>
+<a href={href} class:list={['pcard', `pcard--${variant}`]} aria-label={`${p.title} — ${openCaseStudyLabel}`} data-reveal>
   {isFeatured && (
     <div class="pcard__mockup-pane">
       <div class="pcard__mockup">
@@ -74,6 +74,13 @@ const isFeatured = variant === 'featured';
   </div>
 </a>
 
+<script>
+  // Self-initialising, idempotent scroll-reveal — ensures card grids on
+  // pages that don't pull in SectionsHome (e.g. the projects archive) still
+  // get reveals. Safe to import many times; it only inits once globally.
+  import '../../scripts/scroll-reveal.ts';
+</script>
+
 <style>
   .pcard {
     display: flex;
@@ -87,15 +94,22 @@ const isFeatured = variant === 'featured';
     color: var(--text);
     transition:
       border-color var(--dur-2) var(--ease),
-      box-shadow var(--dur-2) var(--ease),
-      transform var(--dur-2) var(--ease);
+      box-shadow var(--dur-2) var(--ease);
   }
   .pcard:hover {
     border-color: var(--text);
     box-shadow: var(--shadow-2);
-    transform: translateY(-2px);
   }
   .pcard:hover .pcard__foot { color: var(--brand); }
+  /* Lift on hover — transform-only (no CLS); honour reduced-motion (no lift). */
+  @media (prefers-reduced-motion: no-preference) {
+    .pcard { transition:
+      border-color var(--dur-2) var(--ease),
+      box-shadow var(--dur-2) var(--ease),
+      transform 200ms ease-out;
+    }
+    .pcard:hover { transform: translateY(-4px); }
+  }
 
   /* Featured: side-by-side mockup + text on wide screens; spans both grid cols. */
   .pcard--featured { padding: 0; overflow: hidden; }
@@ -256,7 +270,9 @@ const isFeatured = variant === 'featured';
     font-size: 11px;
     border: 1px solid var(--line-2);
     white-space: nowrap;
+    transition: background-color 150ms var(--ease);
   }
+  .pcard:hover .pcard__chip { background-color: var(--surface-2); }
   .pcard__foot {
     margin-top: auto;
     display: flex;
@@ -270,4 +286,25 @@ const isFeatured = variant === 'featured';
     text-transform: uppercase;
     transition: color var(--dur-1) var(--ease);
   }
+  /* "View project" label: a transform-based underline that slides in from the
+     left on card hover — no layout shift. */
+  .pcard__foot > span:first-child {
+    position: relative;
+    padding-bottom: 2px;
+  }
+  .pcard__foot > span:first-child::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .pcard__foot > span:first-child::after { transition: transform 150ms var(--ease); }
+  }
+  .pcard:hover .pcard__foot > span:first-child::after { transform: scaleX(1); }
 </style>

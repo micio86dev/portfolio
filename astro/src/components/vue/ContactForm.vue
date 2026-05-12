@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, onMounted, watch, nextTick } from 'vue';
+import { useScrollAnimation } from '../../composables/useScrollAnimation';
 
 // Limits mirror the PocketBase `contacts` collection (pb/pb_migrations).
 const MIN_MESSAGE = 10;
@@ -62,6 +63,35 @@ const form = reactive({
 const touched = reactive({ name: false, email: false, subject: false, message: false });
 const status = ref<Status>('idle');
 const feedback = ref('');
+
+// --- animation wiring (visual only; never alters submit/validation logic) ---
+const formEl = ref<HTMLFormElement | null>(null);
+const feedbackEl = ref<HTMLParagraphElement | null>(null);
+const { animateOnScroll } = useScrollAnimation();
+const motionAllowed =
+  typeof window !== 'undefined' &&
+  typeof window.matchMedia === 'function' &&
+  !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+onMounted(() => {
+  if (!motionAllowed || !formEl.value) return;
+  // Staggered, subtle reveal of the form fields on scroll-in.
+  const fields = formEl.value.querySelectorAll<HTMLElement>('.cf__field, .cf__submit-row');
+  animateOnScroll(fields, { opacity: 0, y: 16 }, { opacity: 1, y: 0 }, { stagger: 0.08 });
+});
+
+watch(status, async (s) => {
+  if (!motionAllowed) return;
+  if (s !== 'success' && s !== 'error') return;
+  await nextTick();
+  const el = feedbackEl.value;
+  if (!el) return;
+  const { default: gsap } = await import('gsap');
+  gsap.fromTo(el, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' });
+  if (s === 'error') {
+    gsap.fromTo(el, { x: -6 }, { x: 0, duration: 0.4, ease: 'elastic.out(1, 0.4)' });
+  }
+});
 
 const messageCount = computed(() => form.message.length);
 const counterText = computed(() => props.messages.charCounter.replace('{count}', String(messageCount.value)));
@@ -136,6 +166,7 @@ async function onSubmit() {
 
 <template>
   <form
+    ref="formEl"
     class="cf"
     novalidate
     :aria-label="messages.ariaLabel"
@@ -256,6 +287,7 @@ async function onSubmit() {
 
     <!-- Live feedback region -->
     <p
+      ref="feedbackEl"
       class="cf__feedback"
       :class="{ 'is-success': status === 'success', 'is-error': status === 'error' }"
       role="status"
@@ -269,6 +301,7 @@ async function onSubmit() {
       <button
         type="submit"
         class="md-btn cf__submit"
+        :class="{ 'is-loading': status === 'submitting' }"
         :disabled="status === 'submitting'"
       >
         {{ status === 'submitting' ? messages.sending : status === 'success' ? messages.success : messages.submit }}
@@ -348,4 +381,11 @@ async function onSubmit() {
   text-transform: uppercase;
 }
 .cf__submit { height: 48px; padding: 0 24px; }
+/* Loading-state press; transform-only so no layout shift. The .md-btn base
+   already transitions `transform`. Gated on reduced-motion (reduced-motion
+   users just get the disabled state, no scale). The focus-border transition
+   is already smooth via `.md-input` in app.css. */
+@media (prefers-reduced-motion: no-preference) {
+  .cf__submit.is-loading { transform: scale(0.97); }
+}
 </style>

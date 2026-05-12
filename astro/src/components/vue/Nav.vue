@@ -97,8 +97,15 @@ function onLinkClick(href: string) {
   // CSS `scroll-behavior: smooth` handles the actual scroll — don't preventDefault.
 }
 
+// Sticky-nav scroll state — past 50px the bar gets a backdrop blur + shadow.
+// rAF-throttled so we read scrollY at most once per frame.
+let rafId = 0;
+function readScroll() {
+  rafId = 0;
+  scrolled.value = window.scrollY > 50;
+}
 function onScroll() {
-  scrolled.value = window.scrollY > 4;
+  if (rafId === 0) rafId = requestAnimationFrame(readScroll);
 }
 function onKeydown(e: KeyboardEvent) {
   if (e.key === 'Escape' && open.value) open.value = false;
@@ -108,7 +115,7 @@ onMounted(() => {
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('keydown', onKeydown);
   window.addEventListener('hashchange', setActiveFromHash);
-  onScroll();
+  readScroll();
   setActiveFromHash();
 
   if ('IntersectionObserver' in window) {
@@ -136,6 +143,7 @@ onBeforeUnmount(() => {
   window.removeEventListener('hashchange', setActiveFromHash);
   observer?.disconnect();
   observer = null;
+  if (rafId) cancelAnimationFrame(rafId);
 });
 </script>
 
@@ -315,10 +323,18 @@ onBeforeUnmount(() => {
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid transparent;
-  transition: border-color var(--dur-2) var(--ease);
+  transition:
+    border-color var(--dur-2) var(--ease),
+    background var(--dur-2) var(--ease),
+    box-shadow var(--dur-2) var(--ease),
+    backdrop-filter var(--dur-2) var(--ease);
 }
 .nav-root.is-scrolled {
   border-bottom-color: var(--line);
+  background: color-mix(in oklab, var(--bg) 85%, transparent);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-1);
 }
 
 .nav-status {

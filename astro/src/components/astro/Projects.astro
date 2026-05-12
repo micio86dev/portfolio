@@ -22,11 +22,11 @@ const [first, ...rest] = projects;
 <section class="projects" aria-labelledby="work-heading" id="work">
   <header class="projects__head">
     <div class="projects__eyebrow"><span class="md-eyebrow"><span class="dot"></span>{t('projects.eyebrow')}</span></div>
-    <h2 id="work-heading" class="projects__title">{t('projects.title')}</h2>
+    <h2 id="work-heading" class="projects__title" data-reveal>{t('projects.title')}</h2>
     <p class="projects__meta">{t('projects.meta')}</p>
   </header>
 
-  <div class="projects__grid">
+  <div class="projects__grid" data-reveal-stagger>
     {first && (
       <ProjectCard
         project={first}

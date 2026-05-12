@@ -22,14 +22,14 @@ const GROUPS = SKILL_GROUPS.map((g) => ({
 <section class="skills" aria-labelledby="skills-heading" id="skills">
   <header class="skills__head">
     <div class="skills__eyebrow"><span class="md-eyebrow"><span class="dot"></span>{t('skills.eyebrow')}</span></div>
-    <h2 id="skills-heading" class="skills__title">{t('skills.title')}</h2>
+    <h2 id="skills-heading" class="skills__title" data-reveal>{t('skills.title')}</h2>
     <p class="skills__note">{t('skills.note')}</p>
   </header>
 
   <div class="skills__panel">
-    <div class="skills__grid">
+    <div class="skills__grid" data-reveal-stagger>
       {GROUPS.map((g) => (
-        <div class="skills__group">
+        <div class="skills__group" data-reveal>
           <header class="skills__group-head">
             <span class="md-eyebrow">/ {g.idx}</span>
             <h3 class="skills__group-title">{t(g.labelKey)}</h3>

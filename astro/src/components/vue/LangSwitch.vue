@@ -100,6 +100,13 @@ function onKeydown(e: KeyboardEvent, index: number) {
   background: var(--brand);
   color: var(--on-brand);
 }
+/* This control is a segmented radio group, not a pop-over menu — there is no
+   "open" panel to animate (see report). A small press feedback is all that
+   applies; transform-only, gated on reduced-motion (no layout shift). */
+@media (prefers-reduced-motion: no-preference) {
+  .lang-switch__opt { transition: background var(--dur-1) var(--ease), color var(--dur-1) var(--ease), transform var(--dur-1) var(--ease); }
+  .lang-switch__opt:active { transform: scale(0.94); }
+}
 
 /* dark variant (footer) */
 .lang-switch--dark .lang-switch__opt { color: rgba(255, 255, 255, 0.7); }
