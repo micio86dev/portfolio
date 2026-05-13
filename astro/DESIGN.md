@@ -352,7 +352,7 @@ cards to separate head ↔ body, and after copy blocks.
 
 ### Mono meta strings
 
-Status/availability lines, `§ NN` counters, `↳ index · §0N`, "v 0.1.0", etc.:
+Status/availability lines, `§ NN` counters, `↳ index · §0N`, "v 1.0.0", etc.:
 mono 10–11, `--text-3`, `letter-spacing:.08–.18em`, often uppercase. Brand
 "live" dot: 6 px circle, `--brand`, with `box-shadow:0 0 0 3px color-mix(in
 oklab, var(--brand) 22–25%, transparent)`.
@@ -449,7 +449,7 @@ flips `document.documentElement.dataset.theme` and persists to
   only) and the mono build stamp in both modes.
 - Header row (full width): eyebrow (".dot" + "Freelance · Full-stack · Since
   2010"); on desktop a mono meta cluster on the right ("§ 01 / Hero" · "Fuerteventura
-  · UTC+0" · "v 0.1.0").
+  · UTC+0" · "v 1.0.0").
 - **H1** (the page's only `<h1>`): three `<span class="hero__line">` lines —
   line 1 prefixed with the `[LANG]` mono tag, line 2 contains the brand-green
   accent word + a comma, line 3 plain. Fluid sizing per §3.

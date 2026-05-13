@@ -227,9 +227,9 @@ migrate(
       {
         "key": "hero.meta.version",
         "group": "hero",
-        "en": "v 0.1.0",
-        "it": "v 0.1.0",
-        "es": "v 0.1.0"
+        "en": "v 1.0.0",
+        "it": "v 1.0.0",
+        "es": "v 1.0.0"
       },
       {
         "key": "hero.stamp",

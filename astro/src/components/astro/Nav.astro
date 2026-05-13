@@ -61,8 +61,9 @@ const initialActiveId =
   navItems.find((l) => l.active)?.targetId ?? navItems.find((l) => l.targetId)?.targetId ?? '';
 ---
 
-<div class="nav-root" data-nav-root data-active={initialActiveId}>
-  <!-- Status strip -->
+<header class="nav-root" data-nav-root data-active={initialActiveId}>
+  <!-- Status strip — inside the <header> banner landmark so axe-core
+       doesn't flag it as "content outside any landmark". -->
   <div class="nav-status">
     <span><span class="nav-status__dot" aria-hidden="true"></span>{messages.statusAvailable}</span>
     <span>{messages.statusLocation}</span>
@@ -153,7 +154,7 @@ const initialActiveId =
     </div>
     <a href={hireHref} class="md-btn nav-drawer__cta">{messages.hireMe} <span class="arrow">→</span></a>
   </div>
-</div>
+</header>
 
 <script>
   // Self-contained nav interactivity — ~50 lines of vanilla TS replacing the

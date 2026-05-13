@@ -72,7 +72,7 @@ const isFeatured = variant === 'featured';
       )}
     </header>
 
-    <h3 class="pcard__title">{p.title}</h3>
+    <h2 class="pcard__title">{p.title}</h2>
 
     <p class="pcard__desc">{p.desc}</p>
 
@@ -252,7 +252,10 @@ const isFeatured = variant === 'featured';
     padding: 0 10px;
     border-radius: 999px;
     background: var(--brand-tint);
-    color: var(--brand);
+    /* `--brand` on `--brand-tint` was ~4.4:1 (axe-core flagged it: WCAG
+       AA needs ≥ 4.5:1 for small text). Switch to the darker brand-700
+       in light mode and the lighter brand-200 in dark mode for clear AA. */
+    color: var(--color-brand-700);
     font-family: var(--font-mono);
     font-size: 10px;
     font-weight: 500;
@@ -261,6 +264,7 @@ const isFeatured = variant === 'featured';
     border: 1px solid color-mix(in oklab, var(--brand) 22%, transparent);
     white-space: nowrap;
   }
+  :global([data-theme='dark']) .pcard__badge { color: var(--color-brand-200); }
   .pcard__badge-dot {
     width: 5px;
     height: 5px;

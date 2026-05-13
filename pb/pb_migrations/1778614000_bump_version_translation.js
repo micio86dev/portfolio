@@ -29,9 +29,9 @@ migrate(
       const rec = app.findFirstRecordByFilter('translations', 'key = {:key}', {
         key: 'hero.meta.version',
       });
-      rec.set('en', 'v 0.1.0');
-      rec.set('it', 'v 0.1.0');
-      rec.set('es', 'v 0.1.0');
+      rec.set('en', 'v 1.0.0');
+      rec.set('it', 'v 1.0.0');
+      rec.set('es', 'v 1.0.0');
       app.save(rec);
     } catch (_) {
       /* row absent — nothing to rewind */
