@@ -4,6 +4,7 @@
 // Shared across all locale routes.
 import { useTranslations, useTranslatedPath, type Locale } from '../../i18n/utils';
 import PbImage from '../vue/PbImage.vue';
+import Lightbox from './Lightbox.astro';
 import { pbThumb } from '../../lib/img';
 import type { CustomerDetail } from '../../lib/seed-data';
 
@@ -95,9 +96,11 @@ const galleryUrls = c.imageUrls.slice(1);
   {galleryUrls.length > 0 && (
     <div class="cdetail__gallery">
       <span class="md-eyebrow cdetail__gallery-label">{t('customersPage.galleryLabel')}</span>
-      <div class="cdetail__gallery-grid">
+      <div class="cdetail__gallery-grid" data-lightbox-group="customer-gallery">
         {galleryUrls.map((src) => (
-          <figure class="cdetail__shot"><PbImage src={pbThumb(src, '800x500f')} alt="" width={800} height={500} /></figure>
+          <figure class="cdetail__shot" data-lightbox data-lightbox-full={pbThumb(src, '1280x800f')}>
+            <PbImage src={pbThumb(src, '800x500f')} alt="" width={800} height={500} />
+          </figure>
         ))}
       </div>
     </div>
@@ -119,6 +122,8 @@ const galleryUrls = c.imageUrls.slice(1);
     </div>
   )}
 </article>
+
+<Lightbox />
 
 <style>
   .cdetail {
@@ -218,6 +223,7 @@ const galleryUrls = c.imageUrls.slice(1);
     border-radius: var(--r-2);
     overflow: hidden;
     background: var(--surface-2);
+    cursor: zoom-in;
   }
   .cdetail__shot :global(img) { display: block; width: 100%; height: auto; }
 
