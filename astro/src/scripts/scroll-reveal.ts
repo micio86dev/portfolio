@@ -46,6 +46,16 @@ function reveal(): void {
     return;
   }
 
+  // Path A — let the browser drive the reveal natively via the CSS
+  // `animation-timeline: view()` declaration in app.css. No IntersectionObserver
+  // setup means no forced layout pass over `content-visibility: auto` sections
+  // (PageSpeed had flagged that as a 75ms unattributed reflow). The CSS
+  // animation already starts at `opacity: 0`, so we don't even need to flip
+  // `.is-revealed` here. Path B (below) is the IO fallback for older browsers.
+  if (typeof CSS !== 'undefined' && CSS.supports?.('animation-timeline: view()')) {
+    return;
+  }
+
   // Staggered groups are claimed first so their children aren't also picked up
   // as singles (matches the previous GSAP behaviour).
   const claimed = new Set<Element>();
