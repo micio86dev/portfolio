@@ -1,5 +1,6 @@
 import { defineConfig } from 'vitest/config';
 import vue from '@vitejs/plugin-vue';
+import { fileURLToPath } from 'node:url';
 
 // Vitest config for the unit + component layers.
 //   - bun run test:unit       → src/__tests__/unit/**
@@ -13,6 +14,16 @@ import vue from '@vitejs/plugin-vue';
 // component tests.
 export default defineConfig({
   plugins: [vue()],
+  // `astro:middleware` is a virtual module that only exists inside the Astro
+  // build. Point it at a tiny test-only stub so src/middleware.ts can be
+  // exercised by Vitest.
+  resolve: {
+    alias: {
+      'astro:middleware': fileURLToPath(
+        new URL('./src/__tests__/_stubs/astro-middleware.ts', import.meta.url),
+      ),
+    },
+  },
   test: {
     environment: 'jsdom',
     globals: true,
@@ -22,10 +33,17 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'html', 'lcov'],
       reportsDirectory: './coverage',
-      // Only the code that the unit/component layers are responsible for. Astro
-      // pages/components, the GSAP scroll composables and the request middleware
-      // are covered by the Playwright E2E layer, not Vitest.
-      include: ['src/lib/**/*.ts', 'src/i18n/**/*.ts', 'src/components/vue/**/*.vue'],
+      // All JS/TS/Vue logic the unit + component layers are responsible for.
+      // `.astro` pages and components stay out — v8 can't instrument them; the
+      // Playwright E2E layer covers that surface separately.
+      include: [
+        'src/lib/**/*.ts',
+        'src/i18n/**/*.ts',
+        'src/components/vue/**/*.vue',
+        'src/composables/**/*.ts',
+        'src/scripts/**/*.ts',
+        'src/middleware.ts',
+      ],
       exclude: ['src/lib/seed-data.ts'], // static fixture data — no logic to exercise
       thresholds: {
         lines: 85,
