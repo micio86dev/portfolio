@@ -360,12 +360,23 @@ textarea.md-input { height: auto; min-height: 140px; padding: 14px; line-height:
 }
 
 /* ── Scroll-reveal ─────────────────────────────────────────────
-   IntersectionObserver-driven fade + slide-up. `src/scripts/scroll-reveal.ts`
-   just toggles `.is-revealed` when each element enters the viewport — no JS
-   layout reads (GSAP's ScrollTrigger would force a synchronous reflow on every
-   target; PageSpeed flagged ~163ms on the home view). Under reduced-motion,
-   elements stay in their natural state. A `<noscript>` block in BaseLayout
-   overrides the start-state when JS is disabled so nothing is left invisible. */
+   Fade + slide-up as elements enter the viewport.
+
+   Path A — CSS-native scroll-driven animations (Chrome 115+, Safari 26+).
+   Wraps the keyframe in `@supports (animation-timeline: view())` so the
+   browser ties the animation timeline to each element's viewport
+   intersection — no JS, no IntersectionObserver, no first-frame layout
+   pass over `content-visibility: auto` sections (which PageSpeed had
+   flagged as a 75ms unattributed forced reflow on the home page).
+
+   Path B — IntersectionObserver fallback (`src/scripts/scroll-reveal.ts`)
+   for older browsers that don't support `animation-timeline: view()`.
+   The script early-returns on supporting browsers, so on Chrome / modern
+   Safari nothing runs in JS at all.
+
+   Under `prefers-reduced-motion: reduce`, elements show in their natural
+   state with no animation. A `<noscript>` block in BaseLayout flips them
+   visible for JS-off visitors on Path B. */
 [data-reveal] {
   opacity: 0;
   transform: translateY(24px);
@@ -377,6 +388,24 @@ textarea.md-input { height: auto; min-height: 140px; padding: 14px; line-height:
   opacity: 1;
   transform: translateY(0);
 }
+
+/* Path A — CSS-driven reveals on supporting browsers (PageSpeed runs
+   recent Chrome, so this is the active path on the audit). */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    [data-reveal] {
+      transition: none;
+      animation: data-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 25%;
+    }
+    @keyframes data-reveal {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   [data-reveal] {
     opacity: 1;
