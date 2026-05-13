@@ -61,7 +61,7 @@ const pbUrl =
       <ContactForm client:visible messages={formMessages} pbUrl={pbUrl} contactEmail={CONTACT_EMAIL} privacyHref={path('/privacy')} />
     </div>
 
-    <aside class="contact__aside">
+    <div class="contact__aside">
       <span class="md-eyebrow"><span class="dot"></span>{t('contact.aside.eyebrow')}</span>
       <a href={`mailto:${asideEmail}`} class="contact__aside-email">{asideEmail}</a>
       <hr class="md-hr" />
@@ -72,7 +72,7 @@ const pbUrl =
         <span>↳ {t('contact.aside.hours')}</span>
         <span><span class="contact__aside-dot"></span>{t('contact.aside.available')}</span>
       </div>
-    </aside>
+    </div>
   </div>
 </section>
 

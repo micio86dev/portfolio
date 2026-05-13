@@ -160,6 +160,17 @@
   box-sizing: border-box;
 }
 
+/* Astro hydration markers — `<astro-island>` and `<astro-slot>` are custom
+   elements Astro emits around `client:*` components. Astro injects a tiny
+   `<style>` block in `<body>` next to the first occurrence of these to make
+   them `display: contents`. By declaring the rule upfront in `<head>` we
+   keep the W3C validator clean ("style not allowed as child of div"). */
+astro-island,
+astro-slot,
+astro-static-slot {
+  display: contents;
+}
+
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
