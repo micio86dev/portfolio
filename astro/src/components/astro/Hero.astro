@@ -17,10 +17,13 @@ const path = useTranslatedPath(lang);
 const customers = await getCustomers(lang);
 ---
 
-<!-- FOUC guard — runs synchronously *before* the hero paints, so the entrance
-     start-states (scoped under `html.hero-anim-ready` + `prefers-reduced-motion:
-     no-preference` in the <style> below) apply with no flash. If JS is disabled
-     the class never lands and everything renders fully visible. -->
+<!-- FOUC guard — runs synchronously *before* the hero paints. Sets up the
+     entrance start-states (scoped under `html.hero-anim-ready` + `prefers-
+     reduced-motion: no-preference` in the <style> below) on the headline /
+     sub-head / CTAs ONLY — the LCP atmosphere photo is **always** painted at
+     full opacity (was 0.4 + GSAP fade-in: that delayed LCP by ~3s on slow
+     networks). With JS disabled the class never lands and everything renders
+     fully visible. -->
 <script is:inline>
   if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     document.documentElement.classList.add('hero-anim-ready');
@@ -125,52 +128,22 @@ const customers = await getCustomers(lang);
 </section>
 
 <script>
-  // Hero entrance — plays on load. The FOUC-guard `is:inline` script above
-  // already added `html.hero-anim-ready` (synchronously, pre-paint) which
-  // applies the opacity:0 start-states via CSS, so there's no flash and JS-off
-  // users still see everything. Here we just run the GSAP timeline.
+  // Hero entrance — pure CSS. The FOUC guard above added
+  // `html.hero-anim-ready` pre-paint; the start-states (opacity:0 + small
+  // y-translate on the headline lines, sub-head, CTAs) sit in CSS. Here we
+  // just flip the `is-entered` flag on the next frame which triggers the
+  // CSS transitions back to the natural state. No GSAP, no JS reads of
+  // layout properties → no forced reflow, no LCP render delay (the
+  // atmosphere photo is never faded by JS now).
+  //
+  // The class is added in a double-rAF to guarantee the browser has already
+  // applied the start-state for the first paint (otherwise some engines
+  // collapse the two states into one and the transition is skipped).
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (!reduced) {
-    // Safety net: if GSAP fails to load for any reason, drop the guard class
-    // so nothing is left invisible.
-    const reveal = () => document.documentElement.classList.remove('hero-anim-ready');
-    const run = async () => {
-      try {
-        const { default: gsap } = await import('gsap');
-        const lines = document.querySelectorAll<HTMLElement>('.hero__headline .hero__line');
-        const sub = document.querySelector<HTMLElement>('.hero__subhead');
-        const ctas = document.querySelectorAll<HTMLElement>('.hero__cta');
-        const atmosphere = document.querySelector<HTMLElement>('.hero__atmosphere');
-
-        const tl = gsap.timeline({
-          defaults: { ease: 'power2.out' },
-          // Once it's running, the guard class has done its job; clear it so the
-          // CSS start-states never linger after GSAP took over inline styles.
-          onStart: reveal,
-        });
-        // Atmosphere/photo: fade only. Photo is loading="eager" fetchpriority="high"
-        // (LCP candidate) — start from 0.4 (not 0) so it paints fast, settle to 1.
-        if (atmosphere) {
-          tl.fromTo(atmosphere, { opacity: 0.4 }, { opacity: 1, duration: 0.8 }, 0);
-        }
-        if (lines.length) {
-          tl.fromTo(lines, { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.6, stagger: 0.08 }, 0);
-        }
-        if (sub) {
-          tl.fromTo(sub, { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.6 }, 0.15);
-        }
-        if (ctas.length) {
-          tl.fromTo(ctas, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.1 }, 0.3);
-        }
-      } catch {
-        reveal();
-      }
-    };
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', run, { once: true });
-    } else {
-      run();
-    }
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => document.documentElement.classList.add('hero-anim-entered')),
+    );
   }
 </script>
 
@@ -186,13 +159,41 @@ const customers = await getCustomers(lang);
   .hero__grain-def { position: absolute; }
 
   /* Entrance start-states — only when JS is ready AND motion is allowed, so
-     there's no FOUC and no stuck-invisible content if JS fails. The hero
-     atmosphere keeps a partial opacity (not 0) so the LCP photo paints fast. */
+     there's no FOUC and no stuck-invisible content if JS fails. The LCP
+     atmosphere photo is NEVER opacity-faded by JS anymore (was 0.4 → 1 via
+     GSAP, which delayed LCP by ~3s on slow networks). It now paints at full
+     opacity immediately; only the text/CTAs animate in. */
   @media (prefers-reduced-motion: no-preference) {
-    :global(html.hero-anim-ready) .hero__atmosphere { opacity: 0.4; }
     :global(html.hero-anim-ready) .hero__headline .hero__line,
-    :global(html.hero-anim-ready) .hero__subhead,
-    :global(html.hero-anim-ready) .hero__cta { opacity: 0; }
+    :global(html.hero-anim-ready) .hero__subhead {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    :global(html.hero-anim-ready) .hero__cta {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    /* Entered state (added once the page has painted) → transition back to
+       the natural layout. Stagger via per-line transition-delay so it reads
+       like a sequenced reveal without any JS timeline. */
+    :global(html.hero-anim-entered) .hero__headline .hero__line,
+    :global(html.hero-anim-entered) .hero__subhead,
+    :global(html.hero-anim-entered) .hero__cta {
+      opacity: 1;
+      transform: none;
+    }
+    .hero__headline .hero__line,
+    .hero__subhead,
+    .hero__cta {
+      transition:
+        opacity 600ms var(--ease-md, cubic-bezier(0.16, 1, 0.3, 1)),
+        transform 600ms var(--ease-md, cubic-bezier(0.16, 1, 0.3, 1));
+    }
+    .hero__headline .hero__line:nth-child(2) { transition-delay: 80ms; }
+    .hero__headline .hero__line:nth-child(3) { transition-delay: 160ms; }
+    .hero__subhead { transition-delay: 150ms; }
+    .hero__cta:nth-child(1) { transition-delay: 300ms; }
+    .hero__cta:nth-child(2) { transition-delay: 400ms; }
   }
 
   /* Atmosphere */
@@ -265,6 +266,13 @@ const customers = await getCustomers(lang);
     mask-image: radial-gradient(125% 115% at 50% 32%, transparent 0%, rgba(0, 0, 0, 0.35) 52%, #000 100%);
   }
   :global([data-theme='dark']) .hero__grain { opacity: 0.6; }
+  /* SVG feTurbulence + mix-blend-mode + mask-image is a paint/composite bomb
+     on mobile (PageSpeed: Style & Layout 3.7s). Disable on small screens —
+     the grain is decorative and barely visible at phone densities anyway. */
+  @media (max-width: 767px) {
+    .hero__grain { display: none; }
+    .hero__grain-def { display: none; }
+  }
   .hero__stamp {
     position: absolute;
     right: 24px;
@@ -438,8 +446,8 @@ const customers = await getCustomers(lang);
   .hero__logo-link:hover { color: var(--text); }
   .hero__logo-img {
     height: 18px;
-    width: auto;
-    max-width: 120px;
+    width: 18px;
+    aspect-ratio: 1 / 1;
     object-fit: contain;
     opacity: 0.85;
   }

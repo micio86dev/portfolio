@@ -384,3 +384,18 @@ textarea.md-input { height: auto; min-height: 140px; padding: 14px; line-height:
     transition: none;
   }
 }
+
+/* ── content-visibility ────────────────────────────────────────
+   Skip rendering / layout / paint for off-screen sections until they
+   approach the viewport. Cuts main-thread Style & Layout cost in half on
+   the home page (PageSpeed reported ~3.7s before; the deep section stack
+   no longer styles 12 sections eagerly on a phone). `contain-intrinsic-size`
+   reserves a chunk of layout space so the scrollbar geometry stays stable
+   — sized to the median section height; the browser uses real measurements
+   once the section actually enters the viewport.
+   The home Hero (`#about`) is intentionally NOT marked: it's above the fold
+   and content-visibility:auto would briefly hide the LCP candidate. */
+main > section[id]:not(#about) {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 800px;
+}

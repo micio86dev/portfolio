@@ -26,9 +26,9 @@ const isFeatured = variant === 'featured';
         {p.coverUrl ? (
           <img
             class="pcard__shot"
-            src={pbThumb(p.coverUrl, '1024x640t')}
-            srcset={`${pbThumb(p.coverUrl, '720x450t')} 720w, ${pbThumb(p.coverUrl, '1024x640t')} 1024w, ${pbThumb(p.coverUrl, '1280x800t')} 1280w`}
-            sizes="(min-width: 960px) 56vw, 92vw"
+            src={pbThumb(p.coverUrl, '600x375t')}
+            srcset={`${pbThumb(p.coverUrl, '360x225t')} 360w, ${pbThumb(p.coverUrl, '480x300t')} 480w, ${pbThumb(p.coverUrl, '600x375t')} 600w, ${pbThumb(p.coverUrl, '720x450t')} 720w, ${pbThumb(p.coverUrl, '1024x640t')} 1024w, ${pbThumb(p.coverUrl, '1280x800t')} 1280w`}
+            sizes="(min-width: 1280px) 720px, (min-width: 960px) 56vw, (min-width: 600px) 92vw, 360px"
             alt=""
             width="1024"
             height="640"
