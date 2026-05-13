@@ -189,6 +189,13 @@ const csp = [
     />
 
     <link rel="icon" href="/favicon.ico" sizes="any" />
+
+    <!-- JS-off fallback for `[data-reveal]` — the global stylesheet hides those
+         elements until the IO-driven reveal script flips them, so without JS
+         they would stay invisible. Restore them here. -->
+    <noscript>
+      <style>[data-reveal] { opacity: 1 !important; transform: none !important; }</style>
+    </noscript>
   </head>
 
   <body>

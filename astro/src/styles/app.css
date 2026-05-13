@@ -358,3 +358,29 @@ textarea.md-input { height: auto; min-height: 140px; padding: 14px; line-height:
   letter-spacing: .12em;
   text-transform: uppercase;
 }
+
+/* ── Scroll-reveal ─────────────────────────────────────────────
+   IntersectionObserver-driven fade + slide-up. `src/scripts/scroll-reveal.ts`
+   just toggles `.is-revealed` when each element enters the viewport — no JS
+   layout reads (GSAP's ScrollTrigger would force a synchronous reflow on every
+   target; PageSpeed flagged ~163ms on the home view). Under reduced-motion,
+   elements stay in their natural state. A `<noscript>` block in BaseLayout
+   overrides the start-state when JS is disabled so nothing is left invisible. */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 500ms var(--ease-md),
+    transform 500ms var(--ease-md);
+}
+[data-reveal].is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
