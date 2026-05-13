@@ -1,5 +1,7 @@
 ---
-import { useTranslations, type Locale } from '../../i18n/utils';
+import { useTranslations, useTranslatedPath, type Locale } from '../../i18n/utils';
+import { CONTACT_EMAIL } from '../../lib/site';
+import { getCanaryUtcOffset } from '../../lib/canary-tz';
 import ContactForm from '../vue/ContactForm.vue';
 
 interface Props {
@@ -7,7 +9,7 @@ interface Props {
 }
 const { lang } = Astro.props;
 const t = useTranslations(lang);
-const langTag = lang.toUpperCase();
+const path = useTranslatedPath(lang);
 
 // Strings handed to the Vue island as a prop (the island can't read i18n itself).
 const formMessages = {
@@ -18,56 +20,59 @@ const formMessages = {
   email: t('contact.form.email'),
   emailPlaceholder: t('contact.form.emailPlaceholder'),
   subject: t('contact.form.subject'),
-  subjectOptions: {
-    general: t('contact.form.subjectOptions.general'),
-    estimate: t('contact.form.subjectOptions.estimate'),
-    consulting: t('contact.form.subjectOptions.consulting'),
-    other: t('contact.form.subjectOptions.other'),
-  },
+  subjectPlaceholder: t('contact.form.subjectPlaceholder'),
   message: t('contact.form.message'),
   messagePlaceholder: t('contact.form.messagePlaceholder'),
   charCounter: t('contact.form.charCounter'),
   privacy: t('contact.form.privacy'),
+  privacyLinkText: t('contact.form.privacyLinkText'),
   submit: t('contact.form.submit'),
   sending: t('contact.form.sending'),
   success: t('contact.form.success'),
+  error: t('contact.form.error'),
   errors: {
     name: t('contact.form.errors.name'),
     email: t('contact.form.errors.email'),
+    subject: t('contact.form.errors.subject'),
     messageShort: t('contact.form.errors.messageShort'),
     messageLong: t('contact.form.errors.messageLong'),
     rateLimit: t('contact.form.errors.rateLimit'),
-    server: t('contact.form.errors.server'),
   },
 };
-const asideEmail = t('contact.aside.email');
+const asideEmail = CONTACT_EMAIL;
+
+// PocketBase URL the form POSTs to — read at request time so it can be set per
+// environment via the container's `environment:` block (PUBLIC_PB_URL). Must be
+// a URL the *browser* can reach.
+const pbUrl =
+  (typeof process !== 'undefined' ? process.env.PUBLIC_PB_URL : undefined) ||
+  import.meta.env.PUBLIC_PB_URL ||
+  'http://localhost:8090';
 ---
 
 <section class="contact" aria-labelledby="contact-heading" id="contact">
   <header class="contact__head">
     <div class="contact__eyebrow"><span class="md-eyebrow"><span class="dot"></span>{t('contact.eyebrow')}</span></div>
-    <h2 id="contact-heading" class="contact__title">
-      <span class="contact__tag">[{langTag}]</span>{t('contact.title')}
-    </h2>
+    <h2 id="contact-heading" class="contact__title" data-reveal>{t('contact.title')}</h2>
   </header>
 
   <div class="contact__layout">
     <div class="contact__panel">
-      <ContactForm client:visible messages={formMessages} action="/api/contact" />
+      <ContactForm client:visible messages={formMessages} pbUrl={pbUrl} contactEmail={CONTACT_EMAIL} privacyHref={path('/privacy')} />
     </div>
 
-    <aside class="contact__aside">
+    <div class="contact__aside">
       <span class="md-eyebrow"><span class="dot"></span>{t('contact.aside.eyebrow')}</span>
       <a href={`mailto:${asideEmail}`} class="contact__aside-email">{asideEmail}</a>
       <hr class="md-hr" />
       <p class="contact__aside-line">{t('contact.aside.replies')}</p>
       <hr class="md-hr" />
       <div class="contact__aside-meta">
-        <span>↳ {t('contact.aside.timezone')}</span>
+        <span>↳ {t('contact.aside.timezone')} · {getCanaryUtcOffset()}</span>
         <span>↳ {t('contact.aside.hours')}</span>
         <span><span class="contact__aside-dot"></span>{t('contact.aside.available')}</span>
       </div>
-    </aside>
+    </div>
   </div>
 </section>
 
@@ -104,15 +109,6 @@ const asideEmail = t('contact.aside.email');
     letter-spacing: -0.025em;
   }
   @media (min-width: 960px) { .contact__title { font-size: clamp(56px, 6vw, 84px); } }
-  .contact__tag {
-    font-family: var(--font-mono);
-    font-style: normal;
-    font-size: 0.22em;
-    vertical-align: 0.7em;
-    color: var(--text-3);
-    letter-spacing: 0.14em;
-    margin-right: 0.5em;
-  }
 
   .contact__layout {
     display: grid;

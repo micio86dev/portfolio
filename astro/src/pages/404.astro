@@ -1,0 +1,148 @@
+---
+// Custom 404 — playful, on-brand: the MicioDev mark over a soft brand-green
+// glow, a big italic-serif "404", a friendly line, and a button back home.
+// Locale is read from the URL so `/it/<bad>` and `/es/<bad>` get the right copy
+// (Astro serves this for any unmatched route). Copy comes from the
+// `translations` overlay / bundled i18n JSON like everything else.
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { Image } from 'astro:assets';
+import logoSrc from '../assets/logo-miciodev.jpg';
+import { useTranslations, useTranslatedPath, getLangFromUrl } from '../i18n/utils';
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+const path = useTranslatedPath(lang);
+
+const LOGO_PX = 96;
+---
+
+<BaseLayout lang={lang} title={t('notFound.title')} description={t('notFound.body')}>
+  <section class="nf" aria-labelledby="nf-heading">
+    <div class="nf__glow" aria-hidden="true"></div>
+
+    <div class="nf__inner">
+      <Image
+        class="nf__logo"
+        src={logoSrc}
+        width={LOGO_PX}
+        height={LOGO_PX}
+        format="webp"
+        alt={t('notFound.logoAlt')}
+        decoding="async"
+        loading="eager"
+      />
+
+      <span class="md-eyebrow nf__eyebrow"><span class="dot"></span>{t('notFound.eyebrow')}</span>
+
+      <p class="nf__code" aria-hidden="true">404</p>
+
+      <h1 id="nf-heading" class="nf__title">{t('notFound.title')}</h1>
+      <p class="nf__body">{t('notFound.body')}</p>
+
+      <a href={path('/')} class="md-btn nf__cta">
+        {t('notFound.backHome')} <span class="arrow">→</span>
+      </a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .nf {
+    position: relative;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--text);
+    min-height: clamp(560px, 78vh, 860px);
+    display: grid;
+    place-items: center;
+    padding: 72px 22px 96px;
+  }
+  @media (min-width: 960px) { .nf { padding: 96px 64px 120px; } }
+
+  /* Soft brand-green halo behind the mark — pure decoration. */
+  .nf__glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: min(720px, 92vw);
+    aspect-ratio: 1;
+    transform: translate(-50%, -58%);
+    background: radial-gradient(
+      circle at 50% 45%,
+      color-mix(in srgb, var(--brand) 22%, transparent) 0%,
+      color-mix(in srgb, var(--brand) 8%, transparent) 38%,
+      transparent 70%
+    );
+    pointer-events: none;
+    filter: blur(2px);
+  }
+
+  .nf__inner {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    text-align: center;
+    gap: 18px;
+    max-width: 560px;
+  }
+
+  .nf__logo {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-2);
+    background: var(--surface);
+    animation: nf-float 5.5s ease-in-out infinite;
+  }
+  @media (min-width: 960px) { .nf__logo { width: 88px; height: 88px; } }
+
+  .nf__eyebrow { margin: 4px 0 0; }
+
+  .nf__code {
+    margin: 4px 0 0;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 400;
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+    font-size: clamp(96px, 22vw, 200px);
+    color: var(--text);
+    /* faint green inner edge so it reads as a "display" numeral, not body text */
+    text-shadow: 0 1px 0 color-mix(in srgb, var(--brand) 30%, transparent);
+    user-select: none;
+  }
+
+  .nf__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(28px, 5.4vw, 44px);
+    line-height: 1.02;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+
+  .nf__body {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--text-2);
+    max-width: 460px;
+  }
+
+  .nf__cta { margin-top: 10px; }
+  .nf__cta .arrow { transition: transform 0.18s ease-out; }
+  .nf__cta:hover .arrow { transform: translateX(3px); }
+
+  @keyframes nf-float {
+    0%, 100% { transform: translateY(0) rotate(-2deg); }
+    50% { transform: translateY(-7px) rotate(2deg); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nf__logo { animation: none; }
+    .nf__cta:hover .arrow { transform: none; }
+  }
+</style>

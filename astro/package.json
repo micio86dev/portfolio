@@ -1,29 +1,53 @@
 {
   "name": "micio86dev",
   "type": "module",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
-  "description": "MicioDev — senior freelance full-stack developer portfolio. Astro 5 + Vue 3 islands + Tailwind v4 + PocketBase + Resend. Trilingual (en/it/es), light + dark.",
+  "engines": {
+    "node": ">=24"
+  },
+  "description": "MicioDev — senior freelance full-stack developer portfolio. Astro 5 (SSR) + Vue 3 islands + Tailwind v4 + PocketBase. Trilingual (en/it/es), light + dark.",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "check": "astro check"
+    "check": "astro check",
+    "lint": "eslint . --max-warnings 0",
+    "lint:fix": "eslint . --fix",
+    "test:unit": "vitest run src/__tests__/unit",
+    "test:components": "vitest run src/__tests__/components",
+    "test:e2e": "playwright test",
+    "test:coverage": "vitest run --coverage",
+    "test:all": "bun run test:unit && bun run test:components && bun run test:e2e"
   },
   "dependencies": {
-    "astro": "^5.0.0",
-    "@astrojs/vue": "^5.0.0",
-    "@astrojs/sitemap": "^3.2.0",
     "@astrojs/node": "^9.0.0",
-    "vue": "^3.5.0",
+    "@astrojs/vue": "^5.0.0",
+    "astro": "^5.0.0",
+    "gsap": "^3.15.0",
     "pocketbase": "^0.25.0",
-    "resend": "^4.0.0"
+    "vue": "^3.5.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.0",
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.60.0",
     "@tailwindcss/vite": "^4.0.0",
+    "@types/node": "24.12.3",
+    "@vitejs/plugin-vue": "^6.0.6",
+    "@vitest/coverage-v8": "^4.1.6",
+    "@vue/test-utils": "^2.4.10",
+    "astro-eslint-parser": "^1.4.0",
+    "eslint": "^10.3.0",
+    "eslint-plugin-astro": "^1.7.0",
+    "eslint-plugin-vue": "^10.9.1",
+    "globals": "^17.6.0",
+    "jsdom": "^29.1.1",
     "tailwindcss": "^4.0.0",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "typescript-eslint": "^8.59.3",
+    "vitest": "^4.1.6",
+    "vue-eslint-parser": "^10.4.0"
   }
 }

@@ -3,10 +3,8 @@
 Senior freelance full-stack developer portfolio for **MicioDev**.
 Trilingual (English · Italian · Spanish), light + dark, mobile-first.
 
-> Scaffolded from the design handoff in `../design_refs/` (+ `../README.md`).
-> The `.astro` and `.vue` components recreate those HTML/JSX prototypes in the
-> target stack — design values (hex / rem / px / easing / motion timings) were
-> lifted; the markup was rebuilt with each tool's idioms rather than ported.
+> Built to the design spec in `../README.md` (tokens, layout, motion) — see
+> also `DESIGN.md` for the design-system reference.
 
 ---
 
@@ -23,7 +21,7 @@ Trilingual (English · Italian · Spanish), light + dark, mobile-first.
 9. [Fonts](#fonts)
 10. [Vue islands](#vue-islands)
 11. [Data: PocketBase](#data-pocketbase)
-12. [Contact form & Resend](#contact-form--resend)
+12. [Contact form & PocketBase](#contact-form--pocketbase)
 13. [SEO & sitemap](#seo--sitemap)
 14. [Accessibility](#accessibility)
 15. [Building & deploying](#building--deploying)
@@ -36,13 +34,13 @@ Trilingual (English · Italian · Spanish), light + dark, mobile-first.
 
 | Layer | Choice | Notes |
 |---|---|---|
-| Framework | **Astro 5** | SSG + SSR hybrid. Pages are static (`prerender = true`); `/api/contact` is the only on-demand route. |
-| Adapter | **`@astrojs/node`** (standalone) | So `astro build` produces a working server entry. Swap for `@astrojs/vercel` / `@astrojs/cloudflare` / `@astrojs/netlify` per host. |
+| Framework | **Astro 5** | SSR (`output: 'server'`) — pages render on demand. Truly static pages can opt out with `prerender = true`. |
+| Adapter | **`@astrojs/node`** (standalone) | `astro build` produces `dist/server/entry.mjs`, a self-contained Node server (also serves `dist/client`). Swap for `@astrojs/vercel` / `@astrojs/cloudflare` / `@astrojs/netlify` per host. |
 | Interactive islands | **Vue 3** | `Nav` (`client:load`), `ThemeToggle` & `LangSwitch` (child islands / `client:visible` in the footer), `ContactForm` (`client:visible`). |
 | Styling | **Tailwind CSS v4** via `@tailwindcss/vite` | Tokens live in `src/styles/tokens.css` as CSS custom properties; `src/styles/app.css` imports Tailwind, maps tokens into a `@theme` block, declares `@font-face`, and defines the `.md-*` component utilities. |
 | i18n | **Astro built-in i18n** | `defaultLocale: 'en'`, `locales: ['en','it','es']`, default locale served at `/` (no prefix). |
-| Data | **PocketBase JS SDK** | Build-time fetch of `projects` + `services`; falls back to `src/lib/seed-data.ts` when PocketBase is unset/unreachable so the site always builds. |
-| Email | **Resend** | `src/pages/api/contact.ts` → `src/lib/resend.ts`. |
+| Data | **PocketBase JS SDK** | Per-request fetch of all content collections — `projects`, `services`, `skills`, `courses`, `videos`, `career`, `news`, `customers`, `pages`, `socials` (server-only, `src/lib/pocketbase.ts`); falls back to `src/lib/seed-data.ts` when PocketBase is unset/unreachable so the site still renders. |
+| Contact | **PocketBase** | The form (browser) POSTs straight to `${PUBLIC_PB_URL}/api/collections/contacts/records`; submissions land in the `contacts` collection. No email service. |
 
 ---
 
@@ -54,8 +52,9 @@ npm install
 
 # 2. (optional for local dev) create your env file
 cp .env.example .env
-#    fill in PB_URL / RESEND_API_KEY / CONTACT_TO_EMAIL when you have them —
-#    everything works without them (seed data + the form just won't actually send).
+#    set PUBLIC_PB_URL to your running PocketBase (e.g. http://localhost:8090);
+#    without it the projects/services fall back to seed data and the contact
+#    form has nowhere to POST.
 
 # 3. run the dev server
 npm run dev          # → http://localhost:4321
@@ -74,20 +73,17 @@ Routes available in dev: `/` (English), `/it/`, `/es/`.
 
 ## Environment variables
 
-Copy `.env.example` → `.env`. All variables are **optional for local
-development** — without them the site uses seed data and the contact form
-returns a "send failed" message instead of emailing.
+Copy `.env.example` → `.env`. Both variables are **optional for local
+development** — without `PUBLIC_PB_URL` the site uses seed data and the contact
+form has nowhere to POST.
 
 | Variable | Used by | Purpose |
 |---|---|---|
-| `SITE_URL` | `astro.config.mjs`, `BaseLayout.astro` | Canonical origin — `<link rel="canonical">`, `hreflang`, sitemap. |
-| `PB_URL` | `src/lib/pocketbase.ts` | PocketBase base URL, e.g. `https://pb.miciodev.com`. Unset/unreachable → seed-data fallback. |
-| `PB_ADMIN_TOKEN` | (reserved) | Only needed if you later write contact submissions back to a `messages` collection. |
-| `RESEND_API_KEY` | `src/lib/resend.ts` | Resend API key. |
-| `CONTACT_TO_EMAIL` | `src/lib/resend.ts` | Where contact-form submissions are delivered. |
-| `CONTACT_FROM_EMAIL` | `src/lib/resend.ts` | Verified sender, e.g. `MicioDev <hello@miciodev.com>`. Defaults to that string if unset. |
+| `PUBLIC_PB_URL` | `src/lib/pocketbase.ts` (SSR), `Contact.astro` → `ContactForm.vue` (browser) | Public PocketBase base URL, e.g. `https://pb.micio86dev.it`. Read at **runtime** (`process.env` on the server; passed to the form as a prop). Unset/unreachable → seed-data fallback. Defaults to `http://localhost:8090`. |
+| `SITE_URL` | `astro.config.mjs`, `BaseLayout.astro` | Canonical origin — `<link rel="canonical">`, `hreflang`, sitemap. Build-time. |
 
-Non-`PUBLIC_` variables are server-only — they're never shipped to the browser.
+The `PUBLIC_` prefix is what lets the URL reach the browser bundle for the
+contact form; `SITE_URL` is server-only.
 
 ---
 
@@ -111,18 +107,17 @@ micio86dev/
 ├─ tsconfig.json               # extends astro/tsconfigs/strict
 ├─ .env.example                # documented env vars
 ├─ public/
-│  ├─ favicon.svg              # MicioDev cat mark
+│  ├─ favicon.ico              # MicioDev cat mark
 │  ├─ logo.svg                 # mark + wordmark, standalone
 │  ├─ robots.txt
-│  └─ fonts/.gitkeep           # expected woff2 filenames are documented here
+│  └─ fonts/                   # self-hosted woff2 files (Latin subset, from Fontsource); .gitkeep documents the exact names
 └─ src/
    ├─ assets/                  # images processed by astro:assets — logo-miciodev.jpg, hero.webp
    ├─ env.d.ts                 # ImportMetaEnv typings for the env vars above
    ├─ pages/
    │  ├─ index.astro           # English — served at "/"
    │  ├─ it/index.astro        # "/it/"
-   │  ├─ es/index.astro        # "/es/"
-   │  └─ api/contact.ts        # POST handler — validation, honeypot, rate-limit, Resend (prerender = false)
+   │  └─ es/index.astro        # "/es/"   (all SSR — no `prerender`; the contact form posts directly to PocketBase)
    ├─ layouts/
    │  └─ BaseLayout.astro      # <html lang>, SEO head, hreflang, OG/Twitter, theme bootstrap, font preload, Nav, Footer, skip-link
    ├─ components/
@@ -134,20 +129,19 @@ micio86dev/
    │  │  ├─ Skills.astro       # 4 group columns; pill cloud with primary / daily / default weights; legend
    │  │  ├─ Contact.astro      # section header + form panel (ContactForm island) + direct-contact aside
    │  │  ├─ SectionDivider.astro # aria-hidden hairline + mono "§ NN — name" label between sections
-   │  │  ├─ Footer.astro       # always-dark surface (#0A0B0A); big italic email; columns; social icons; LangSwitch island
+   │  │  ├─ Footer.astro       # always-dark surface (#0A0B0A); big italic email; columns; social icons from the `socials` collection (getSocials() + an ICONS map); LangSwitch island
    │  │  └─ SectionsHome.astro # the full landing-page section stack, shared across all locale routes
    │  └─ vue/                  # interactive islands
    │     ├─ Nav.vue            # sticky w/ backdrop blur; status strip; desktop links + mobile drawer; hosts ThemeToggle + LangSwitch
    │     ├─ ThemeToggle.vue    # reads/writes localStorage('miciodev-theme') + document.documentElement.dataset.theme; follows OS until manual override
    │     ├─ LangSwitch.vue     # ARIA radiogroup, arrow-key navigation; routes to /, /it/, /es/ preserving the current path; "default" + "dark" variants
-   │     └─ ContactForm.vue    # live validation, char counter, honeypot, aria-live feedback, POSTs JSON to /api/contact
+   │     └─ ContactForm.vue    # live validation, char counter, honeypot, aria-live feedback, POSTs JSON to ${pbUrl}/api/collections/contacts/records
    ├─ i18n/
    │  ├─ en.json / it.json / es.json   # all UI copy as PLACEHOLDER keys (e.g. "EN — hero · headline line 1")
    │  └─ utils.ts              # useTranslations(lang), useTranslatedPath(lang), getLangFromUrl, stripLocale, LOCALES, DEFAULT_LOCALE
    ├─ lib/
-   │  ├─ pocketbase.ts         # PocketBase singleton + getProjects(locale) / getServices(locale) with seed fallback
-   │  ├─ seed-data.ts          # structural placeholder data mirroring the PocketBase schema (the build-time fallback)
-   │  └─ resend.ts             # sendContactEmail() — server only
+   │  ├─ pocketbase.ts         # PocketBase singleton (server-only) + per-request getters (getProjects/getServices/getSkills/getCourses/getVideos/getCareer/getNews/getCustomers/getPages/getSocials), all with seed fallback
+   │  └─ seed-data.ts          # structural placeholder data mirroring the PocketBase schema (the seed fallback)
    └─ styles/
       ├─ tokens.css            # design tokens as CSS custom properties (+ [data-theme="dark"] overrides, reduced-motion guard, coarse-pointer hit area)
       └─ app.css               # @import "tailwindcss"; @theme {…}; @font-face; base resets; .md-eyebrow/.md-btn/.md-tag/.md-input/.md-card utilities
@@ -225,24 +219,26 @@ Source of truth: `document.documentElement.dataset.theme` — `"light"` |
 ## Fonts
 
 Self-host three families: **Instrument Serif** (display — italic + roman),
-**Geist** (body — 400/500/600), **Geist Mono** (400/500). Until you add the
-files, the system fallbacks (`Times New Roman` / `system-ui`) render and
-nothing breaks.
+**Geist** (body — 400/500/600), **Geist Mono** (400/500). The woff2 files are
+committed under `public/fonts/` (Latin subset — covers en/it/es), pulled from
+the Fontsource CDN. If a file goes missing the system fallbacks
+(`Times New Roman` / `system-ui`) render and nothing breaks.
 
-1. Download: Instrument Serif from [fonts.google.com](https://fonts.google.com/specimen/Instrument+Serif),
-   Geist + Geist Mono from [vercel.com/font](https://vercel.com/font).
-2. Subset to Latin (covers en/it/es) with
-   [glyphhanger](https://github.com/zachleat/glyphhanger) or `pyftsubset`.
-3. Drop the woff2 files into `public/fonts/` with **exactly these names** (also
-   listed in `public/fonts/.gitkeep`):
+1. The files are already there. To refresh, re-download from the Fontsource CDN
+   — `https://cdn.jsdelivr.net/fontsource/fonts/<id>@latest/latin-<wght>-<style>.woff2`
+   (ids `instrument-serif`, `geist`, `geist-mono`) — and save them under
+   `public/fonts/` with **exactly these names** (also listed in
+   `public/fonts/.gitkeep`):
    `instrument-serif-regular.woff2`, `instrument-serif-italic.woff2`,
    `geist-regular.woff2`, `geist-medium.woff2`, `geist-semibold.woff2`,
    `geist-mono-regular.woff2`, `geist-mono-medium.woff2`.
-4. `app.css` already declares the `@font-face` rules with `font-display: swap`
+2. To re-subset further (the Fontsource `latin` subset is already small), use
+   [glyphhanger](https://github.com/zachleat/glyphhanger) or `pyftsubset`.
+3. `app.css` declares the `@font-face` rules with `font-display: swap`
    (+ `size-adjust` / `ascent-override` on Geist to minimize layout shift), and
    `BaseLayout.astro` preloads the two critical files
    (`instrument-serif-italic.woff2`, `geist-regular.woff2`).
-5. On your host, cache `public/fonts/*` immutably
+4. On your host, cache `public/fonts/*` immutably
    (`Cache-Control: public, max-age=31536000, immutable`).
 
 ---
@@ -260,7 +256,7 @@ nothing breaks.
     `fetchpriority="high"`. It's **light-mode only** — hidden in dark mode, where
     the CSS mesh + dot-grid layers take over (the photo is light-toned).
 - `public/` keeps only assets referenced by literal path / not processed:
-  `favicon.svg`, `logo.svg` (a simple vector fallback — not the brand JPG),
+  `favicon.ico`, `logo.svg` (a simple vector fallback — not the brand JPG),
   `robots.txt`, `fonts/`.
 - Per-locale Open Graph images are still TODO at `public/og/{en,it,es}.png` (1200×630).
 
@@ -271,7 +267,7 @@ nothing breaks.
 | `Nav.vue` | `client:load` | Above the fold; mobile drawer open/close, scroll-shadow toggle. Hosts `ThemeToggle` + `LangSwitch` (bundled into the same island). |
 | `ThemeToggle.vue` | (child of Nav) | Reads/writes `localStorage` + `data-theme`; OS-change listener. |
 | `LangSwitch.vue` | (child of Nav) / `client:visible` in `Footer` | ARIA radiogroup with arrow-key navigation; builds locale-prefixed hrefs that preserve the current path. `variant="dark"` for the footer. |
-| `ContactForm.vue` | `client:visible` | Live validation, char counter, `aria-live="polite"` feedback region, honeypot, `fetch` POST to `/api/contact`. |
+| `ContactForm.vue` | `client:visible` | Live validation, char counter, `aria-live="polite"` feedback region, honeypot, `fetch` POST to `${pbUrl}/api/collections/contacts/records` (PocketBase). |
 
 Everything else is static `.astro` — zero JavaScript shipped for Hero,
 Services, Projects, Skills, the Contact section shell, and the Footer shell.
@@ -280,52 +276,70 @@ Services, Projects, Skills, the Contact section shell, and the Footer shell.
 
 ## Data: PocketBase
 
-`src/lib/pocketbase.ts` builds a singleton from `PB_URL` and exposes
-`getProjects(locale)` and `getServices(locale)`, called from page/component
-frontmatter at **build time**. If `PB_URL` is unset or the request fails, both
-fall back to `src/lib/seed-data.ts` — so a clean checkout builds with no
-backend.
+`src/lib/pocketbase.ts` builds a singleton from `PUBLIC_PB_URL` (read at
+**runtime** — `process.env.PUBLIC_PB_URL`, then `import.meta.env` as a dev
+fallback) and exposes one getter per content collection — `getProjects(locale)`,
+`getServices(locale)`, `getSkills()`, `getCourses(locale)`, `getVideos()`,
+`getCareer(locale)`, `getNews(locale)` / `getNewsPost(slug, locale)`,
+`getCustomers(locale)`, `getPages(locale)` / `getPage(slug, locale)`,
+`getSocials()` — called from page/component frontmatter. It also exports
+`PB_ORIGIN` (the PocketBase origin), used to whitelist it in the page CSP. With
+`output: 'server'` those run **per request**, so content is always fresh. If
+`PUBLIC_PB_URL` is unset or the request fails, every getter falls back to
+`src/lib/seed-data.ts` — so a clean checkout still renders with no backend. This
+module is server-only; don't import it from client components.
 
-Expected collections (full field list in `../README.md` → "PocketBase
-collections schema"):
+Collections (full field list in `../README.md` → "PocketBase collections
+schema"; all have a **public read rule**, writes superuser-only):
 
 - **`projects`** — `slug` (unique), `idx`, `client`, `period`, `featured`,
   `order`, `title_{en,it,es}`, `desc_{en,it,es}`, `stack` (json string[]),
   `kpis` (json `{label,value}[]`), `cover` (file), `gallery` (file[]),
-  `live_url`, `repo_url`. **Public read rule.** The first featured project
+  `live_url`, `repo_url`, `customers` (relation). The first featured project
   renders as the wide featured card.
 - **`services`** — `idx`, `order`, `icon`
   (`stack` | `api` | `vps` | `compass` | `magnifier` → maps to an inline SVG in
   `Services.astro`), `featured`, `title_{en,it,es}`, `desc_{en,it,es}`,
-  `tags` (json string[]). **Public read rule.**
+  `tags` (json string[]).
+- **`skills`**, **`courses`**, **`videos`**, **`career`**, **`news`**,
+  **`customers`**, **`pages`** — see the per-collection migrations in
+  `../pb/pb_migrations/`.
+- **`socials`** — `icon` (select: `github` | `gitlab` | `linkedin` | `x` |
+  `instagram` | `facebook` | `youtube` | `tiktok` | `udemy` | `codepen` |
+  `dribbble` | `telegram` | `mastodon` | `email` | `rss` | `website`), `url`,
+  `label`, `order`. Rendered as the footer's "Elsewhere" buttons; the `icon`
+  key picks an SVG from the `ICONS` map in `Footer.astro`. Reorder them by drag
+  & drop at `{PUBLIC_PB_URL}/socials-order` (served by
+  `pb/pb_hooks/socials_order.pb.js`) — no redeploy needed.
 
-Wire a webhook from PocketBase → your host's deploy hook so content changes
-trigger a rebuild.
+Content is re-read on every request (SSR), so no rebuild/webhook is needed when
+anything changes in PocketBase. File fields (`cover`, `gallery`, customer
+`logo`, news `cover`) become `https://<pb-origin>/api/files/…` URLs, which is
+why `BaseLayout.astro`'s CSP `img-src` / `connect-src` include `PB_ORIGIN`.
 
 ---
 
-## Contact form & Resend
+## Contact form & PocketBase
 
-- **`ContactForm.vue`** — fields `name`, `email`, `subject`
-  (`general` | `estimate` | `consulting` | `other`), `message`, plus a hidden
-  `website` honeypot. Validates live (name required, email format, message
-  20–4000 chars), shows a character counter, surfaces success/error in an
-  `aria-live="polite"` region above the submit button, and POSTs JSON to
-  `/api/contact`.
-- **`src/pages/api/contact.ts`** (`prerender = false`) — re-validates
-  server-side, drops anything with a filled honeypot (returns `{ ok: true }`
-  silently), rate-limits per IP (5 requests / 60 s, in-memory — swap for a
-  shared store on multi-instance hosts), then calls `sendContactEmail()`.
-  Responses: `200 { ok: true }`, `400 { ok:false, error:'validation', fields }`,
-  `429 { ok:false, error:'rate_limited' }`, `500 { ok:false, error:'send_failed' }`.
-- **`src/lib/resend.ts`** — `sendContactEmail({ name, email, subject, message })`
-  → `resend.emails.send({ from: CONTACT_FROM_EMAIL, to: CONTACT_TO_EMAIL,
-  replyTo: email, subject, html, text })`. Throws if the keys are missing or
-  the send fails (the route maps that to 500).
+The form has no Astro API route — `ContactForm.vue` POSTs directly to
+PocketBase from the browser.
 
-> The form needs the on-demand route, so it works under `astro dev` and in a
-> deployed build (the Node adapter or your platform adapter serves it). In a
-> purely static export with no adapter it would not run.
+- **`ContactForm.vue`** — fields `name`, `email`, `subject` (free-text),
+  `message`, plus a hidden `website` honeypot. Validates live (all required,
+  email format, message 10–2000 chars), shows a character counter, surfaces
+  success/error in an `aria-live="polite"` region above the submit button, and
+  on submit `fetch`-POSTs `{ name, email, subject, message }` (JSON) to
+  `${pbUrl}/api/collections/contacts/records`, where `pbUrl` is `PUBLIC_PB_URL`
+  (passed in as a prop by `Contact.astro`, read at request time). A filled
+  honeypot short-circuits to a fake success and sends nothing. On failure it
+  shows a generic message only (`contact.form.error` / `contact.form.errors.rateLimit`
+  for 429) — PocketBase's response body is never surfaced. No `console.log` of
+  form data.
+- **PocketBase `contacts` collection** (`../pb/pb_migrations/…_created_contacts.js`)
+  — `createRule = ""` (public), everything else admin-only. Field constraints
+  (min/max) are enforced server-side by PocketBase. Submissions are read in the
+  admin dashboard at `${PUBLIC_PB_URL}/_/`. Enable PocketBase rate limiting
+  (Settings → Rate limits) on `POST /api/collections/contacts/records`.
 
 ---
 
@@ -355,7 +369,7 @@ renders: `<html lang>`, `<title>`, `<meta name="description">`,
   (blanket reset in `tokens.css`).
 - Touch targets ≥ 44 × 44 px on coarse pointers (CSS media query in `tokens.css`).
 - Contrast meets WCAG AA in both themes (brand ~7.4 : 1 light, ~9.1 : 1 dark
-  per the design handoff).
+  per the design spec in `../README.md`).
 
 ---
 
@@ -363,35 +377,38 @@ renders: `<html lang>`, `<title>`, `<meta name="description">`,
 
 ```bash
 npm run build
-# → dist/client/   static assets + prerendered HTML (/, /it/, /es/, sitemap, robots)
-# → dist/server/   entry.mjs — the on-demand handler for /api/contact (Node standalone)
+# → dist/client/   static assets (+ sitemap, robots, any prerendered pages)
+# → dist/server/   entry.mjs — the SSR Node server (standalone; also serves dist/client)
 
-# run the server entry yourself:
+# run the server entry yourself (set PUBLIC_PB_URL / SITE_URL in the env first):
 node ./dist/server/entry.mjs
 # or:
 npm run preview
 ```
 
-For a managed platform, replace `@astrojs/node` in `astro.config.mjs` with the
-matching adapter (e.g. `npm run astro -- add vercel` /
-`npm run astro -- add cloudflare`). Set `RESEND_API_KEY`, `CONTACT_TO_EMAIL`,
-`CONTACT_FROM_EMAIL`, `PB_URL`, and `SITE_URL` in the platform's env settings.
-Aim for Lighthouse 100 / 100 / 100 / 100 on the `/` route before launching the
-others.
+The repo ships a `Dockerfile` (multi-stage → `node:24-alpine` running the
+standalone server) and `../docker-compose*.yml`. For a managed platform,
+replace `@astrojs/node` in `astro.config.mjs` with the matching adapter (e.g.
+`npm run astro -- add vercel` / `npm run astro -- add cloudflare`) and set
+`PUBLIC_PB_URL` and `SITE_URL` in the platform's env settings. Aim for
+Lighthouse 100 / 100 / 100 / 100 on the `/` route before launching the others.
 
 ---
 
 ## Troubleshooting
 
-- **`NoAdapterInstalled` on build** — `/api/contact` is `prerender = false`, so
-  it needs an adapter. `@astrojs/node` is already configured; just make sure
-  `npm install` ran. To go fully static, remove the API route and the adapter.
+- **`NoAdapterInstalled` on build** — `output: 'server'` needs an adapter.
+  `@astrojs/node` is already configured; just make sure `npm install` ran.
 - **`Cannot find module 'astro' / '@astrojs/vue' / …`** — run `npm install`;
   the scaffold ships `package.json` only.
 - **Theme flashes on load** — the bootstrap script must stay in `<head>` before
   the stylesheet `<link>` and run as `is:inline` (it does in `BaseLayout.astro`).
-- **Type errors on `import.meta.env.PB_URL`** — the variable typings live in
-  `src/env.d.ts`; add new vars there too.
+- **Type errors on `import.meta.env.PUBLIC_PB_URL`** — the variable typings live
+  in `src/env.d.ts`; add new vars there too.
+- **Contact form posts to the wrong host** — `PUBLIC_PB_URL` is read at runtime
+  (`process.env` on the SSR server, then passed to the form as a prop). In
+  Docker it comes from the container's `environment:` block; for `astro dev`
+  set it in `astro/.env`. It must be reachable from the **browser**.
 - **Build fails fetching PocketBase** — it shouldn't (it falls back to seed
   data and logs a warning). If you *want* the build to hard-fail when PB is
   down, throw instead of warning in `getProjects` / `getServices`.
@@ -405,8 +422,9 @@ others.
 
 - [ ] Replace the placeholder keys in `src/i18n/{en,it,es}.json` with real copy.
 - [ ] Stand up PocketBase locally, create the `projects` + `services`
-      collections (public read rule), seed them, point `PB_URL` at it.
-- [ ] Add the self-hosted, subsetted woff2 font files to `public/fonts/`.
+      collections (public read rule), seed them, point `PUBLIC_PB_URL` at it.
+      (The `contacts` collection is created by `pb/pb_migrations/`.)
+- [x] Add the self-hosted woff2 font files to `public/fonts/` (Latin subset, from Fontsource).
 - [ ] Build `src/pages/projects/[slug].astro` case-study detail pages
       (`getStaticPaths` over `getProjects`).
 - [ ] Generate per-locale Open Graph images at `public/og/{en,it,es}.png` (1200×630).

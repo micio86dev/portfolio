@@ -1,5 +1,6 @@
 ---
 import type { ProjectRecord, Localized } from '../../lib/seed-data';
+import { pbThumb } from '../../lib/img';
 
 interface Props {
   project: Localized<ProjectRecord>;
@@ -7,15 +8,14 @@ interface Props {
   featuredBadgeLabel: string;
   openCaseStudyLabel: string;
   mockupLabel: string;
-  langTag: string;
   /** href to the case study / project detail */
   href: string;
 }
-const { project: p, variant, featuredBadgeLabel, openCaseStudyLabel, mockupLabel, langTag, href } = Astro.props;
+const { project: p, variant, featuredBadgeLabel, openCaseStudyLabel, mockupLabel, href } = Astro.props;
 const isFeatured = variant === 'featured';
 ---
 
-<a href={href} class:list={['pcard', `pcard--${variant}`]} aria-label={`${p.title} — ${openCaseStudyLabel}`}>
+<a href={href} class:list={['pcard', `pcard--${variant}`]} aria-label={`${p.title} — ${openCaseStudyLabel}`} data-reveal>
   {isFeatured && (
     <div class="pcard__mockup-pane">
       <div class="pcard__mockup">
@@ -23,9 +23,23 @@ const isFeatured = variant === 'featured';
           <span class="pcard__dot"></span><span class="pcard__dot"></span><span class="pcard__dot"></span>
           <span class="pcard__urlbar"></span>
         </div>
-        <div class="pcard__stripes">
-          <span class="pcard__mockup-label">{mockupLabel}</span>
-        </div>
+        {p.coverUrl ? (
+          <img
+            class="pcard__shot"
+            src={pbThumb(p.coverUrl, '600x375t')}
+            srcset={`${pbThumb(p.coverUrl, '360x225t')} 360w, ${pbThumb(p.coverUrl, '480x300t')} 480w, ${pbThumb(p.coverUrl, '600x375t')} 600w, ${pbThumb(p.coverUrl, '720x450t')} 720w, ${pbThumb(p.coverUrl, '1024x640t')} 1024w, ${pbThumb(p.coverUrl, '1280x800t')} 1280w`}
+            sizes="(min-width: 1280px) 720px, (min-width: 960px) 56vw, (min-width: 600px) 92vw, 360px"
+            alt=""
+            width="1024"
+            height="640"
+            loading="lazy"
+            decoding="async"
+          />
+        ) : (
+          <div class="pcard__stripes">
+            <span class="pcard__mockup-label">{mockupLabel}</span>
+          </div>
+        )}
       </div>
       {p.kpis.length > 0 && (
         <div class="pcard__kpis">
@@ -43,7 +57,11 @@ const isFeatured = variant === 'featured';
   <div class="pcard__body">
     <header class="pcard__head">
       <div class="pcard__client">
-        <span class="pcard__crest" aria-hidden="true">{p.clientInitials}</span>
+        <span class="pcard__crest" class:list={{ 'pcard__crest--logo': !!p.crestUrl }} aria-hidden="true">
+          {p.crestUrl ? (
+            <img class="pcard__crest-img" src={pbThumb(p.crestUrl, '128x128f')} alt="" width="128" height="128" loading="lazy" decoding="async" />
+          ) : p.crestInitials}
+        </span>
         <div class="pcard__client-meta">
           <span class="pcard__client-name">{p.client} · / {p.idx}</span>
           <span class="pcard__period">{p.period}</span>
@@ -54,9 +72,9 @@ const isFeatured = variant === 'featured';
       )}
     </header>
 
-    <h3 class="pcard__title">{p.title}</h3>
+    <h2 class="pcard__title">{p.title}</h2>
 
-    <p class="pcard__desc"><span class="pcard__lang">[{langTag}]</span>{p.desc}</p>
+    <p class="pcard__desc">{p.desc}</p>
 
     <hr class="md-hr" />
 
@@ -88,15 +106,22 @@ const isFeatured = variant === 'featured';
     color: var(--text);
     transition:
       border-color var(--dur-2) var(--ease),
-      box-shadow var(--dur-2) var(--ease),
-      transform var(--dur-2) var(--ease);
+      box-shadow var(--dur-2) var(--ease);
   }
   .pcard:hover {
     border-color: var(--text);
     box-shadow: var(--shadow-2);
-    transform: translateY(-2px);
   }
   .pcard:hover .pcard__foot { color: var(--brand); }
+  /* Lift on hover — transform-only (no CLS); honour reduced-motion (no lift). */
+  @media (prefers-reduced-motion: no-preference) {
+    .pcard { transition:
+      border-color var(--dur-2) var(--ease),
+      box-shadow var(--dur-2) var(--ease),
+      transform 200ms ease-out;
+    }
+    .pcard:hover { transform: translateY(-4px); }
+  }
 
   /* Featured: side-by-side mockup + text on wide screens; spans both grid cols. */
   .pcard--featured { padding: 0; overflow: hidden; }
@@ -137,6 +162,14 @@ const isFeatured = variant === 'featured';
   .pcard__stripes {
     position: relative;
     background: repeating-linear-gradient(135deg, var(--surface) 0 12px, var(--surface-2) 12px 24px);
+  }
+  /* Real screenshot — fills the 16:10 mockup body (the chrome row sits above). */
+  .pcard__shot {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    display: block;
   }
   .pcard__mockup-label {
     position: absolute;
@@ -188,6 +221,7 @@ const isFeatured = variant === 'featured';
     align-items: center;
     justify-content: center;
     border-radius: 999px;
+    overflow: hidden;
     background: var(--surface-2);
     border: 1px solid var(--line-2);
     color: var(--text);
@@ -195,7 +229,11 @@ const isFeatured = variant === 'featured';
     font-size: 11px;
     font-weight: 500;
     letter-spacing: 0.04em;
+    flex: 0 0 auto;
   }
+  /* When it carries a logo, give it a white plate so brand marks read cleanly. */
+  .pcard__crest--logo { background: #fff; }
+  .pcard__crest-img { width: 100%; height: 100%; object-fit: cover; }
   .pcard--featured .pcard__crest { width: 44px; height: 44px; font-size: 13px; }
   .pcard__client-meta { display: grid; gap: 2px; }
   .pcard__client-name {
@@ -214,7 +252,10 @@ const isFeatured = variant === 'featured';
     padding: 0 10px;
     border-radius: 999px;
     background: var(--brand-tint);
-    color: var(--brand);
+    /* `--brand` on `--brand-tint` was ~4.4:1 (axe-core flagged it: WCAG
+       AA needs ≥ 4.5:1 for small text). Switch to the darker brand-700
+       in light mode and the lighter brand-200 in dark mode for clear AA. */
+    color: var(--color-brand-700);
     font-family: var(--font-mono);
     font-size: 10px;
     font-weight: 500;
@@ -223,6 +264,7 @@ const isFeatured = variant === 'featured';
     border: 1px solid color-mix(in oklab, var(--brand) 22%, transparent);
     white-space: nowrap;
   }
+  :global([data-theme='dark']) .pcard__badge { color: var(--color-brand-200); }
   .pcard__badge-dot {
     width: 5px;
     height: 5px;
@@ -244,13 +286,6 @@ const isFeatured = variant === 'featured';
   .pcard--featured .pcard__title { font-size: clamp(34px, 3.2vw, 48px); line-height: 1.02; }
 
   .pcard__desc { margin: 0; font-size: 13px; line-height: 1.55; color: var(--text-2); }
-  .pcard__lang {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    color: var(--text-3);
-    letter-spacing: 0.14em;
-    margin-right: 8px;
-  }
   .pcard__stack { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
   .pcard__chip {
     display: inline-flex;
@@ -264,7 +299,9 @@ const isFeatured = variant === 'featured';
     font-size: 11px;
     border: 1px solid var(--line-2);
     white-space: nowrap;
+    transition: background-color 150ms var(--ease);
   }
+  .pcard:hover .pcard__chip { background-color: var(--surface-2); }
   .pcard__foot {
     margin-top: auto;
     display: flex;
@@ -278,4 +315,25 @@ const isFeatured = variant === 'featured';
     text-transform: uppercase;
     transition: color var(--dur-1) var(--ease);
   }
+  /* "View project" label: a transform-based underline that slides in from the
+     left on card hover — no layout shift. */
+  .pcard__foot > span:first-child {
+    position: relative;
+    padding-bottom: 2px;
+  }
+  .pcard__foot > span:first-child::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .pcard__foot > span:first-child::after { transition: transform 150ms var(--ease); }
+  }
+  .pcard:hover .pcard__foot > span:first-child::after { transform: scaleX(1); }
 </style>

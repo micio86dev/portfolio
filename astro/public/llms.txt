@@ -1,0 +1,32 @@
+# Alessandro Micelli — Full-Stack Freelance Developer
+
+> Senior full-stack web developer with 15+ years of experience.
+> Specializing in Laravel, Vue, Nuxt, TypeScript. Remote, based in Canary Islands.
+
+## Services
+
+- Full-Stack Web Development (Laravel + Vue/Nuxt)
+- API Design & Backend Architecture
+- VPS Infrastructure & DevOps
+- Technical Consulting for Digital Agencies
+- Code Review & Legacy Refactoring
+
+## Tech Stack
+
+PHP, Laravel, TypeScript, Vue 3, Nuxt 4, Astro, Node.js,
+MySQL, PostgreSQL, Redis, Docker, nginx, DigitalOcean, GitHub Actions
+
+## Projects
+
+See /sitemap.xml for all project URLs.
+
+## Contact
+
+Website: https://micio86dev.it
+GitHub: https://github.com/micio86dev
+YouTube: https://youtube.com/@miciodev
+
+## Availability
+
+Open to freelance projects and consulting engagements.
+Preferred contact: via contact form at https://micio86dev.it/#contact

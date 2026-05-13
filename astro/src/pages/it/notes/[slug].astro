@@ -1,0 +1,13 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import NoteDetailPage from '../../../components/astro/NoteDetailPage.astro';
+import { getNewsPost } from '../../../lib/pocketbase';
+
+const lang = 'it' as const;
+const post = await getNewsPost(Astro.params.slug ?? '', lang);
+if (!post) return new Response(null, { status: 404 });
+---
+
+<BaseLayout lang={lang} title={post.title} description={post.excerpt || post.title}>
+  <NoteDetailPage lang={lang} post={post} />
+</BaseLayout>

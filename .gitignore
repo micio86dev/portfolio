@@ -8,9 +8,11 @@ node_modules/
 dist/
 .output/
 .astro/
-# The lockfile MUST be committed (CI runs `npm ci`). Re-include it in case a
-# global ~/.gitignore ignores package-lock.json.
-!astro/package-lock.json
+# The lockfiles MUST be committed (CI runs `bun install --frozen-lockfile` in
+# astro/; the root still uses npm + Husky). Re-include them in case a global
+# ~/.gitignore ignores bun.lock or package-lock.json.
+!astro/bun.lock
+!/package-lock.json
 
 # ── PocketBase ─────────────────────────────────────────────────────────
 # The committed binary in pb/ is a local (macOS) build; the image downloads
@@ -30,3 +32,6 @@ pnpm-debug.log*
 .vscode/*
 !.vscode/extensions.json
 .idea/
+
+# ── Claude Code ───────────────────────────────────────────────────────
+.claude/

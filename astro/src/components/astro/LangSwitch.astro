@@ -1,0 +1,145 @@
+---
+/**
+ * Language switch — Astro replacement for the former Vue island.
+ *
+ * Pure server-rendered anchor links (the three locales). No client JS needed
+ * for the switch itself — clicking navigates. A tiny inline `<script>` adds
+ * arrow-key roving-focus support for the radiogroup (the only behaviour the
+ * Vue version did beyond rendering links).
+ */
+import { LOCALES, DEFAULT_LOCALE, type Locale } from '../../i18n/utils';
+
+interface Props {
+  /** active locale, passed from the page */
+  current: Locale;
+  /** current pathname WITHOUT the locale prefix, e.g. "/" or "/projects/foo" */
+  basePath?: string;
+  /** ARIA group label */
+  label?: string;
+  /** "default" segmented look, or "dark" for the always-dark footer */
+  variant?: 'default' | 'dark';
+  size?: 'sm' | 'md';
+}
+const { current, basePath = '/', label = 'Language', variant = 'default', size = 'md' } = Astro.props;
+
+const LABELS: Record<Locale, string> = { en: 'EN', it: 'IT', es: 'ES' };
+
+function hrefFor(locale: Locale): string {
+  const clean = basePath.startsWith('/') ? basePath : `/${basePath}`;
+  if (locale === DEFAULT_LOCALE) return clean === '/' ? '/' : clean;
+  return clean === '/' ? `/${locale}/` : `/${locale}${clean}`;
+}
+---
+
+<div role="radiogroup" aria-label={label} class:list={['lang-switch', `lang-switch--${variant}`, `lang-switch--${size}`]}>
+  {LOCALES.map((loc) => (
+    <a
+      role="radio"
+      href={hrefFor(loc)}
+      data-locale={loc}
+      aria-checked={loc === current ? 'true' : 'false'}
+      tabindex={loc === current ? 0 : -1}
+      class:list={['lang-switch__opt', { 'is-active': loc === current }]}
+    >
+      {LABELS[loc]}
+    </a>
+  ))}
+</div>
+
+<script>
+  // Roving-focus keyboard support + locale-cookie sync on click. Runs once
+  // per page; idempotent if the page has multiple switches (nav + footer).
+  if (!(window as unknown as { __miciodevLangSwitchInit?: boolean }).__miciodevLangSwitchInit) {
+    (window as unknown as { __miciodevLangSwitchInit?: boolean }).__miciodevLangSwitchInit = true;
+
+    // Click → write `miciodev-locale` BEFORE the anchor navigates, so the next
+    // request to the new locale carries the user's explicit choice. Without
+    // this the middleware (which reads the cookie to decide whether to redirect
+    // `/` to a localised path) would still see the OLD locale on the next
+    // request and would bounce the user straight back. The default-locale link
+    // (`href="/"`) is the canonical example: from /it/, the cookie is still
+    // 'it' until we overwrite it here, otherwise the server would redirect the
+    // English click back to /it/.
+    document.addEventListener('click', (e) => {
+      const link = (e.target as Element | null)?.closest<HTMLAnchorElement>('.lang-switch__opt');
+      if (!link) return;
+      const locale = link.dataset.locale;
+      if (!locale) return;
+      // 1 year, lax. The server-side middleware sets this with the same shape;
+      // we just front-run it so the very next request already reflects the click.
+      const maxAge = 60 * 60 * 24 * 365;
+      document.cookie = `miciodev-locale=${locale}; path=/; max-age=${maxAge}; samesite=lax`;
+    });
+
+    document.addEventListener('keydown', (e) => {
+      const target = e.target as HTMLElement | null;
+      if (!target || target.getAttribute('role') !== 'radio') return;
+      const group = target.closest<HTMLElement>('.lang-switch');
+      if (!group) return;
+      const opts = Array.from(group.querySelectorAll<HTMLElement>('[role="radio"]'));
+      const idx = opts.indexOf(target);
+      if (idx === -1) return;
+      let next: number;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = (idx + 1) % opts.length;
+      else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = (idx - 1 + opts.length) % opts.length;
+      else if (e.key === 'Home') next = 0;
+      else if (e.key === 'End') next = opts.length - 1;
+      else return;
+      e.preventDefault();
+      opts[next].focus();
+    });
+  }
+</script>
+
+<style>
+  .lang-switch {
+    display: inline-flex;
+    border-radius: 999px;
+    padding: 2px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+  }
+  .lang-switch--md { height: 32px; }
+  .lang-switch--sm { height: 28px; }
+  .lang-switch--dark {
+    background: transparent;
+    border-color: rgba(255, 255, 255, 0.14);
+  }
+
+  .lang-switch__opt {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 12px;
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-decoration: none;
+    color: var(--text-2);
+    transition: background var(--dur-1) var(--ease), color var(--dur-1) var(--ease);
+  }
+  .lang-switch--sm .lang-switch__opt { padding: 0 11px; }
+  .lang-switch__opt:hover { color: var(--text); }
+  .lang-switch__opt.is-active {
+    background: var(--brand);
+    color: var(--on-brand);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .lang-switch__opt {
+      transition:
+        background var(--dur-1) var(--ease),
+        color var(--dur-1) var(--ease),
+        transform var(--dur-1) var(--ease);
+    }
+    .lang-switch__opt:active { transform: scale(0.94); }
+  }
+
+  .lang-switch--dark .lang-switch__opt { color: rgba(255, 255, 255, 0.7); }
+  .lang-switch--dark .lang-switch__opt:hover { color: #fff; }
+  .lang-switch--dark .lang-switch__opt.is-active {
+    background: var(--brand-glow);
+    color: #062014;
+  }
+</style>

@@ -9,7 +9,6 @@ interface Props {
 const { lang } = Astro.props;
 const t = useTranslations(lang);
 const services = await getServices(lang);
-const langTag = lang.toUpperCase();
 
 // 6-col grid: first 3 cards span 2 cols; last 2 cards span 3 cols.
 const colSpan = (i: number, total: number) => (total > 3 && i >= total - 2 ? 3 : 2);
@@ -27,15 +26,13 @@ const ICON_SVG: Record<ServiceIcon, string> = {
 <section class="services" aria-labelledby="services-heading" id="services">
   <header class="services__head">
     <div class="services__eyebrow"><span class="md-eyebrow"><span class="dot"></span>{t('services.eyebrow')}</span></div>
-    <h2 id="services-heading" class="services__title">
-      <span class="services__tag">[{langTag}]</span>{t('services.title')}
-    </h2>
+    <h2 id="services-heading" class="services__title" data-reveal>{t('services.title')}</h2>
     <p class="services__note">{t('services.note')}</p>
   </header>
 
-  <div class="services__grid">
+  <div class="services__grid" data-reveal-stagger>
     {services.map((s, i) => (
-      <article class="services__card" style={`--span:${colSpan(i, services.length)}`}>
+      <article class="services__card" style={`--span:${colSpan(i, services.length)}`} data-reveal>
         <div class="services__card-head">
           <span class="services__icon" set:html={ICON_SVG[s.icon as ServiceIcon]}></span>
           <span class="services__idx">/ {s.idx}</span>
@@ -94,15 +91,6 @@ const ICON_SVG: Record<ServiceIcon, string> = {
     text-wrap: balance;
   }
   @media (min-width: 960px) { .services__title { font-size: clamp(56px, 6vw, 92px); } }
-  .services__tag {
-    font-family: var(--font-mono);
-    font-style: normal;
-    font-size: 0.22em;
-    vertical-align: 0.7em;
-    color: var(--text-3);
-    letter-spacing: 0.14em;
-    margin-right: 0.5em;
-  }
   .services__note {
     font-family: var(--font-mono);
     font-size: 11px;

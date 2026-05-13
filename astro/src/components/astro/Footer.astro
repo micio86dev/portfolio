@@ -1,7 +1,10 @@
 ---
 import { Image } from 'astro:assets';
 import { useTranslations, useTranslatedPath, stripLocale, type Locale } from '../../i18n/utils';
-import LangSwitch from '../vue/LangSwitch.vue';
+import { CONTACT_EMAIL } from '../../lib/site';
+import { getSocials } from '../../lib/pocketbase';
+import type { SocialIcon } from '../../lib/seed-data';
+import LangSwitch from './LangSwitch.astro';
 import logoSrc from '../../assets/logo-miciodev.jpg';
 
 interface Props {
@@ -11,7 +14,7 @@ const { lang } = Astro.props;
 const t = useTranslations(lang);
 const path = useTranslatedPath(lang);
 const basePath = stripLocale(Astro.url.pathname);
-const email = t('footer.email');
+const email = CONTACT_EMAIL;
 
 const siteLinks = [
   { label: t('footer.colSite.work'), href: path('/#work') },
@@ -25,11 +28,47 @@ const moreLinks = [
   { label: t('footer.colMore.privacy'), href: path('/privacy') },
   { label: t('footer.colMore.imprint'), href: path('/imprint') },
 ];
-const socials = [
-  { kind: 'github', label: 'GitHub', href: 'https://github.com/' },
-  { kind: 'linkedin', label: 'LinkedIn', href: 'https://linkedin.com/' },
-  { kind: 'youtube', label: 'YouTube', href: 'https://youtube.com/' },
-];
+// Social links come from PocketBase (collection `socials`), read fresh on every
+// request — editing/reordering them in the admin needs no redeploy. Falls back
+// to SOCIALS_SEED when PB is unreachable. See pb/pb_hooks/socials_order.pb.js.
+const socials = await getSocials();
+
+// SVG glyph (inner <svg> markup) per platform key. Keep the keys in sync with
+// the `SocialIcon` union in lib/seed-data.ts and the `icon` select values in
+// pb/pb_migrations/1778600800_created_socials.js. Line style, 24×24 viewBox,
+// stroke = currentColor. Unknown keys fall back to the generic `website` globe.
+const ICONS: Record<SocialIcon, string> = {
+  github:
+    '<path d="M9 19c-4 1.2-4-2-6-2.5M14 22v-3.4a3 3 0 0 0-.8-2.3c2.7-.3 5.5-1.3 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.3 4.3 0 0 0-.1-3.2s-1-.3-3.4 1.2a11.7 11.7 0 0 0-6 0C5.5 1.5 4.5 1.8 4.5 1.8a4.3 4.3 0 0 0-.1 3.2A4.6 4.6 0 0 0 3 8.3c0 4.6 2.8 5.6 5.5 5.9a3 3 0 0 0-.8 2.3V22" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>',
+  gitlab:
+    '<path d="M12 21.5 8.4 10.4H2.8l1.9-5.9a.4.4 0 0 1 .76 0l1.9 5.9h7.3l1.9-5.9a.4.4 0 0 1 .76 0l1.9 5.9h-5.6L12 21.5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>',
+  linkedin:
+    '<rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M8 11v6M8 8.5v.01M12 17v-3.5a2 2 0 0 1 4 0V17M12 11v6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>',
+  x: '<path d="M4 4 10.6 13 4 20h2.2l5.4-5.9 4.6 5.9H21l-7-9 6.3-7h-2.2l-5.1 5.6L11.8 4H4Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>',
+  instagram:
+    '<rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="1.4"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.4"/><circle cx="17.3" cy="6.7" r="1" fill="currentColor"/>',
+  facebook:
+    '<rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="1.4"/><path d="M14.5 21v-6.5H17l.5-3h-3V9.2c0-.9.3-1.5 1.6-1.5h1.5V5.1A22 22 0 0 0 15 5c-2.2 0-3.5 1.3-3.5 3.8v2.7H9v3h2.5V21" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>',
+  youtube:
+    '<rect x="2.5" y="5" width="19" height="14" rx="3" stroke="currentColor" stroke-width="1.4"/><path d="M10 9.2 15 12 10 14.8 Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>',
+  tiktok:
+    '<path d="M13.5 3v11.2a3.3 3.3 0 1 1-2.7-3.24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.5 3.2A5 5 0 0 0 18.5 8.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>',
+  udemy:
+    '<path d="M12 3.5 2.5 8 12 12.5 21.5 8 12 3.5Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M6 10.2V15c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5v-4.8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>',
+  codepen:
+    '<path d="M12 2.5 22 8.6v6.8L12 21.5 2 15.4V8.6L12 2.5Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M12 9 2.4 8.6m9.6.4 9.6-.4M12 9v6m0 0L2.4 15.4M12 15l9.6.4M2 8.6 12 15 22 8.6" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>',
+  dribbble:
+    '<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.4"/><path d="M4.5 7.5c4.5 1.2 10 .8 13.8-2.3M2.8 13.5c5.5-2 11.5-1 14.7 4.6M9.2 3.3C12.2 6.8 14.5 13 15 20.7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>',
+  telegram:
+    '<path d="M21.2 4.6 2.9 11.6c-.9.3-.9 1.5 0 1.8l4.5 1.4 1.7 5.1c.3.8 1.3 1 1.9.4l2.5-2.5 4.4 3.2c.7.5 1.7.1 1.9-.7l3-14c.2-1-.7-1.9-1.5-1.4Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="m8 14.4 9.5-6.6-6.6 8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>',
+  mastodon:
+    '<path d="M12 3.5c4 0 6.3.5 7.5 1 0 0 2.3.4 2.3 9.6 0 0 0 .4-.1.4-.3 1.5-2.7 3.1-5.3 3.4-1.6.2-3.2.4-4.9.3-2.7-.1-3.4-.4-3.4-.4 0 .3.1.5.2.8.5 1.4 2 2 4.3 2.1 2.6.1 4.9-.6 4.9-.6l.1 1.5s-1.8 1-5 1.1c-1.8.1-3.9-.1-5.3-.5C2.9 21.9 2 17.5 2 13.1c0-9.2 2.3-9.6 2.3-9.6C5.5 4 7.8 3.5 12 3.5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M16.3 13.4V9.6c0-1.4-.9-2-2-2-1.1 0-1.8.7-2.1 1.4l-.2.5-.2-.5c-.3-.7-1-1.4-2.1-1.4-1.1 0-2 .6-2 2v3.8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>',
+  email:
+    '<rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="m4.5 7 7.5 6 7.5-6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>',
+  rss: '<circle cx="6" cy="18" r="1.4" fill="currentColor"/><path d="M5 12.5a6.5 6.5 0 0 1 6.5 6.5M5 6a13 13 0 0 1 13 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>',
+  website:
+    '<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.4"/><path d="M3 12h18" stroke="currentColor" stroke-width="1.3"/><path d="M12 3c2.6 2.7 4 5.8 4 9s-1.4 6.3-4 9c-2.6-2.7-4-5.8-4-9s1.4-6.3 4-9Z" stroke="currentColor" stroke-width="1.3"/>',
+};
 ---
 
 <footer class="ft">
@@ -69,6 +108,11 @@ const socials = [
         <span class="ft__col-title">{t('footer.colMore.title')}</span>
         <ul>
           {moreLinks.map((l) => <li><a href={l.href}><span class="ft__col-mark">↳</span>{l.label}</a></li>)}
+          <li>
+            {/* Re-opens the cookie notice (CookieBar island wires up the click on
+                #cookie-settings after mount). With JS off it just goes to /privacy. */}
+            <a id="cookie-settings" href={path('/privacy')}><span class="ft__col-mark">↳</span>{t('cookies.settingsLink')}</a>
+          </li>
         </ul>
       </div>
 
@@ -76,21 +120,19 @@ const socials = [
         <span class="ft__col-title">{t('footer.elsewhere')}</span>
         <div class="ft__socials">
           {socials.map((s) => (
-            <a href={s.href} aria-label={`${s.label} — ${t('a11y.externalLink')}`} rel="noopener noreferrer" target="_blank">
-              {s.kind === 'github' && (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 19c-4 1.2-4-2-6-2.5M14 22v-3.4a3 3 0 0 0-.8-2.3c2.7-.3 5.5-1.3 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.3 4.3 0 0 0-.1-3.2s-1-.3-3.4 1.2a11.7 11.7 0 0 0-6 0C5.5 1.5 4.5 1.8 4.5 1.8a4.3 4.3 0 0 0-.1 3.2A4.6 4.6 0 0 0 3 8.3c0 4.6 2.8 5.6 5.5 5.9a3 3 0 0 0-.8 2.3V22" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
-              )}
-              {s.kind === 'linkedin' && (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.4" /><path d="M8 11v6M8 8.5v.01M12 17v-3.5a2 2 0 0 1 4 0V17M12 11v6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg>
-              )}
-              {s.kind === 'youtube' && (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="3" stroke="currentColor" stroke-width="1.4" /><path d="M10 9.2 L15 12 L10 14.8 Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" /></svg>
-              )}
+            <a
+              href={s.url}
+              title={s.label}
+              aria-label={`${s.label} — ${t('a11y.externalLink')}`}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true" set:html={ICONS[s.icon] ?? ICONS.website} />
             </a>
           ))}
         </div>
         <div class="ft__lang">
-          <LangSwitch client:visible current={lang} basePath={basePath} variant="dark" size="sm" label={t('a11y.language')} />
+          <LangSwitch current={lang} basePath={basePath} variant="dark" size="sm" label={t('a11y.language')} />
         </div>
       </div>
     </div>
@@ -150,7 +192,7 @@ const socials = [
   .ft__email {
     font-family: var(--font-display);
     font-style: italic;
-    font-size: 48px;
+    font-size: 40px;
     line-height: 0.96;
     letter-spacing: -0.028em;
     color: #f1f1ea;
@@ -204,7 +246,7 @@ const socials = [
     gap: 8px;
   }
   .ft__col a:hover { color: var(--brand-glow); }
-  .ft__col-mark { font-family: var(--font-mono); font-size: 10px; color: rgba(255, 255, 255, 0.4); letter-spacing: 0.14em; }
+  .ft__col-mark { font-family: var(--font-mono); font-size: 10px; color: rgba(255, 255, 255, 0.6); letter-spacing: 0.14em; }
 
   .ft__socials { display: flex; gap: 8px; }
   .ft__socials a {

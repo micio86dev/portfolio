@@ -1,6 +1,6 @@
 # Staging overrides — layered ON TOP of docker-compose.prod.yml on the VPS:
 #
-#   cd /var/www/portfolio-stage
+#   cd /var/www/html/stage.micio86dev.it
 #   docker compose -f docker-compose.prod.yml -f docker-compose.stage.yml pull
 #   docker compose -f docker-compose.prod.yml -f docker-compose.stage.yml up -d --remove-orphans
 #
@@ -12,7 +12,11 @@ services:
     image: ghcr.io/micio86dev/portfolio-astro:develop
     container_name: portfolio-stage-astro
     ports: !override
-      - "3001:4321"
+      - "4321:4321"
+    environment: !override
+      - PUBLIC_PB_URL=${STAGE_PB_URL}
+      # Runtime origin for the /sitemap.xml and /robots.txt SSR endpoints.
+      - PUBLIC_SITE_URL=https://stage.micio86dev.it
 
   pocketbase:
     image: ghcr.io/micio86dev/portfolio-pb:develop
@@ -20,4 +24,4 @@ services:
     ports: !override
       - "127.0.0.1:8091:8090"
     volumes: !override
-      - /var/www/portfolio-stage/pb_data:/pb/pb_data
+      - /var/www/html/stage.micio86dev.it/pb_data:/pb/pb_data

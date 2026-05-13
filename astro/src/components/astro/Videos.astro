@@ -1,0 +1,202 @@
+---
+import { useTranslations, type Locale } from '../../i18n/utils';
+import { getVideos } from '../../lib/pocketbase';
+
+interface Props {
+  lang: Locale;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+// Videos come from PocketBase (`videos` collection), sorted by `order`, managed
+// in /_/ (CRUD) and /{pb}/videos-order (drag-and-drop reorder). Falls back to
+// VIDEOS_SEED if PocketBase is unreachable. No iframe / YouTube JS — each card
+// is a plain link with one lazy <img> thumbnail, so the section is ~free.
+const videos = (await getVideos()).filter((v) => v.videoId);
+const watch = t('videos.watch');
+const externalLink = t('a11y.externalLink');
+---
+
+{videos.length > 0 && (
+  <section class="videos" aria-labelledby="videos-heading" id="videos">
+    <header class="videos__head">
+      <div class="videos__eyebrow"><span class="md-eyebrow"><span class="dot"></span>{t('videos.eyebrow')}</span></div>
+      <h2 id="videos-heading" class="videos__title" data-reveal>{t('videos.title')}</h2>
+      <p class="videos__note">{t('videos.meta')}</p>
+    </header>
+
+    <div class="videos__grid" data-reveal-stagger>
+      {videos.map((v, i) => (
+        <a
+          class="videos__card"
+          href={v.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`${watch}: ${v.title} (${externalLink})`}
+          data-reveal
+        >
+          <div class="videos__thumb">
+            <img
+              src={v.thumbUrl}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              referrerpolicy="no-referrer"
+              width="1280"
+              height="720"
+            />
+            <span class="videos__play" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M9 8.2 L17 12 L9 15.8 Z" fill="currentColor" /></svg>
+            </span>
+          </div>
+          <div class="videos__body">
+            <span class="videos__idx">/ {String(i + 1).padStart(2, '0')}</span>
+            <h3 class="videos__card-title">{v.title}</h3>
+            <span class="videos__link">
+              {watch}
+              <span class="videos__link-arrow" aria-hidden="true">↗</span>
+            </span>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+)}
+
+<style>
+  .videos {
+    background: var(--bg);
+    color: var(--text);
+    padding: 56px 22px 64px;
+  }
+  @media (min-width: 960px) { .videos { padding: 96px 64px 112px; } }
+
+  .videos__head {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  @media (min-width: 960px) {
+    .videos__head {
+      grid-template-columns: repeat(12, 1fr);
+      column-gap: 24px;
+      row-gap: 24px;
+      margin-bottom: 48px;
+    }
+    .videos__eyebrow { grid-column: 1 / 4; }
+    .videos__title { grid-column: 4 / 11; }
+    .videos__note { grid-column: 11 / 13; align-self: end; text-align: right; }
+  }
+  .videos__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 36px;
+    line-height: 1.02;
+    letter-spacing: -0.022em;
+    text-wrap: balance;
+  }
+  @media (min-width: 960px) { .videos__title { font-size: clamp(40px, 4.4vw, 60px); } }
+  .videos__note {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-3);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .videos__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  @media (min-width: 640px) { .videos__grid { grid-template-columns: repeat(2, 1fr); gap: 16px; } }
+  @media (min-width: 960px) { .videos__grid { grid-template-columns: repeat(3, 1fr); gap: 18px; } }
+
+  .videos__card {
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-3);
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color var(--dur-2) var(--ease), box-shadow var(--dur-2) var(--ease);
+  }
+  .videos__card:hover { border-color: var(--text); box-shadow: var(--shadow-2); }
+
+  .videos__thumb {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: var(--line);
+    overflow: hidden;
+  }
+  .videos__thumb img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--dur-2) var(--ease);
+  }
+  .videos__card:hover .videos__thumb img { transform: scale(1.03); }
+  .videos__play {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 52px;
+    height: 52px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: color-mix(in oklab, #0a0b0a 62%, transparent);
+    color: #f1f1ea;
+    backdrop-filter: blur(2px);
+    transition: background var(--dur-2) var(--ease), transform var(--dur-2) var(--ease);
+  }
+  .videos__card:hover .videos__play { background: var(--brand); transform: scale(1.06); }
+
+  .videos__body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 22px;
+    flex: 1;
+  }
+  .videos__idx {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-3);
+    letter-spacing: 0.16em;
+  }
+  .videos__card-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 22px;
+    line-height: 1.08;
+    letter-spacing: -0.018em;
+    color: var(--text);
+  }
+  .videos__link {
+    margin-top: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    align-self: flex-start;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-2);
+    border-bottom: 1px solid var(--line-2);
+    padding-bottom: 2px;
+    transition: color var(--dur-2) var(--ease), border-color var(--dur-2) var(--ease);
+  }
+  .videos__card:hover .videos__link { color: var(--brand); border-color: var(--brand); }
+  .videos__link-arrow { font-size: 13px; }
+</style>

@@ -44,13 +44,43 @@ function lookup(dict: Record<string, unknown>, key: string): string | undefined 
 }
 
 /**
+ * Remote dictionary overlay — flat `key → { en, it, es }` map populated from the
+ * PocketBase `translations` collection (see src/middleware.ts → loadTranslations
+ * in lib/pocketbase.ts). It sits *on top of* the bundled JSON: a key present
+ * here wins; anything missing falls through to the JSON, then the default
+ * locale, then a visible `⟦key⟧` marker. Module-level on purpose — the data is
+ * the same for every request, so it's safe to share and cheap to refresh.
+ */
+type RemoteEntry = Partial<Record<Locale, string>>;
+let REMOTE: Record<string, RemoteEntry> = {};
+
+/** Replace the remote dictionary overlay. Called by the PB loader; a no-op
+ *  overlay (or an empty map) just means the bundled JSON is used as-is. */
+export function applyRemoteDictionaries(map: Record<string, RemoteEntry>): void {
+  REMOTE = map ?? {};
+}
+
+function remoteLookup(lang: Locale, key: string): string | undefined {
+  const entry = REMOTE[key];
+  if (!entry) return undefined;
+  const v = entry[lang];
+  if (typeof v === 'string' && v !== '') return v;
+  const fallback = entry[DEFAULT_LOCALE];
+  return typeof fallback === 'string' && fallback !== '' ? fallback : undefined;
+}
+
+/**
  * Returns a `t(key)` function for the given locale.
- * Falls back to the default locale, then to the key itself, so missing
- * translations are visible rather than blank.
+ * Resolution order: PocketBase overlay → bundled JSON (locale) → bundled JSON
+ * (default locale) → a visible `⟦key⟧` marker, so missing translations are
+ * obvious rather than blank.
  */
 export function useTranslations(lang: Locale) {
   return function t(key: string): string {
-    const value = lookup(DICTIONARIES[lang], key) ?? lookup(DICTIONARIES[DEFAULT_LOCALE], key);
+    const value =
+      remoteLookup(lang, key) ??
+      lookup(DICTIONARIES[lang], key) ??
+      lookup(DICTIONARIES[DEFAULT_LOCALE], key);
     if (typeof value === 'string') return value;
     return `⟦${key}⟧`;
   };

@@ -1,7 +1,9 @@
 name: CI
 
-# Fast PR gate: type-check + production build. No Docker build here — that runs
-# only on merges to develop/main (deploy-stage / deploy-prod).
+# PR gate for develop/main: runs the shared test workflow (lint + astro check +
+# Vitest with the ≥85% coverage gate + Playwright E2E + production build). On
+# pushes to develop/main the deploy workflows run the same `tests.yml` as a
+# `needs:` gate, so it isn't duplicated here.
 on:
   pull_request:
     branches: [develop, main]
@@ -10,39 +12,9 @@ permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
+  group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build:
-    name: astro check + build
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    defaults:
-      run:
-        working-directory: astro
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: astro/package-lock.json
-
-      - run: npm ci
-
-      - name: Type check
-        run: npm run check
-
-      - name: Build
-        # PB_URL is left empty so the build uses the bundled seed data (no
-        # network dependency in CI). SITE_URL is a harmless placeholder.
-        env:
-          PB_URL: ""
-          SITE_URL: https://micio86dev.it
-        run: npm run build
-
-      # ESLint is not configured in this project yet. When an "lint" script is
-      # added to astro/package.json, add a step here:
-      #   - run: npm run lint
+  test:
+    uses: ./.github/workflows/tests.yml

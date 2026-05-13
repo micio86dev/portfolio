@@ -1,0 +1,185 @@
+---
+import { useTranslations, type Locale } from '../../i18n/utils';
+import { getCourses } from '../../lib/pocketbase';
+
+interface Props {
+  lang: Locale;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+// Courses come from PocketBase (`courses` collection), sorted by `order`.
+// Falls back to COURSES_SEED if PocketBase is unreachable.
+const courses = await getCourses(lang);
+
+const platformLabel = (p: string) =>
+  p === 'udemy' ? t('courses.platform.udemy') : t('courses.platform.youtube');
+---
+
+<section class="courses" aria-labelledby="courses-heading" id="courses">
+  <header class="courses__head">
+    <div class="courses__eyebrow"><span class="md-eyebrow"><span class="dot"></span>{t('courses.eyebrow')}</span></div>
+    <h2 id="courses-heading" class="courses__title" data-reveal>{t('courses.title')}</h2>
+    <p class="courses__note">{t('courses.meta')}</p>
+  </header>
+
+  <div class="courses__grid" data-reveal-stagger>
+    {courses.map((c, i) => (
+      <article class:list={['courses__card', c.featured && 'courses__card--featured']} data-reveal>
+        <div class="courses__card-head">
+          <span class="courses__idx">/ {String(i + 1).padStart(2, '0')}</span>
+          <span class:list={['courses__chip', `courses__chip--${c.platform}`]}>{platformLabel(c.platform)}</span>
+        </div>
+        <h3 class="courses__card-title">{c.title}</h3>
+        <hr class="md-hr" />
+        {c.desc && <p class="courses__card-desc">{c.desc}</p>}
+        <a
+          class="courses__link"
+          href={c.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`${t('courses.viewCourse')}: ${c.title} — ${platformLabel(c.platform)} (${t('a11y.externalLink')})`}
+        >
+          {t('courses.viewCourse')}
+          <span class="courses__link-arrow" aria-hidden="true">↗</span>
+        </a>
+      </article>
+    ))}
+  </div>
+</section>
+
+<style>
+  .courses {
+    background: var(--bg);
+    color: var(--text);
+    padding: 56px 22px 64px;
+  }
+  @media (min-width: 960px) { .courses { padding: 96px 64px 112px; } }
+
+  .courses__head {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  @media (min-width: 960px) {
+    .courses__head {
+      grid-template-columns: repeat(12, 1fr);
+      column-gap: 24px;
+      row-gap: 24px;
+      margin-bottom: 48px;
+    }
+    .courses__eyebrow { grid-column: 1 / 4; }
+    .courses__title { grid-column: 4 / 11; }
+    .courses__note { grid-column: 11 / 13; align-self: end; text-align: right; }
+  }
+  .courses__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 36px;
+    line-height: 1.02;
+    letter-spacing: -0.022em;
+    text-wrap: balance;
+  }
+  @media (min-width: 960px) { .courses__title { font-size: clamp(40px, 4.4vw, 60px); } }
+  .courses__note {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-3);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .courses__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  @media (min-width: 640px) { .courses__grid { grid-template-columns: repeat(2, 1fr); gap: 16px; } }
+  @media (min-width: 960px) { .courses__grid { grid-template-columns: repeat(3, 1fr); gap: 18px; } }
+
+  .courses__card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-3);
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    transition: border-color var(--dur-2) var(--ease), box-shadow var(--dur-2) var(--ease);
+  }
+  .courses__card:hover { border-color: var(--text); box-shadow: var(--shadow-2); }
+  .courses__card--featured { border-color: color-mix(in oklab, var(--brand) 28%, var(--line)); }
+
+  .courses__card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .courses__idx {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-3);
+    letter-spacing: 0.16em;
+  }
+  .courses__chip {
+    display: inline-flex;
+    align-items: center;
+    height: 24px;
+    padding: 0 10px;
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    background: var(--brand-tint);
+    color: var(--brand);
+    border: 1px solid color-mix(in oklab, var(--brand) 22%, transparent);
+  }
+  .courses__chip--youtube {
+    background: transparent;
+    color: var(--text-2);
+    border: 1px dashed var(--line-2);
+  }
+
+  .courses__card-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 26px;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+  .courses__card-desc {
+    margin: 0;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--text-2);
+    text-wrap: pretty;
+  }
+  .courses__link {
+    margin-top: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    align-self: flex-start;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text);
+    text-decoration: none;
+    border-bottom: 1px solid var(--line-2);
+    padding-bottom: 2px;
+    transition: color var(--dur-2) var(--ease), border-color var(--dur-2) var(--ease);
+  }
+  .courses__link:hover { color: var(--brand); border-color: var(--brand); }
+  .courses__link-arrow { font-size: 13px; }
+</style>

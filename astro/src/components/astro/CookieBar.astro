@@ -1,0 +1,155 @@
+---
+/**
+ * Cookie notice — Astro replacement for the former Vue island.
+ *
+ * Slim, non-blocking. This site stores exactly ONE thing client-side: the
+ * `miciodev-theme` localStorage key (light/dark) — strictly-necessary
+ * functional, no consent required under GDPR/ePrivacy. So this is a *notice*,
+ * not a wall.
+ *
+ * The bar is rendered server-side at the bottom of the document. An inline
+ * `<script>` checks the ack key on load: if already acknowledged, the bar is
+ * removed before paint. Otherwise it shows immediately (no FOUC, no JS
+ * runtime). Re-opening from the footer's "Cookie settings" link dispatches a
+ * window event that re-shows the bar.
+ */
+interface Props {
+  messages: {
+    text: string;
+    accept: string;
+    privacyLink: string;
+    ariaLabel: string;
+  };
+  /** Locale-prefixed href for the privacy page, computed in BaseLayout. */
+  privacyHref: string;
+}
+const { messages, privacyHref } = Astro.props;
+---
+
+<aside class="cookiebar" data-cookiebar role="region" aria-label={messages.ariaLabel} hidden>
+  <p class="cookiebar__text">{messages.text}</p>
+  <div class="cookiebar__actions">
+    <a class="cookiebar__link" href={privacyHref}>{messages.privacyLink}</a>
+    <button type="button" class="md-btn cookiebar__ok" data-cookiebar-accept>{messages.accept}</button>
+  </div>
+</aside>
+
+<script>
+  // Self-contained. No framework. ~20 lines of vanilla TS that does what the
+  // old 130-line Vue island did. The bar's `hidden` attribute starts true so
+  // it can never flash for an acknowledged user; we strip it after the ack
+  // check passes. Re-opens via the `miciodev:cookie-reopen` window event
+  // (dispatched by the footer "Cookie settings" link click).
+  const STORAGE_KEY = 'miciodev-cookie-ack';
+  const ACK_VERSION = 1;
+  const REOPEN_EVENT = 'miciodev:cookie-reopen';
+
+  function isAcked(): boolean {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return false;
+      const parsed = JSON.parse(raw) as { v?: number; ack?: boolean };
+      return parsed?.ack === true && parsed?.v === ACK_VERSION;
+    } catch {
+      return false;
+    }
+  }
+
+  const bar = document.querySelector<HTMLElement>('[data-cookiebar]');
+  if (bar) {
+    if (!isAcked()) bar.hidden = false;
+
+    bar.querySelector<HTMLButtonElement>('[data-cookiebar-accept]')?.addEventListener('click', () => {
+      try {
+        localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify({ v: ACK_VERSION, ack: true, ts: Date.now() }),
+        );
+      } catch {
+        /* private mode — session dismissal only */
+      }
+      bar.hidden = true;
+    });
+
+    addEventListener(REOPEN_EVENT, () => {
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch {
+        /* ignore */
+      }
+      bar.hidden = false;
+    });
+
+    // The footer "Cookie settings" link (#cookie-settings) re-opens the bar
+    // instead of navigating to /privacy. JS-off, it falls back to /privacy.
+    document.getElementById('cookie-settings')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      dispatchEvent(new CustomEvent(REOPEN_EVENT));
+    });
+  }
+</script>
+
+<style>
+  .cookiebar {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 45;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 20px;
+    padding: 12px 22px;
+    background: var(--surface);
+    border-top: 1px solid var(--line);
+    box-shadow: 0 -8px 24px color-mix(in oklab, var(--bg) 60%, transparent);
+  }
+  .cookiebar[hidden] { display: none; }
+  @media (min-width: 960px) {
+    .cookiebar { padding: 12px 32px; }
+  }
+
+  .cookiebar__text {
+    margin: 0;
+    flex: 1 1 280px;
+    min-width: 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text-2);
+  }
+
+  .cookiebar__actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 0 0 auto;
+  }
+
+  .cookiebar__link {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    color: var(--text-2);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+  }
+  .cookiebar__link:hover { color: var(--text); }
+  .cookiebar__link:focus-visible {
+    outline: none;
+    border-radius: var(--r-1);
+    box-shadow: var(--shadow-focus);
+  }
+
+  .cookiebar__ok {
+    height: 36px;
+    padding: 0 18px;
+  }
+
+  @media (pointer: coarse) {
+    .cookiebar__ok { min-height: 44px; }
+    .cookiebar__link { min-height: 44px; }
+  }
+</style>

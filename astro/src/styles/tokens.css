@@ -1,4 +1,4 @@
-/* MicioDev — design tokens (lifted from design_refs/tokens.css)
+/* MicioDev — design tokens.
    Brand: deep sage-emerald, never lime. Senior-dev editorial.
    Light-default; dark via [data-theme="dark"] on <html>.
    These apply globally (no .miciodev-scope wrapper). */
@@ -42,7 +42,10 @@
   --line-2:    var(--ink-300);
   --text:      var(--ink-900);
   --text-2:    var(--ink-600);
-  --text-3:    var(--ink-500);
+  /* Tertiary text (11px mono eyebrows/meta etc.) — sits one notch above
+     `--ink-500` so it clears WCAG 1.4.3 (≥4.5:1 for small text) even on the
+     darker `--surface-2` / `--surface-3` plates. */
+  --text-3:    #5F5F56;
   --brand:        var(--brand-500);
   --brand-hover:  var(--brand-600);
   --brand-press:  var(--brand-700);
@@ -111,7 +114,7 @@
   --line-2:    #2E312A;
   --text:      #F1F1EA;
   --text-2:    #B7B7AC;
-  --text-3:    #80807A;
+  --text-3:    #8E8E87;   /* ≥4.5:1 on --bg / --surface-2 / --surface-3 */
   --brand:        var(--brand-glow);
   --brand-hover:  #5BC290;
   --brand-press:  #76CFA4;

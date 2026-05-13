@@ -92,10 +92,10 @@
 }
 
 /* ──────────────────────────────────────────────────────────────────────
-   Self-hosted fonts. Place subsetted woff2 files in /public/fonts/ — see
-   the README "Fonts" section. Until then the system fallbacks render
-   (Times New Roman / system-ui). `font-display: swap` + size-adjust keeps
-   layout shift to a minimum once the webfonts arrive.
+   Self-hosted fonts — the woff2 files live in /public/fonts/ (see the
+   README "Fonts" section and public/fonts/.gitkeep). If a file is missing
+   the system fallbacks render (Times New Roman / system-ui); `font-display:
+   swap` + size-adjust keeps layout shift to a minimum until the webfont loads.
    ────────────────────────────────────────────────────────────────────── */
 @font-face {
   font-family: "Instrument Serif";
@@ -160,6 +160,17 @@
   box-sizing: border-box;
 }
 
+/* Astro hydration markers — `<astro-island>` and `<astro-slot>` are custom
+   elements Astro emits around `client:*` components. Astro injects a tiny
+   `<style>` block in `<body>` next to the first occurrence of these to make
+   them `display: contents`. By declaring the rule upfront in `<head>` we
+   keep the W3C validator clean ("style not allowed as child of div"). */
+astro-island,
+astro-slot,
+astro-static-slot {
+  display: contents;
+}
+
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
@@ -221,7 +232,7 @@ img, svg, video {
 }
 
 /* ──────────────────────────────────────────────────────────────────────
-   Component utility classes ported from design_refs/tokens.css.
+   Component utility classes — the `.md-*` set (see ./tokens.css for the tokens).
    ────────────────────────────────────────────────────────────────────── */
 
 /* mono micro-label, all-caps, tracked. The signature accent. */
@@ -357,4 +368,84 @@ textarea.md-input { height: auto; min-height: 140px; padding: 14px; line-height:
   color: var(--text-3);
   letter-spacing: .12em;
   text-transform: uppercase;
+}
+
+/* ── Scroll-reveal ─────────────────────────────────────────────
+   Fade + slide-up as elements enter the viewport.
+
+   Path A — CSS-native scroll-driven animations (Chrome 115+, Safari 26+).
+   Wraps the keyframe in `@supports (animation-timeline: view())` so the
+   browser ties the animation timeline to each element's viewport
+   intersection — no JS, no IntersectionObserver, no first-frame layout
+   pass over `content-visibility: auto` sections (which PageSpeed had
+   flagged as a 75ms unattributed forced reflow on the home page).
+
+   Path B — IntersectionObserver fallback (`src/scripts/scroll-reveal.ts`)
+   for older browsers that don't support `animation-timeline: view()`.
+   The script early-returns on supporting browsers, so on Chrome / modern
+   Safari nothing runs in JS at all.
+
+   Under `prefers-reduced-motion: reduce`, elements show in their natural
+   state with no animation. A `<noscript>` block in BaseLayout flips them
+   visible for JS-off visitors on Path B. */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 500ms var(--ease-md),
+    transform 500ms var(--ease-md);
+}
+[data-reveal].is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Path A — CSS-driven reveals on supporting browsers (PageSpeed runs
+   recent Chrome, so this is the active path on the audit).
+
+   `animation-range` runs the keyframes from the moment the element's top
+   edge appears at the viewport bottom (`entry 0%`) until the element is
+   fully inside the viewport (`cover 0%`, the first instant the element
+   has finished entering). This means: by the time any pixel of the
+   element is anywhere except the bottom slice of the viewport, the
+   animation has hit its end state (opacity 1, no translate). axe-core
+   was flagging contrast violations on partially-faded text otherwise —
+   it samples the rendered pixel after compositing with the parent's
+   reduced opacity. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    [data-reveal] {
+      transition: none;
+      animation: data-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 0%;
+    }
+    @keyframes data-reveal {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ── content-visibility ────────────────────────────────────────
+   Skip rendering / layout / paint for off-screen sections until they
+   approach the viewport. Cuts main-thread Style & Layout cost in half on
+   the home page (PageSpeed reported ~3.7s before; the deep section stack
+   no longer styles 12 sections eagerly on a phone). `contain-intrinsic-size`
+   reserves a chunk of layout space so the scrollbar geometry stays stable
+   — sized to the median section height; the browser uses real measurements
+   once the section actually enters the viewport.
+   The home Hero (`#about`) is intentionally NOT marked: it's above the fold
+   and content-visibility:auto would briefly hide the LCP candidate. */
+main > section[id]:not(#about) {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 800px;
 }

@@ -1,0 +1,30 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import ProjectDetailPage from '../../../components/astro/ProjectDetailPage.astro';
+import { getProject } from '../../../lib/pocketbase';
+
+const lang = 'es' as const;
+const project = await getProject(Astro.params.slug ?? '', lang);
+if (!project) return new Response(null, { status: 404 });
+
+const rec = project as unknown as Record<string, unknown>;
+const datePublished =
+  typeof rec.created === 'string' && rec.created
+    ? rec.created
+    : typeof rec.updated === 'string' && rec.updated
+      ? rec.updated
+      : undefined;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemPage',
+  name: project.title,
+  description: project.desc.slice(0, 300),
+  ...(datePublished ? { datePublished } : {}),
+  url: new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin).toString(),
+};
+---
+
+<BaseLayout lang={lang} title={`${project.title} — ${project.client}`} description={project.desc.slice(0, 200)}>
+  <ProjectDetailPage lang={lang} project={project} />
+  <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)} />
+</BaseLayout>

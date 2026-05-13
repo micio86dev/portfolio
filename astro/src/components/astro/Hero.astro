@@ -1,6 +1,9 @@
 ---
 import { Image } from 'astro:assets';
 import { useTranslations, useTranslatedPath, type Locale } from '../../i18n/utils';
+import { getCustomers } from '../../lib/pocketbase';
+import { pbThumb } from '../../lib/img';
+import { getCanaryUtcOffset } from '../../lib/canary-tz';
 import heroImg from '../../assets/hero.webp';
 
 interface Props {
@@ -9,13 +12,30 @@ interface Props {
 const { lang } = Astro.props;
 const t = useTranslations(lang);
 const path = useTranslatedPath(lang);
-const langTag = lang.toUpperCase();
 
-// Decorative trust-strip marks. Names are placeholders, not real clients.
-const clientShapes = ['circle', 'diamond', 'triangle', 'hex', 'square', 'arc', 'dot'] as const;
+// Trust strip — the real clients, most-recent-collaboration-first. Render the
+// company logo when one's uploaded (PB `customers.logo`), otherwise the name.
+const customers = await getCustomers(lang);
+
+// `Atlantic/Canary` switches between UTC+0 (winter) and UTC+1 (summer DST).
+// Compute fresh per request — the i18n string is now offset-free.
+const statusLocation = `${t('status.location')} · ${getCanaryUtcOffset()}`;
 ---
 
-<section class="hero" aria-labelledby="hero-heading">
+<!-- FOUC guard — runs synchronously *before* the hero paints. Sets up the
+     entrance start-states (scoped under `html.hero-anim-ready` + `prefers-
+     reduced-motion: no-preference` in the <style> below) on the headline /
+     sub-head / CTAs ONLY — the LCP atmosphere photo is **always** painted at
+     full opacity (was 0.4 + GSAP fade-in: that delayed LCP by ~3s on slow
+     networks). With JS disabled the class never lands and everything renders
+     fully visible. -->
+<script is:inline>
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.documentElement.classList.add('hero-anim-ready');
+  }
+</script>
+
+<section class="hero" aria-labelledby="hero-heading" id="about">
   <!-- SVG grain filter, defined once. Fine grayscale fractal noise (opaque):
        blended with soft-light it reads identically on light and dark surfaces. -->
   <svg width="0" height="0" class="hero__grain-def" aria-hidden="true">
@@ -57,23 +77,19 @@ const clientShapes = ['circle', 'diamond', 'triangle', 'hex', 'square', 'arc', '
       <p class="md-eyebrow"><span class="dot"></span>{t('hero.eyebrow')}</p>
       <div class="hero__meta">
         <span>{t('hero.meta.section')}</span>
-        <span>{t('status.location')}</span>
+        <span>{statusLocation}</span>
         <span>{t('hero.meta.version')}</span>
       </div>
     </header>
 
     <h1 id="hero-heading" class="hero__headline">
-      <span class="hero__line">
-        <span class="hero__line-tag">[{langTag}]</span>{t('hero.headline.line1')}
-      </span>
+      <span class="hero__line">{t('hero.headline.line1')}</span>
       <span class="hero__line"><span class="hero__accent">{t('hero.headline.accent')}</span>,</span>
       <span class="hero__line">{t('hero.headline.line3')}</span>
     </h1>
 
     <div class="hero__side">
-      <p class="hero__subhead">
-        <span class="hero__subhead-tag">[{langTag}]</span>{t('hero.subhead')}
-      </p>
+      <p class="hero__subhead">{t('hero.subhead')}</p>
       <div class="hero__ctas">
         <a href={path('/#work')} class="md-btn hero__cta">{t('hero.ctaPrimary')} <span class="arrow">→</span></a>
         <a href={path('/#contact')} class="md-btn md-btn--secondary hero__cta">{t('hero.ctaSecondary')}</a>
@@ -91,24 +107,50 @@ const clientShapes = ['circle', 'diamond', 'triangle', 'hex', 'square', 'arc', '
       </div>
       <hr class="md-hr" />
       <ul class="hero__logos">
-        {clientShapes.map((shape, i) => (
+        {customers.map((c) => (
           <li class="hero__logo">
-            <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
-              {shape === 'circle' && <circle cx="9" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="1.5" />}
-              {shape === 'square' && <rect x="3.5" y="3.5" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.5" />}
-              {shape === 'triangle' && <path d="M9 3 L15 15 L3 15 Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />}
-              {shape === 'diamond' && <path d="M9 2 L16 9 L9 16 L2 9 Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />}
-              {shape === 'hex' && <path d="M9 2 L15.1 5.5 L15.1 12.5 L9 16 L2.9 12.5 L2.9 5.5 Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />}
-              {shape === 'arc' && <path d="M3 12 a6 6 0 0 1 12 0" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />}
-              {shape === 'dot' && <><circle cx="9" cy="9" r="2.5" fill="currentColor" /><circle cx="9" cy="9" r="6.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 3" /></>}
-            </svg>
-            <span>[{t('hero.trustedBy.clientLabel')} {String(i + 1).padStart(2, '0')}]</span>
+            <span class="hero__logo-dot" aria-hidden="true"></span>
+            <a class="hero__logo-link" href={path(`/customers/${c.slug}`)}>
+              {c.logoUrl ? (
+                <img
+                  class="hero__logo-img"
+                  src={pbThumb(c.logoUrl, '64x64f')}
+                  alt={c.name}
+                  width="32"
+                  height="32"
+                  loading="lazy"
+                  decoding="async"
+                />
+              ) : (
+                <span>{c.name}</span>
+              )}
+            </a>
           </li>
         ))}
       </ul>
     </div>
   </div>
 </section>
+
+<script>
+  // Hero entrance — pure CSS. The FOUC guard above added
+  // `html.hero-anim-ready` pre-paint; the start-states (opacity:0 + small
+  // y-translate on the headline lines, sub-head, CTAs) sit in CSS. Here we
+  // just flip the `is-entered` flag on the next frame which triggers the
+  // CSS transitions back to the natural state. No GSAP, no JS reads of
+  // layout properties → no forced reflow, no LCP render delay (the
+  // atmosphere photo is never faded by JS now).
+  //
+  // The class is added in a double-rAF to guarantee the browser has already
+  // applied the start-state for the first paint (otherwise some engines
+  // collapse the two states into one and the transition is skipped).
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!reduced) {
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => document.documentElement.classList.add('hero-anim-entered')),
+    );
+  }
+</script>
 
 <style>
   .hero {
@@ -120,6 +162,44 @@ const clientShapes = ['circle', 'diamond', 'triangle', 'hex', 'square', 'arc', '
     min-height: 720px;
   }
   .hero__grain-def { position: absolute; }
+
+  /* Entrance start-states — only when JS is ready AND motion is allowed, so
+     there's no FOUC and no stuck-invisible content if JS fails. The LCP
+     atmosphere photo is NEVER opacity-faded by JS anymore (was 0.4 → 1 via
+     GSAP, which delayed LCP by ~3s on slow networks). It now paints at full
+     opacity immediately; only the text/CTAs animate in. */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html.hero-anim-ready) .hero__headline .hero__line,
+    :global(html.hero-anim-ready) .hero__subhead {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    :global(html.hero-anim-ready) .hero__cta {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    /* Entered state (added once the page has painted) → transition back to
+       the natural layout. Stagger via per-line transition-delay so it reads
+       like a sequenced reveal without any JS timeline. */
+    :global(html.hero-anim-entered) .hero__headline .hero__line,
+    :global(html.hero-anim-entered) .hero__subhead,
+    :global(html.hero-anim-entered) .hero__cta {
+      opacity: 1;
+      transform: none;
+    }
+    .hero__headline .hero__line,
+    .hero__subhead,
+    .hero__cta {
+      transition:
+        opacity 600ms var(--ease-md, cubic-bezier(0.16, 1, 0.3, 1)),
+        transform 600ms var(--ease-md, cubic-bezier(0.16, 1, 0.3, 1));
+    }
+    .hero__headline .hero__line:nth-child(2) { transition-delay: 80ms; }
+    .hero__headline .hero__line:nth-child(3) { transition-delay: 160ms; }
+    .hero__subhead { transition-delay: 150ms; }
+    .hero__cta:nth-child(1) { transition-delay: 300ms; }
+    .hero__cta:nth-child(2) { transition-delay: 400ms; }
+  }
 
   /* Atmosphere */
   .hero__atmosphere { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
@@ -191,6 +271,13 @@ const clientShapes = ['circle', 'diamond', 'triangle', 'hex', 'square', 'arc', '
     mask-image: radial-gradient(125% 115% at 50% 32%, transparent 0%, rgba(0, 0, 0, 0.35) 52%, #000 100%);
   }
   :global([data-theme='dark']) .hero__grain { opacity: 0.6; }
+  /* SVG feTurbulence + mix-blend-mode + mask-image is a paint/composite bomb
+     on mobile (PageSpeed: Style & Layout 3.7s). Disable on small screens —
+     the grain is decorative and barely visible at phone densities anyway. */
+  @media (max-width: 767px) {
+    .hero__grain { display: none; }
+    .hero__grain-def { display: none; }
+  }
   .hero__stamp {
     position: absolute;
     right: 24px;
@@ -273,14 +360,6 @@ const clientShapes = ['circle', 'diamond', 'triangle', 'hex', 'square', 'arc', '
     .hero__headline { grid-column: 1 / 9; font-size: clamp(72px, 8.4vw, 132px); }
   }
   .hero__line { display: block; }
-  .hero__line-tag,
-  .hero__subhead-tag {
-    font-style: normal;
-    font-family: var(--font-mono);
-    color: var(--text-3);
-    letter-spacing: 0.14em;
-  }
-  .hero__line-tag { font-size: 0.18em; vertical-align: 0.6em; margin-right: 0.4em; }
   .hero__accent { color: var(--brand); }
 
   .hero__side {
@@ -299,7 +378,6 @@ const clientShapes = ['circle', 'diamond', 'triangle', 'hex', 'square', 'arc', '
     max-width: 380px;
     text-wrap: pretty;
   }
-  .hero__subhead-tag { font-size: 11px; text-transform: uppercase; margin-right: 8px; }
   .hero__ctas { display: flex; flex-wrap: wrap; gap: 12px; }
   .hero__cta { height: 48px; padding: 0 22px; font-size: 15px; }
   .hero__avail {
@@ -354,5 +432,37 @@ const clientShapes = ['circle', 'diamond', 'triangle', 'hex', 'square', 'arc', '
     letter-spacing: 0.18em;
     text-transform: uppercase;
     white-space: nowrap;
+    transition: filter var(--dur-1) var(--ease);
   }
+  /* Hover: dot turns brand-green and the logo image renders in full colour
+     (we just drop the grayscale filter on the whole row, which also affects
+     the brand-tinted dot below). */
+  .hero__logo:hover { filter: none; }
+  .hero__logo:hover .hero__logo-dot { background: var(--brand); opacity: 1; }
+  .hero__logo-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: currentColor;
+    flex: 0 0 auto;
+    opacity: 0.7;
+    transition: background var(--dur-1) var(--ease), opacity var(--dur-1) var(--ease);
+  }
+  .hero__logo-link {
+    display: inline-flex;
+    align-items: center;
+    color: inherit;
+    text-decoration: none;
+    transition: color var(--dur-1) var(--ease), opacity var(--dur-1) var(--ease);
+  }
+  .hero__logo-link:hover { color: var(--text); }
+  .hero__logo-img {
+    height: 18px;
+    width: 18px;
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+    opacity: 0.85;
+    transition: opacity var(--dur-1) var(--ease);
+  }
+  .hero__logo:hover .hero__logo-img { opacity: 1; }
 </style>

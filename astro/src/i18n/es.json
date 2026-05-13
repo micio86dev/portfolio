@@ -7,7 +7,7 @@
   },
   "status": {
     "available": "Disponible para nuevos proyectos — Q3 2026",
-    "location": "Tenerife · Islas Canarias · UTC+0"
+    "location": "Fuerteventura · Islas Canarias"
   },
   "nav": {
     "home": "MicioDev — inicio",
@@ -36,7 +36,7 @@
     },
     "meta": {
       "section": "§ 01 / Hero",
-      "version": "v 0.1.0"
+      "version": "v 1.0.0"
     },
     "stamp": "// build 0xA1F · lg\n// region · ic-tenerife\n// uptime · 99.98%"
   },
@@ -72,7 +72,7 @@
   "projects": {
     "eyebrow": "§ 03 · Trabajos seleccionados",
     "title": "Cosas lanzadas — y aún en pie.",
-    "meta": "05 a la vista · 42 en el archivo · 2010–2026",
+    "meta": "{shown} a la vista · {total} en el archivo · 2010–{year}",
     "featuredBadge": "Destacado",
     "openCaseStudy": "Abrir el caso de estudio",
     "filterLabel": "Filtrar",
@@ -84,7 +84,7 @@
       "dashboards": "Dashboards",
       "editorial": "Editorial"
     },
-    "archiveCta": "Explora el archivo — 42 proyectos desde 2010",
+    "archiveCta": "Explora el archivo — {total} proyectos desde 2010",
     "mockupLabel": "mockup del proyecto · 16 / 10",
     "footerIndex": "↳ index · §03"
   },
@@ -109,6 +109,27 @@
       "pillDefault": "ocasional"
     }
   },
+  "courses": {
+    "eyebrow": "§ 04b · Cursos",
+    "title": "Cursos que imparto, en tres vías",
+    "meta": "Tres cursos · Udemy y YouTube",
+    "viewCourse": "Ir al curso",
+    "platform": {
+      "udemy": "Udemy",
+      "youtube": "YouTube"
+    }
+  },
+  "videos": {
+    "eyebrow": "§ 04c · Vídeos",
+    "title": "Desde el canal de YouTube",
+    "meta": "Selección · YouTube",
+    "watch": "Ver en YouTube"
+  },
+  "career": {
+    "eyebrow": "§ · Sobre mí",
+    "title": "El camino que me trajo hasta aquí",
+    "intro": "Hola, soy desarrollador web full-stack con foco en el alto rendimiento."
+  },
   "contact": {
     "eyebrow": "§ 05 · Contacto",
     "title": "Cuéntame el proyecto.",
@@ -119,41 +140,36 @@
       "email": "Email",
       "emailPlaceholder": "maria@empresa.com",
       "subject": "Asunto",
-      "subjectOptions": {
-        "general": "Consulta general",
-        "estimate": "Presupuesto de un proyecto",
-        "consulting": "Consultoría",
-        "other": "Otra cosa"
-      },
+      "subjectPlaceholder": "¿De qué se trata?",
       "message": "Mensaje",
       "messagePlaceholder": "¿Qué estás construyendo y dónde necesitas una mano?",
-      "charCounter": "{count} / 4000",
-      "privacy": "Al enviar aceptas la política de privacidad.",
+      "charCounter": "{count} / 2000",
+      "privacy": "Al enviar aceptas la {link}.",
+      "privacyLinkText": "política de privacidad",
       "submit": "Enviar mensaje",
       "sending": "Enviando…",
-      "success": "Enviado — gracias. Te respondo en 24 horas.",
+      "success": "¡Mensaje enviado! Te respondo en 24 horas.",
       "honeypotLabel": "Sitio web",
+      "error": "Algo ha fallado. Escríbeme directamente a {email}.",
       "errors": {
         "name": "Escribe tu nombre.",
         "email": "Ese email no parece válido.",
-        "messageShort": "Un poco más de detalle, por favor — al menos 20 caracteres.",
-        "messageLong": "Te has pasado del límite — quédate por debajo de 4000 caracteres.",
-        "rateLimit": "Demasiados intentos. Inténtalo de nuevo en un minuto.",
-        "server": "Algo ha fallado por mi lado. Escríbeme directamente a hello@miciodev.com."
+        "subject": "Añade un asunto.",
+        "messageShort": "Un poco más de detalle, por favor — al menos 10 caracteres.",
+        "messageLong": "Te has pasado del límite — quédate por debajo de 2000 caracteres.",
+        "rateLimit": "Demasiados intentos. Inténtalo de nuevo en un minuto."
       }
     },
     "aside": {
       "eyebrow": "Directo",
-      "email": "hello@miciodev.com",
       "replies": "Respondo en 24 horas, de lunes a viernes.",
-      "timezone": "Tenerife · UTC+0",
+      "timezone": "Fuerteventura",
       "hours": "Horario compatible con CET",
       "available": "Disponible · Q3 2026"
     }
   },
   "footer": {
     "eyebrow": "Abierto a nuevos proyectos · Q3 2026",
-    "email": "hello@miciodev.com",
     "blurb": "Desarrollador full-stack freelance sénior. Laravel · Vue · Nuxt. En remoto, desde las Islas Canarias.",
     "colSite": {
       "title": "Sitio",
@@ -171,14 +187,77 @@
     },
     "elsewhere": "En otros sitios",
     "copyright": "© 2010–2026 · Alessandro · MicioDev",
-    "location": "Tenerife · Islas Canarias · ES",
-    "builtWith": "Hecho con Astro + PocketBase · v0.1.0"
+    "location": "Fuerteventura · Islas Canarias · ES",
+    "builtWith": "Hecho con Astro + PocketBase · v1.0.0"
+  },
+  "projectsPage": {
+    "eyebrow": "§ Archivo · Trabajos seleccionados",
+    "title": "Todo lo lanzado, en un solo sitio.",
+    "intro": "Un archivo de trabajos para clientes y productos — la mayoría aún en marcha. Abre uno para ver el brief, el stack y los resultados.",
+    "metaTitle": "Proyectos — trabajos seleccionados",
+    "metaDescription": "Un archivo de trabajos seleccionados para clientes y productos — Laravel, Vue y Nuxt — la mayoría aún en producción.",
+    "back": "← Volver a proyectos",
+    "live": "Ir al sitio",
+    "repo": "Ver el código",
+    "stackLabel": "Stack",
+    "resultsLabel": "Resultados",
+    "galleryLabel": "Galería"
+  },
+  "customersPage": {
+    "back": "← Volver a los trabajos",
+    "sectorLabel": "Sector",
+    "periodLabel": "Colaboración",
+    "ongoing": "presente",
+    "visit": "Visitar el sitio ↗",
+    "testimonialLabel": "En sus palabras",
+    "galleryLabel": "Galería",
+    "workLabel": "Trabajos seleccionados"
+  },
+  "notesPage": {
+    "eyebrow": "§ Notas · Artículos y changelog",
+    "title": "Notas — lo que construyo y lo que aprendo.",
+    "intro": "Artículos breves sobre lo que lanzo, las herramientas que uso y las decisiones que repetiría.",
+    "metaTitle": "Notas — artículos y changelog",
+    "metaDescription": "Artículos breves sobre cómo se construyen y mantienen aplicaciones Laravel, Vue y Nuxt.",
+    "empty": "Aún no hay entradas.",
+    "back": "← Volver a notas",
+    "readMore": "Seguir leyendo"
+  },
+  "notFound": {
+    "eyebrow": "Error · 404",
+    "title": "Esta página se ha escapado.",
+    "body": "404 — aquí no hay nada. Seguramente el gato la tiró de la mesa. Volvamos a terreno firme.",
+    "backHome": "Llévame a casa",
+    "logoAlt": "Logo de MicioDev"
+  },
+  "cookies": {
+    "text": "Este sitio guarda en tu navegador un único ajuste funcional — tu preferencia de tema claro/oscuro. Sin analítica, sin rastreo, sin cookies de terceros.",
+    "accept": "Entendido",
+    "privacyLink": "Política de privacidad",
+    "settingsLink": "Ajustes de cookies",
+    "ariaLabel": "Aviso de cookies"
+  },
+  "pages": {
+    "imprint": {
+      "description": "Aviso legal de miciodev.com — titular del sitio, alojamiento, propiedad intelectual e información sobre responsabilidad.",
+      "fallbackTitle": "Aviso legal",
+      "fallbackBody": "Esta página se está actualizando. Mientras tanto, si tienes cualquier duda legal o sobre protección de datos, escríbeme a través del formulario de contacto del sitio."
+    }
+  },
+  "colophon": {
+    "eyebrow": "§ 06 · Colofón",
+    "title": "Hecho a la vista",
+    "body": "Este portfolio funciona con Astro y SSR híbrido, un backend PocketBase autoalojado, Docker para el empaquetado y CI/CD mediante GitHub Actions — hecho con Claude Code, a la vista de todos."
   },
   "dividers": {
     "services": "§ 02 — Servicios",
     "work": "§ 03 — Trabajos seleccionados",
+    "career": "§ — Sobre mí",
     "skills": "§ 04 — Habilidades",
-    "contact": "§ 05 — Contacto"
+    "courses": "§ 04b — Cursos",
+    "videos": "§ 04c — Vídeos",
+    "contact": "§ 05 — Contacto",
+    "colophon": "§ 06 — Colofón"
   },
   "a11y": {
     "skipToContent": "Saltar al contenido",

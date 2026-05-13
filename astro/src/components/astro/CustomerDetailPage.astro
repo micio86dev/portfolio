@@ -1,0 +1,246 @@
+---
+// /customers/[slug] — a single client's profile. The route file does the fetch
+// + 404; this component just renders a resolved (localized) CustomerDetail.
+// Shared across all locale routes.
+import { useTranslations, useTranslatedPath, type Locale } from '../../i18n/utils';
+import PbImage from '../vue/PbImage.vue';
+import Lightbox from './Lightbox.astro';
+import { pbThumb } from '../../lib/img';
+import type { CustomerDetail } from '../../lib/seed-data';
+
+interface Props {
+  lang: Locale;
+  customer: CustomerDetail;
+}
+const { lang, customer: c } = Astro.props;
+const t = useTranslations(lang);
+const path = useTranslatedPath(lang);
+
+// Fallback crest when no logo is uploaded: up to two leading letters of `name`.
+const initials = c.name
+  .split(/\s+/)
+  .filter(Boolean)
+  .slice(0, 2)
+  .map((w) => w[0]?.toUpperCase() ?? '')
+  .join('');
+
+// `started` / `ended` are datetimes ("YYYY-MM-01 00:00:00.000Z"); show years.
+const year = (iso: string): string => {
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? '' : String(d.getUTCFullYear());
+};
+const fromYear = year(c.started);
+const toYear = year(c.ended);
+const periodLabel = fromYear
+  ? toYear && toYear !== fromYear
+    ? `${fromYear} — ${toYear}`
+    : c.ended
+      ? fromYear
+      : `${fromYear} — ${t('customersPage.ongoing')}`
+  : '';
+
+// PB `description` is plain text; treat blank lines as paragraph breaks.
+const paragraphs = c.description.split(/\n\s*\n/).map((s) => s.trim()).filter(Boolean);
+
+// `primaryImageUrl` is the hero shot; `imageUrls` is the full gallery (primary
+// first), so the extra screenshots are everything after index 0.
+const galleryUrls = c.imageUrls.slice(1);
+---
+
+<article class="cdetail">
+  <nav class="cdetail__breadcrumb">
+    <a href={path('/#work')}>{t('customersPage.back')}</a>
+  </nav>
+
+  <header class="cdetail__head">
+    <div class="cdetail__id">
+      <span class="cdetail__crest" class:list={{ 'cdetail__crest--logo': !!c.logoUrl }} aria-hidden="true">
+        {c.logoUrl ? (
+          <img class="cdetail__crest-img" src={pbThumb(c.logoUrl, '128x128f')} alt="" width="128" height="128" loading="lazy" decoding="async" />
+        ) : initials}
+      </span>
+      <div class="cdetail__meta">
+        {c.sector && (
+          <span class="cdetail__sector">{t('customersPage.sectorLabel')} · {c.sector}</span>
+        )}
+        {periodLabel && <span class="cdetail__period">{t('customersPage.periodLabel')} · {periodLabel}</span>}
+      </div>
+    </div>
+    <h1 class="cdetail__title">{c.name}</h1>
+    {c.url && (
+      <a class="md-btn md-btn--secondary cdetail__visit" href={c.url} target="_blank" rel="noopener noreferrer">
+        {t('customersPage.visit')}
+      </a>
+    )}
+  </header>
+
+  {c.primaryImageUrl && (
+    <figure class="cdetail__cover">
+      <PbImage src={pbThumb(c.primaryImageUrl, '1280x800f')} alt={c.name} width={1280} height={800} eager />
+    </figure>
+  )}
+
+  {paragraphs.length > 0 && (
+    <div class="cdetail__body">
+      {paragraphs.map((para) => <p>{para}</p>)}
+    </div>
+  )}
+
+  {c.testimonial && (
+    <blockquote class="cdetail__quote">
+      <p>{c.testimonial}</p>
+      {c.testimonialAuthor && <footer>— {c.testimonialAuthor}</footer>}
+    </blockquote>
+  )}
+
+  {galleryUrls.length > 0 && (
+    <div class="cdetail__gallery">
+      <span class="md-eyebrow cdetail__gallery-label">{t('customersPage.galleryLabel')}</span>
+      <div class="cdetail__gallery-grid" data-lightbox-group="customer-gallery">
+        {galleryUrls.map((src) => (
+          <figure class="cdetail__shot" data-lightbox data-lightbox-full={pbThumb(src, '1280x800f')}>
+            <PbImage src={pbThumb(src, '800x500f')} alt="" width={800} height={500} />
+          </figure>
+        ))}
+      </div>
+    </div>
+  )}
+
+  {c.projects.length > 0 && (
+    <div class="cdetail__work">
+      <span class="md-eyebrow cdetail__work-label">{t('customersPage.workLabel')}</span>
+      <ul class="cdetail__work-list">
+        {c.projects.map((p) => (
+          <li>
+            <a class="cdetail__work-item" href={path(`/projects/${p.slug}`)}>
+              <span class="cdetail__work-title">{p.title}</span>
+              <span class="cdetail__work-tail">/ {p.idx}{p.period ? ` · ${p.period}` : ''} <span aria-hidden="true">↗</span></span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
+</article>
+
+<Lightbox />
+
+<style>
+  .cdetail {
+    background: var(--bg);
+    color: var(--text);
+    padding: 56px 22px 88px;
+    max-width: 820px;
+    margin: 0 auto;
+  }
+  @media (min-width: 960px) { .cdetail { padding: 88px 64px 128px; } }
+
+  .cdetail__breadcrumb { margin-bottom: 28px; }
+  .cdetail__breadcrumb a {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-2);
+    letter-spacing: 0.08em;
+    text-decoration: none;
+  }
+  .cdetail__breadcrumb a:hover { color: var(--brand); }
+
+  .cdetail__head { display: grid; gap: 18px; margin-bottom: 36px; }
+  .cdetail__id { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .cdetail__crest {
+    width: 48px; height: 48px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 999px;
+    overflow: hidden;
+    flex: 0 0 auto;
+    background: var(--surface-2);
+    border: 1px solid var(--line-2);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .cdetail__crest--logo { background: #fff; }
+  .cdetail__crest-img { width: 100%; height: 100%; object-fit: cover; }
+  .cdetail__meta { display: grid; gap: 3px; }
+  .cdetail__sector, .cdetail__period {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .cdetail__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 40px;
+    line-height: 1.0;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+  @media (min-width: 960px) { .cdetail__title { font-size: clamp(48px, 5.2vw, 76px); } }
+  .cdetail__visit { align-self: start; height: 40px; padding: 0 18px; font-size: 14px; }
+
+  .cdetail__cover {
+    margin: 0 0 36px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-3);
+    overflow: hidden;
+    background: var(--surface-2);
+  }
+  .cdetail__cover :global(img) { display: block; width: 100%; height: auto; }
+
+  .cdetail__body { font-size: 16px; line-height: 1.65; color: var(--text-2); margin-bottom: 36px; }
+  .cdetail__body p { margin: 0 0 1em; }
+  .cdetail__body p:last-child { margin-bottom: 0; }
+
+  .cdetail__quote {
+    margin: 0 0 36px;
+    padding: 22px 24px;
+    border-left: 2px solid var(--brand);
+    background: var(--surface);
+    border-radius: var(--r-2);
+  }
+  .cdetail__quote p {
+    margin: 0 0 10px;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 20px;
+    line-height: 1.4;
+    color: var(--text);
+  }
+  .cdetail__quote footer { font-family: var(--font-mono); font-size: 11px; color: var(--text-3); letter-spacing: 0.08em; }
+
+  .cdetail__gallery { margin: 36px 0; display: grid; gap: 14px; }
+  .cdetail__gallery-label, .cdetail__work-label { margin: 0; }
+  .cdetail__gallery-grid { display: grid; gap: 14px; grid-template-columns: 1fr; }
+  @media (min-width: 720px) { .cdetail__gallery-grid { grid-template-columns: 1fr 1fr; } }
+  .cdetail__shot {
+    margin: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--r-2);
+    overflow: hidden;
+    background: var(--surface-2);
+    cursor: zoom-in;
+  }
+  .cdetail__shot :global(img) { display: block; width: 100%; height: auto; }
+
+  .cdetail__work { margin-top: 40px; display: grid; gap: 14px; }
+  .cdetail__work-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+  .cdetail__work-item {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 16px;
+    padding: 14px 4px;
+    border-bottom: 1px solid var(--line);
+    text-decoration: none;
+    color: var(--text);
+  }
+  .cdetail__work-list li:first-child .cdetail__work-item { border-top: 1px solid var(--line); }
+  .cdetail__work-item:hover { color: var(--brand); }
+  .cdetail__work-title { font-family: var(--font-display); font-style: italic; font-size: 22px; }
+  .cdetail__work-tail {
+    font-family: var(--font-mono); font-size: 11px; color: var(--text-3);
+    letter-spacing: 0.08em; white-space: nowrap;
+  }
+</style>

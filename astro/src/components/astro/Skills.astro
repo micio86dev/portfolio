@@ -1,79 +1,38 @@
 ---
 import { useTranslations, type Locale } from '../../i18n/utils';
+import { getSkills } from '../../lib/pocketbase';
+import { SKILL_GROUPS } from '../../lib/seed-data';
 
 interface Props {
   lang: Locale;
 }
 const { lang } = Astro.props;
 const t = useTranslations(lang);
-const langTag = lang.toUpperCase();
 
-type Weight = 'primary' | 'daily' | 'default';
-interface Skill { name: string; weight: Weight }
-interface Group { idx: string; labelKey: string; items: Skill[] }
-
-// Structure + tech names lifted from the design reference (design_refs/skills.jsx).
-// Group display labels come from the i18n files (placeholder strings).
-const GROUPS: Group[] = [
-  {
-    idx: '01', labelKey: 'skills.groups.languages',
-    items: [
-      { name: 'PHP', weight: 'daily' },
-      { name: 'Laravel', weight: 'primary' },
-      { name: 'TypeScript', weight: 'daily' },
-      { name: 'Vue', weight: 'primary' },
-      { name: 'Nuxt', weight: 'primary' },
-      { name: 'Python', weight: 'default' },
-    ],
-  },
-  {
-    idx: '02', labelKey: 'skills.groups.infra',
-    items: [
-      { name: 'Linux', weight: 'daily' },
-      { name: 'Nginx', weight: 'daily' },
-      { name: 'Docker', weight: 'default' },
-      { name: 'DigitalOcean', weight: 'primary' },
-      { name: 'VPS · Hetzner', weight: 'default' },
-    ],
-  },
-  {
-    idx: '03', labelKey: 'skills.groups.tooling',
-    items: [
-      { name: 'Git', weight: 'daily' },
-      { name: 'GitHub Actions', weight: 'daily' },
-      { name: 'CI / CD', weight: 'default' },
-      { name: 'Claude Code', weight: 'primary' },
-    ],
-  },
-  {
-    idx: '04', labelKey: 'skills.groups.apis',
-    items: [
-      { name: 'Stripe', weight: 'primary' },
-      { name: 'Resend', weight: 'default' },
-      { name: 'ImageKit', weight: 'default' },
-      { name: 'Supabase', weight: 'default' },
-      { name: 'PocketBase', weight: 'default' },
-    ],
-  },
-];
+// Skills come from PocketBase (`skills` collection), grouped into the four
+// families in SKILL_GROUPS order. Names aren't translated (tool names); the
+// group display labels live in the `translations` collection / i18n JSON.
+const skills = await getSkills();
+const GROUPS = SKILL_GROUPS.map((g) => ({
+  ...g,
+  items: skills.filter((s) => s.group === g.key).sort((a, b) => a.order - b.order),
+})).filter((g) => g.items.length > 0);
 ---
 
 <section class="skills" aria-labelledby="skills-heading" id="skills">
   <header class="skills__head">
     <div class="skills__eyebrow"><span class="md-eyebrow"><span class="dot"></span>{t('skills.eyebrow')}</span></div>
-    <h2 id="skills-heading" class="skills__title">
-      <span class="skills__tag">[{langTag}]</span>{t('skills.title')}
-    </h2>
+    <h2 id="skills-heading" class="skills__title" data-reveal>{t('skills.title')}</h2>
     <p class="skills__note">{t('skills.note')}</p>
   </header>
 
   <div class="skills__panel">
-    <div class="skills__grid">
+    <div class="skills__grid" data-reveal-stagger>
       {GROUPS.map((g) => (
-        <div class="skills__group">
+        <div class="skills__group" data-reveal>
           <header class="skills__group-head">
             <span class="md-eyebrow">/ {g.idx}</span>
-            <h3 class="skills__group-title"><span class="skills__group-tag">[{langTag}]</span>{t(g.labelKey)}</h3>
+            <h3 class="skills__group-title">{t(g.labelKey)}</h3>
           </header>
           <ul class="skills__pills">
             {g.items.map((s) => (
@@ -134,15 +93,6 @@ const GROUPS: Group[] = [
     letter-spacing: -0.022em;
   }
   @media (min-width: 960px) { .skills__title { font-size: clamp(40px, 4.4vw, 60px); } }
-  .skills__tag {
-    font-family: var(--font-mono);
-    font-style: normal;
-    font-size: 0.24em;
-    vertical-align: 0.7em;
-    color: var(--text-3);
-    letter-spacing: 0.14em;
-    margin-right: 0.5em;
-  }
   .skills__note {
     font-family: var(--font-mono);
     font-size: 11px;
@@ -176,16 +126,6 @@ const GROUPS: Group[] = [
     letter-spacing: -0.015em;
     color: var(--text);
   }
-  .skills__group-tag {
-    font-family: var(--font-mono);
-    font-style: normal;
-    font-size: 9px;
-    color: var(--text-3);
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    margin-right: 8px;
-  }
-
   .skills__pills { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
   .skills__pill {
     display: inline-flex;

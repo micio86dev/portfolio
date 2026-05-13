@@ -9,50 +9,36 @@ interface Props {
 const { lang } = Astro.props;
 const t = useTranslations(lang);
 const path = useTranslatedPath(lang);
-const langTag = lang.toUpperCase();
 const projects = await getProjects(lang);
 
 const featuredBadgeLabel = t('projects.featuredBadge');
 const openCaseStudyLabel = t('projects.openCaseStudy');
 const mockupLabel = t('projects.mockupLabel');
 
+// Counts surfaced in the section header / archive CTA. Both used to be
+// hard-coded ("05 shown · 42 archived · 2010–2026") which silently lied as
+// soon as PocketBase had a different total. Resolved fresh per request.
+const pad2 = (n: number): string => n.toString().padStart(2, '0');
+const totalCount = pad2(projects.length);
+const shownCount = pad2(projects.length);
+const currentYear = String(new Date().getUTCFullYear());
+const fill = (key: string): string =>
+  t(key).replace(/\{shown\}/g, shownCount).replace(/\{total\}/g, totalCount).replace(/\{year\}/g, currentYear);
+const metaLabel = fill('projects.meta');
+const archiveCtaLabel = fill('projects.archiveCta');
+
 // First project (featured-first sorted in lib) renders as the wide featured card.
 const [first, ...rest] = projects;
-
-const filters = [
-  t('projects.filters.all'),
-  t('projects.filters.saas'),
-  t('projects.filters.ecommerce'),
-  t('projects.filters.dashboards'),
-  t('projects.filters.editorial'),
-];
-const stackFilters = ['Laravel', 'Vue', 'Nuxt', 'TypeScript', 'Node'];
 ---
 
 <section class="projects" aria-labelledby="work-heading" id="work">
   <header class="projects__head">
     <div class="projects__eyebrow"><span class="md-eyebrow"><span class="dot"></span>{t('projects.eyebrow')}</span></div>
-    <h2 id="work-heading" class="projects__title">
-      <span class="projects__tag">[{langTag}]</span>{t('projects.title')}
-    </h2>
-    <p class="projects__meta">{t('projects.meta')}</p>
+    <h2 id="work-heading" class="projects__title" data-reveal>{t('projects.title')}</h2>
+    <p class="projects__meta">{metaLabel}</p>
   </header>
 
-  <!-- Filter bar — placeholder controls, not yet wired -->
-  <div class="projects__filters" role="group" aria-label={t('projects.filterLabel')}>
-    <div class="projects__filter-group">
-      <span class="md-eyebrow projects__filter-label">{t('projects.filterLabel')}</span>
-      {filters.map((f, i) => (
-        <button type="button" class:list={['projects__chip', { 'is-active': i === 0 }]} aria-pressed={i === 0}>{f}</button>
-      ))}
-    </div>
-    <div class="projects__filter-group projects__filter-group--stack">
-      <span class="md-eyebrow projects__filter-label">{t('projects.stackLabel')}</span>
-      {stackFilters.map((s) => <button type="button" class="projects__chip projects__chip--ghost">{s}</button>)}
-    </div>
-  </div>
-
-  <div class="projects__grid">
+  <div class="projects__grid" data-reveal-stagger>
     {first && (
       <ProjectCard
         project={first}
@@ -60,7 +46,6 @@ const stackFilters = ['Laravel', 'Vue', 'Nuxt', 'TypeScript', 'Node'];
         featuredBadgeLabel={featuredBadgeLabel}
         openCaseStudyLabel={openCaseStudyLabel}
         mockupLabel={mockupLabel}
-        langTag={langTag}
         href={path(`/projects/${first.slug}`)}
       />
     )}
@@ -71,7 +56,6 @@ const stackFilters = ['Laravel', 'Vue', 'Nuxt', 'TypeScript', 'Node'];
         featuredBadgeLabel={featuredBadgeLabel}
         openCaseStudyLabel={openCaseStudyLabel}
         mockupLabel={mockupLabel}
-        langTag={langTag}
         href={path(`/projects/${p.slug}`)}
       />
     ))}
@@ -79,8 +63,8 @@ const stackFilters = ['Laravel', 'Vue', 'Nuxt', 'TypeScript', 'Node'];
 
   <footer class="projects__foot">
     <a href={path('/projects')} class="projects__archive">
-      <span class="projects__archive-arrow">[{langTag}] →</span>
-      {t('projects.archiveCta')}
+      <span class="projects__archive-arrow">→</span>
+      {archiveCtaLabel}
     </a>
     <span class="projects__foot-idx">{t('projects.footerIndex')}</span>
   </footer>
@@ -122,15 +106,6 @@ const stackFilters = ['Laravel', 'Vue', 'Nuxt', 'TypeScript', 'Node'];
     text-wrap: balance;
   }
   @media (min-width: 960px) { .projects__title { font-size: clamp(56px, 6vw, 92px); } }
-  .projects__tag {
-    font-family: var(--font-mono);
-    font-style: normal;
-    font-size: 0.22em;
-    vertical-align: 0.7em;
-    color: var(--text-3);
-    letter-spacing: 0.14em;
-    margin-right: 0.5em;
-  }
   .projects__meta {
     font-family: var(--font-mono);
     font-size: 11px;

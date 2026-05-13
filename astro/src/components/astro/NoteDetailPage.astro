@@ -1,0 +1,48 @@
+---
+// /notes/[slug] — a single note. The route file does the fetch + 404; this
+// component renders a resolved (localized) news item via ContentPage. Shared
+// across all locale routes.
+import { useTranslations, useTranslatedPath, type Locale } from '../../i18n/utils';
+import type { NewsItem } from '../../lib/seed-data';
+import ContentPage from './ContentPage.astro';
+import PbImage from '../vue/PbImage.vue';
+
+interface Props {
+  lang: Locale;
+  post: NewsItem;
+}
+const { lang, post } = Astro.props;
+const t = useTranslations(lang);
+const path = useTranslatedPath(lang);
+
+const dateFmt = new Intl.DateTimeFormat(lang, { year: 'numeric', month: 'long', day: 'numeric' });
+const d = new Date(post.date);
+const dateLabel = Number.isNaN(d.getTime()) ? post.date : dateFmt.format(d);
+const metaLine = post.tags.length > 0 ? `${dateLabel} · ${post.tags.join(' · ')}` : dateLabel;
+---
+
+<ContentPage eyebrow={t('notesPage.eyebrow')} title={post.title} meta={metaLine}>
+  {post.coverUrl && (
+    <p><PbImage src={post.coverUrl} alt="" width={1200} height={675} eager /></p>
+  )}
+  <Fragment set:html={post.body} />
+  <p slot="after" class="note-back-wrap">
+    <a href={path('/notes')} class="note-back">{t('notesPage.back')}</a>
+  </p>
+</ContentPage>
+
+<style>
+  .note-back-wrap {
+    margin-top: 44px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+  }
+  .note-back {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-2);
+    letter-spacing: 0.08em;
+    text-decoration: none;
+  }
+  .note-back:hover { color: var(--brand); }
+</style>
