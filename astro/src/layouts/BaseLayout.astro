@@ -146,6 +146,12 @@ const csp = [
     <meta name="description" content={description} />
     {(noindex || isStaging) && <meta name="robots" content="noindex, nofollow" />}
 
+    <!-- Preconnect to PocketBase — every <img> on the homepage (hero trust strip
+         logos, project crests, project screenshots) loads from PB. Starting the
+         TLS handshake before the document parser walks the body shaves ~150ms
+         off each first PB request. -->
+    {PB_ORIGIN && <link rel="preconnect" href={PB_ORIGIN} crossorigin />}
+
     <!-- Critical fonts — start downloading ASAP, before canonical/OG resolve.
          Place the woff2 files in /public/fonts/ (see README "Fonts"). -->
     <link rel="preload" href="/fonts/instrument-serif-italic.woff2" as="font" type="font/woff2" crossorigin />
