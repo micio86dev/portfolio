@@ -3,6 +3,7 @@ import { Image } from 'astro:assets';
 import { useTranslations, useTranslatedPath, type Locale } from '../../i18n/utils';
 import { getCustomers } from '../../lib/pocketbase';
 import { pbThumb } from '../../lib/img';
+import { getCanaryUtcOffset } from '../../lib/canary-tz';
 import heroImg from '../../assets/hero.webp';
 
 interface Props {
@@ -15,6 +16,10 @@ const path = useTranslatedPath(lang);
 // Trust strip — the real clients, most-recent-collaboration-first. Render the
 // company logo when one's uploaded (PB `customers.logo`), otherwise the name.
 const customers = await getCustomers(lang);
+
+// `Atlantic/Canary` switches between UTC+0 (winter) and UTC+1 (summer DST).
+// Compute fresh per request — the i18n string is now offset-free.
+const statusLocation = `${t('status.location')} · ${getCanaryUtcOffset()}`;
 ---
 
 <!-- FOUC guard — runs synchronously *before* the hero paints. Sets up the
@@ -72,7 +77,7 @@ const customers = await getCustomers(lang);
       <p class="md-eyebrow"><span class="dot"></span>{t('hero.eyebrow')}</p>
       <div class="hero__meta">
         <span>{t('hero.meta.section')}</span>
-        <span>{t('status.location')}</span>
+        <span>{statusLocation}</span>
         <span>{t('hero.meta.version')}</span>
       </div>
     </header>
@@ -427,7 +432,13 @@ const customers = await getCustomers(lang);
     letter-spacing: 0.18em;
     text-transform: uppercase;
     white-space: nowrap;
+    transition: filter var(--dur-1) var(--ease);
   }
+  /* Hover: dot turns brand-green and the logo image renders in full colour
+     (we just drop the grayscale filter on the whole row, which also affects
+     the brand-tinted dot below). */
+  .hero__logo:hover { filter: none; }
+  .hero__logo:hover .hero__logo-dot { background: var(--brand); opacity: 1; }
   .hero__logo-dot {
     width: 6px;
     height: 6px;
@@ -435,6 +446,7 @@ const customers = await getCustomers(lang);
     background: currentColor;
     flex: 0 0 auto;
     opacity: 0.7;
+    transition: background var(--dur-1) var(--ease), opacity var(--dur-1) var(--ease);
   }
   .hero__logo-link {
     display: inline-flex;
@@ -450,6 +462,7 @@ const customers = await getCustomers(lang);
     aspect-ratio: 1 / 1;
     object-fit: contain;
     opacity: 0.85;
+    transition: opacity var(--dur-1) var(--ease);
   }
-  .hero__logo-link:hover .hero__logo-img { opacity: 1; }
+  .hero__logo:hover .hero__logo-img { opacity: 1; }
 </style>

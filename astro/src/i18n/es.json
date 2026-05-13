@@ -7,7 +7,7 @@
   },
   "status": {
     "available": "Disponible para nuevos proyectos — Q3 2026",
-    "location": "Fuerteventura · Islas Canarias · UTC+0"
+    "location": "Fuerteventura · Islas Canarias"
   },
   "nav": {
     "home": "MicioDev — inicio",
@@ -36,7 +36,7 @@
     },
     "meta": {
       "section": "§ 01 / Hero",
-      "version": "v 0.1.0"
+      "version": "v 1.0.0"
     },
     "stamp": "// build 0xA1F · lg\n// region · ic-tenerife\n// uptime · 99.98%"
   },
@@ -72,7 +72,7 @@
   "projects": {
     "eyebrow": "§ 03 · Trabajos seleccionados",
     "title": "Cosas lanzadas — y aún en pie.",
-    "meta": "05 a la vista · 42 en el archivo · 2010–2026",
+    "meta": "{shown} a la vista · {total} en el archivo · 2010–{year}",
     "featuredBadge": "Destacado",
     "openCaseStudy": "Abrir el caso de estudio",
     "filterLabel": "Filtrar",
@@ -84,7 +84,7 @@
       "dashboards": "Dashboards",
       "editorial": "Editorial"
     },
-    "archiveCta": "Explora el archivo — 42 proyectos desde 2010",
+    "archiveCta": "Explora el archivo — {total} proyectos desde 2010",
     "mockupLabel": "mockup del proyecto · 16 / 10",
     "footerIndex": "↳ index · §03"
   },
@@ -163,7 +163,7 @@
     "aside": {
       "eyebrow": "Directo",
       "replies": "Respondo en 24 horas, de lunes a viernes.",
-      "timezone": "Fuerteventura · UTC+0",
+      "timezone": "Fuerteventura",
       "hours": "Horario compatible con CET",
       "available": "Disponible · Q3 2026"
     }

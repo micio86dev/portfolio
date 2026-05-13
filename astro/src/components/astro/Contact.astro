@@ -1,6 +1,7 @@
 ---
 import { useTranslations, useTranslatedPath, type Locale } from '../../i18n/utils';
 import { CONTACT_EMAIL } from '../../lib/site';
+import { getCanaryUtcOffset } from '../../lib/canary-tz';
 import ContactForm from '../vue/ContactForm.vue';
 
 interface Props {
@@ -67,7 +68,7 @@ const pbUrl =
       <p class="contact__aside-line">{t('contact.aside.replies')}</p>
       <hr class="md-hr" />
       <div class="contact__aside-meta">
-        <span>↳ {t('contact.aside.timezone')}</span>
+        <span>↳ {t('contact.aside.timezone')} · {getCanaryUtcOffset()}</span>
         <span>↳ {t('contact.aside.hours')}</span>
         <span><span class="contact__aside-dot"></span>{t('contact.aside.available')}</span>
       </div>

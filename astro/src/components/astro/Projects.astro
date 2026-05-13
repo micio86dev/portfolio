@@ -15,6 +15,18 @@ const featuredBadgeLabel = t('projects.featuredBadge');
 const openCaseStudyLabel = t('projects.openCaseStudy');
 const mockupLabel = t('projects.mockupLabel');
 
+// Counts surfaced in the section header / archive CTA. Both used to be
+// hard-coded ("05 shown · 42 archived · 2010–2026") which silently lied as
+// soon as PocketBase had a different total. Resolved fresh per request.
+const pad2 = (n: number): string => n.toString().padStart(2, '0');
+const totalCount = pad2(projects.length);
+const shownCount = pad2(projects.length);
+const currentYear = String(new Date().getUTCFullYear());
+const fill = (key: string): string =>
+  t(key).replace(/\{shown\}/g, shownCount).replace(/\{total\}/g, totalCount).replace(/\{year\}/g, currentYear);
+const metaLabel = fill('projects.meta');
+const archiveCtaLabel = fill('projects.archiveCta');
+
 // First project (featured-first sorted in lib) renders as the wide featured card.
 const [first, ...rest] = projects;
 ---
@@ -23,7 +35,7 @@ const [first, ...rest] = projects;
   <header class="projects__head">
     <div class="projects__eyebrow"><span class="md-eyebrow"><span class="dot"></span>{t('projects.eyebrow')}</span></div>
     <h2 id="work-heading" class="projects__title" data-reveal>{t('projects.title')}</h2>
-    <p class="projects__meta">{t('projects.meta')}</p>
+    <p class="projects__meta">{metaLabel}</p>
   </header>
 
   <div class="projects__grid" data-reveal-stagger>
@@ -52,7 +64,7 @@ const [first, ...rest] = projects;
   <footer class="projects__foot">
     <a href={path('/projects')} class="projects__archive">
       <span class="projects__archive-arrow">→</span>
-      {t('projects.archiveCta')}
+      {archiveCtaLabel}
     </a>
     <span class="projects__foot-idx">{t('projects.footerIndex')}</span>
   </footer>

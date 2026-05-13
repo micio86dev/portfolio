@@ -7,7 +7,7 @@
   },
   "status": {
     "available": "Available for new projects — Q3 2026",
-    "location": "Fuerteventura · Canary Islands · UTC+0"
+    "location": "Fuerteventura · Canary Islands"
   },
   "nav": {
     "home": "MicioDev — home",
@@ -36,7 +36,7 @@
     },
     "meta": {
       "section": "§ 01 / Hero",
-      "version": "v 0.1.0"
+      "version": "v 1.0.0"
     },
     "stamp": "// build 0xA1F · lg\n// region · ic-tenerife\n// uptime · 99.98%"
   },
@@ -72,7 +72,7 @@
   "projects": {
     "eyebrow": "§ 03 · Selected work",
     "title": "Things shipped — and still standing.",
-    "meta": "05 shown · 42 archived · 2010–2026",
+    "meta": "{shown} shown · {total} archived · 2010–{year}",
     "featuredBadge": "Featured",
     "openCaseStudy": "Open case study",
     "filterLabel": "Filter",
@@ -84,7 +84,7 @@
       "dashboards": "Dashboards",
       "editorial": "Editorial"
     },
-    "archiveCta": "Browse the archive — 42 projects since 2010",
+    "archiveCta": "Browse the archive — {total} projects since 2010",
     "mockupLabel": "project mockup · 16 / 10",
     "footerIndex": "↳ index · §03"
   },
@@ -163,7 +163,7 @@
     "aside": {
       "eyebrow": "Direct",
       "replies": "I reply within 24 hours, Monday to Friday.",
-      "timezone": "Fuerteventura · UTC+0",
+      "timezone": "Fuerteventura",
       "hours": "CET-friendly hours",
       "available": "Available · Q3 2026"
     }

@@ -15,6 +15,7 @@ import {
 } from '../i18n/utils';
 import { siteUrl, isStagingHost } from '../lib/seo';
 import { PB_ORIGIN } from '../lib/pocketbase';
+import { getCanaryUtcOffset } from '../lib/canary-tz';
 
 interface Props {
   lang: Locale;
@@ -73,7 +74,7 @@ const navMessages = {
   hireMe: t('nav.hireMe'),
   mainNav: t('a11y.mainNav'),
   statusAvailable: t('status.available'),
-  statusLocation: t('status.location'),
+  statusLocation: `${t('status.location')} · ${getCanaryUtcOffset()}`,
   openMenu: t('a11y.openMenu'),
   closeMenu: t('a11y.closeMenu'),
   toLight: t('a11y.toLight'),
