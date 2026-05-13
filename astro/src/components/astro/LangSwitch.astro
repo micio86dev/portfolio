@@ -36,6 +36,7 @@ function hrefFor(locale: Locale): string {
     <a
       role="radio"
       href={hrefFor(loc)}
+      data-locale={loc}
       aria-checked={loc === current ? 'true' : 'false'}
       tabindex={loc === current ? 0 : -1}
       class:list={['lang-switch__opt', { 'is-active': loc === current }]}
@@ -46,11 +47,30 @@ function hrefFor(locale: Locale): string {
 </div>
 
 <script>
-  // Roving-focus keyboard support — ArrowLeft/Right cycle, Home/End jump to
-  // ends. Runs once per page; idempotent if the page has multiple switches
-  // (e.g. nav + footer).
+  // Roving-focus keyboard support + locale-cookie sync on click. Runs once
+  // per page; idempotent if the page has multiple switches (nav + footer).
   if (!(window as unknown as { __miciodevLangSwitchInit?: boolean }).__miciodevLangSwitchInit) {
     (window as unknown as { __miciodevLangSwitchInit?: boolean }).__miciodevLangSwitchInit = true;
+
+    // Click → write `miciodev-locale` BEFORE the anchor navigates, so the next
+    // request to the new locale carries the user's explicit choice. Without
+    // this the middleware (which reads the cookie to decide whether to redirect
+    // `/` to a localised path) would still see the OLD locale on the next
+    // request and would bounce the user straight back. The default-locale link
+    // (`href="/"`) is the canonical example: from /it/, the cookie is still
+    // 'it' until we overwrite it here, otherwise the server would redirect the
+    // English click back to /it/.
+    document.addEventListener('click', (e) => {
+      const link = (e.target as Element | null)?.closest<HTMLAnchorElement>('.lang-switch__opt');
+      if (!link) return;
+      const locale = link.dataset.locale;
+      if (!locale) return;
+      // 1 year, lax. The server-side middleware sets this with the same shape;
+      // we just front-run it so the very next request already reflects the click.
+      const maxAge = 60 * 60 * 24 * 365;
+      document.cookie = `miciodev-locale=${locale}; path=/; max-age=${maxAge}; samesite=lax`;
+    });
+
     document.addEventListener('keydown', (e) => {
       const target = e.target as HTMLElement | null;
       if (!target || target.getAttribute('role') !== 'radio') return;
