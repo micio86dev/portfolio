@@ -1,0 +1,466 @@
+---
+/**
+ * Sticky top navigation — Astro replacement for the former Vue island.
+ *
+ * Was a `client:idle` Vue component; rendering it server-side and wiring up
+ * the four small interactivity bits (sticky-state class, scroll-spy active
+ * link, mobile menu open/close, hashchange handler) in ~50 lines of inline
+ * vanilla TS removed the entire Vue runtime from the home critical chain.
+ *
+ * The HTML is mostly the same as the Vue template; styling, a11y, and
+ * keyboard behaviour are preserved 1:1.
+ */
+import LangSwitch from './LangSwitch.astro';
+import ThemeToggle from './ThemeToggle.astro';
+import type { Locale } from '../../i18n/utils';
+
+interface NavLink {
+  href: string;
+  num: string;
+  label: string;
+  /** SSR-initial paint hint; client-side scroll-spy takes over once mounted. */
+  active?: boolean;
+}
+
+interface LogoAsset {
+  src: string;
+  width: number;
+  height: number;
+}
+
+interface Props {
+  lang: Locale;
+  basePath?: string;
+  links: NavLink[];
+  homeHref: string;
+  hireHref: string;
+  logo: LogoAsset;
+  messages: {
+    home: string;
+    hireMe: string;
+    mainNav: string;
+    statusAvailable: string;
+    statusLocation: string;
+    openMenu: string;
+    closeMenu: string;
+    toLight: string;
+    toDark: string;
+    language: string;
+  };
+}
+
+const { lang, basePath = '/', links, homeHref, hireHref, logo, messages } = Astro.props;
+
+function targetIdFromHref(href: string): string {
+  const hash = href.indexOf('#');
+  return hash === -1 ? '' : href.slice(hash + 1);
+}
+
+const navItems = links.map((l) => ({ ...l, targetId: targetIdFromHref(l.href) }));
+const initialActiveId =
+  navItems.find((l) => l.active)?.targetId ?? navItems.find((l) => l.targetId)?.targetId ?? '';
+---
+
+<div class="nav-root" data-nav-root data-active={initialActiveId}>
+  <!-- Status strip -->
+  <div class="nav-status">
+    <span><span class="nav-status__dot" aria-hidden="true"></span>{messages.statusAvailable}</span>
+    <span>{messages.statusLocation}</span>
+  </div>
+
+  <nav class="nav-bar" aria-label={messages.mainNav}>
+    <!-- Wordmark -->
+    <a href={homeHref} aria-label={messages.home} class="nav-mark">
+      <img class="nav-mark__img" src={logo.src} width={logo.width} height={logo.height} alt="" loading="eager" decoding="async" fetchpriority="high" />
+      <span class="nav-wordmark">Micio<span class="nav-wordmark__dev">Dev</span></span>
+    </a>
+
+    <!-- Desktop links -->
+    <ul class="nav-links">
+      {navItems.map((l) => (
+        <li>
+          <a
+            href={l.href}
+            class:list={['nav-link', { 'is-active': l.targetId === initialActiveId }]}
+            data-nav-link
+            data-target-id={l.targetId}
+            aria-current={l.targetId === initialActiveId ? 'page' : undefined}
+          >
+            <span class="nav-link__num">{l.num}</span>
+            <span>{l.label}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <!-- Desktop controls -->
+    <div class="nav-controls">
+      <LangSwitch current={lang} basePath={basePath} label={messages.language} />
+      <span class="nav-divider" aria-hidden="true"></span>
+      <ThemeToggle labelToLight={messages.toLight} labelToDark={messages.toDark} />
+      <a href={hireHref} class="md-btn nav-cta">{messages.hireMe} <span class="arrow">→</span></a>
+    </div>
+
+    <!-- Mobile hamburger -->
+    <button
+      type="button"
+      class="nav-burger"
+      data-nav-burger
+      data-label-open={messages.openMenu}
+      data-label-close={messages.closeMenu}
+      aria-label={messages.openMenu}
+      aria-expanded="false"
+      aria-controls="nav-drawer"
+    >
+      <svg class="nav-burger__icon nav-burger__icon--open" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <g class="nav-burger__lines">
+          <line x1="0" y1="6" x2="16" y2="6" stroke="currentColor" stroke-width="1.5" />
+          <line x1="5" y1="10" x2="16" y2="10" stroke="currentColor" stroke-width="1.5" />
+        </g>
+      </svg>
+      <svg class="nav-burger__icon nav-burger__icon--close" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="display:none">
+        <path d="M3 3l10 10M13 3 3 13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+      </svg>
+    </button>
+  </nav>
+
+  <!-- Mobile drawer -->
+  <div class="nav-drawer" data-nav-drawer id="nav-drawer" hidden>
+    <hr class="md-hr" />
+    <ul class="nav-drawer__links">
+      {navItems.map((l) => (
+        <li>
+          <a
+            href={l.href}
+            data-nav-link
+            data-target-id={l.targetId}
+            data-nav-drawer-link
+            aria-current={l.targetId === initialActiveId ? 'page' : undefined}
+            class:list={['nav-drawer__link', { 'is-active': l.targetId === initialActiveId }]}
+          >
+            <span>
+              <span class="nav-drawer__num">{l.num}</span>
+              {l.label}
+            </span>
+            <span class="nav-drawer__arrow" aria-hidden="true">↗</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+    <div class="nav-drawer__controls">
+      <LangSwitch current={lang} basePath={basePath} label={messages.language} size="sm" />
+      <ThemeToggle labelToLight={messages.toLight} labelToDark={messages.toDark} />
+    </div>
+    <a href={hireHref} class="md-btn nav-drawer__cta">{messages.hireMe} <span class="arrow">→</span></a>
+  </div>
+</div>
+
+<script>
+  // Self-contained nav interactivity — ~50 lines of vanilla TS replacing the
+  // ~80 lines of Vue reactive code, with the same UX. Idempotent: safe across
+  // SPA-like navigations (`once: true` listeners + a guard flag).
+  const rootMaybe = document.querySelector<HTMLElement>('[data-nav-root]');
+  if (rootMaybe) {
+    const root = rootMaybe;
+    // ── Sticky-state (past 50px scroll, add backdrop blur + shadow) ──
+    let rafId = 0;
+    const readScroll = () => {
+      rafId = 0;
+      root.classList.toggle('is-scrolled', window.scrollY > 50);
+    };
+    const onScroll = () => {
+      if (rafId === 0) rafId = requestAnimationFrame(readScroll);
+    };
+    addEventListener('scroll', onScroll, { passive: true });
+    readScroll();
+
+    // ── Mobile drawer ─────────────────────────────────────────────────
+    const burger = root.querySelector<HTMLButtonElement>('[data-nav-burger]');
+    const drawer = root.querySelector<HTMLElement>('[data-nav-drawer]');
+    const iconOpen = root.querySelector<SVGElement>('.nav-burger__icon--open');
+    const iconClose = root.querySelector<SVGElement>('.nav-burger__icon--close');
+    function setDrawer(open: boolean) {
+      if (!burger || !drawer || !iconOpen || !iconClose) return;
+      drawer.hidden = !open;
+      burger.setAttribute('aria-expanded', String(open));
+      burger.setAttribute(
+        'aria-label',
+        (open ? burger.dataset.labelClose : burger.dataset.labelOpen) ?? '',
+      );
+      iconOpen.style.display = open ? 'none' : '';
+      iconClose.style.display = open ? '' : 'none';
+    }
+    burger?.addEventListener('click', () => setDrawer(burger.getAttribute('aria-expanded') !== 'true'));
+    addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && burger?.getAttribute('aria-expanded') === 'true') setDrawer(false);
+    });
+    // Drawer link clicks close the drawer (CSS smooth-scroll handles the jump).
+    root
+      .querySelectorAll<HTMLAnchorElement>('[data-nav-drawer-link]')
+      .forEach((a) => a.addEventListener('click', () => setDrawer(false)));
+
+    // ── Active section tracking (scroll-spy + initial hash) ───────────
+    const sectionIds = Array.from(root.querySelectorAll<HTMLElement>('[data-nav-link]'))
+      .map((a) => a.dataset.targetId ?? '')
+      .filter((id, i, arr) => id && arr.indexOf(id) === i);
+
+    function setActive(id: string) {
+      if (!id) return;
+      root.dataset.active = id;
+      root.querySelectorAll<HTMLElement>('[data-nav-link]').forEach((link) => {
+        const match = link.dataset.targetId === id;
+        link.classList.toggle('is-active', match);
+        if (match) link.setAttribute('aria-current', 'page');
+        else link.removeAttribute('aria-current');
+      });
+    }
+
+    function readHash() {
+      const hash = location.hash.replace(/^#/, '');
+      if (hash && sectionIds.includes(hash)) setActive(hash);
+      else if (!root.dataset.active && sectionIds.length) setActive(sectionIds[0]);
+    }
+    readHash();
+    addEventListener('hashchange', readHash);
+
+    if ('IntersectionObserver' in window && sectionIds.length) {
+      const inBand = new Set<string>();
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) inBand.add(entry.target.id);
+            else inBand.delete(entry.target.id);
+          }
+          // Pick the last section (document order) in the band — i.e. the one
+          // we've most recently scrolled into.
+          let best: string | null = null;
+          for (const id of sectionIds) {
+            if (inBand.has(id)) best = id;
+          }
+          if (best) setActive(best);
+        },
+        { rootMargin: '-25% 0px -70% 0px', threshold: 0 },
+      );
+      for (const id of sectionIds) {
+        const el = document.getElementById(id);
+        if (el) io.observe(el);
+      }
+    }
+  }
+</script>
+
+<style>
+  .nav-root {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: color-mix(in oklab, var(--bg) 88%, transparent);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid transparent;
+    transition:
+      border-color var(--dur-2) var(--ease),
+      background var(--dur-2) var(--ease),
+      box-shadow var(--dur-2) var(--ease),
+      backdrop-filter var(--dur-2) var(--ease);
+  }
+  .nav-root.is-scrolled {
+    border-bottom-color: var(--line);
+    background: color-mix(in oklab, var(--bg) 85%, transparent);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    box-shadow: var(--shadow-1);
+  }
+
+  .nav-status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 22px;
+    border-bottom: 1px solid var(--line);
+    background: var(--surface-2);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-3);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .nav-status__dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--brand);
+    margin-right: 8px;
+    vertical-align: 1px;
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--brand) 25%, transparent);
+  }
+
+  .nav-bar {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 24px;
+    padding: 16px 22px;
+  }
+  @media (min-width: 960px) {
+    .nav-bar { padding: 18px 32px; }
+  }
+
+  .nav-mark {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--text);
+  }
+  .nav-mark__img {
+    width: 30px;
+    height: 30px;
+    border-radius: var(--r-2);
+    object-fit: cover;
+    flex: none;
+  }
+  .nav-wordmark {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: -0.01em;
+  }
+  .nav-wordmark__dev {
+    font-style: normal;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.04em;
+  }
+
+  .nav-links {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .nav-link {
+    position: relative;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 8px 4px;
+    color: var(--text-2);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .nav-link.is-active { color: var(--text); }
+  .nav-link.is-active::after {
+    content: '';
+    position: absolute;
+    left: 4px;
+    right: 4px;
+    bottom: 2px;
+    height: 1px;
+    background: var(--brand);
+  }
+  .nav-link__num {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-3);
+    letter-spacing: 0.12em;
+  }
+
+  .nav-controls {
+    display: none;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+  .nav-divider {
+    width: 1px;
+    height: 20px;
+    background: var(--line);
+  }
+  .nav-cta { height: 36px; padding: 0 16px; }
+
+  .nav-burger {
+    justify-self: end;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--r-2);
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nav-drawer {
+    padding: 4px 22px 22px;
+    display: grid;
+    gap: 4px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg);
+  }
+  .nav-drawer[hidden] { display: none; }
+  .nav-drawer__links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+  }
+  .nav-drawer__link {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 28px;
+    line-height: 1;
+    color: var(--text-2);
+    text-decoration: none;
+  }
+  .nav-drawer__link.is-active { color: var(--text); }
+  .nav-drawer__link > span:first-child {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  .nav-drawer__num {
+    font-family: var(--font-mono);
+    font-style: normal;
+    font-size: 11px;
+    color: var(--text-3);
+    letter-spacing: 0.12em;
+  }
+  .nav-drawer__arrow {
+    font-family: var(--font-mono);
+    font-style: normal;
+    font-size: 12px;
+    color: var(--text-3);
+  }
+  .nav-drawer__link.is-active .nav-drawer__arrow { color: var(--brand); }
+  .nav-drawer__controls {
+    margin-top: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .nav-drawer__cta {
+    margin-top: 14px;
+    justify-content: center;
+  }
+
+  @media (min-width: 960px) {
+    .nav-links { display: flex; }
+    .nav-controls { display: flex; }
+    .nav-burger { display: none; }
+    .nav-drawer { display: none !important; }
+  }
+</style>

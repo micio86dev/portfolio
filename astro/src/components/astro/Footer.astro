@@ -4,7 +4,7 @@ import { useTranslations, useTranslatedPath, stripLocale, type Locale } from '..
 import { CONTACT_EMAIL } from '../../lib/site';
 import { getSocials } from '../../lib/pocketbase';
 import type { SocialIcon } from '../../lib/seed-data';
-import LangSwitch from '../vue/LangSwitch.vue';
+import LangSwitch from './LangSwitch.astro';
 import logoSrc from '../../assets/logo-miciodev.jpg';
 
 interface Props {
@@ -132,7 +132,7 @@ const ICONS: Record<SocialIcon, string> = {
           ))}
         </div>
         <div class="ft__lang">
-          <LangSwitch client:visible current={lang} basePath={basePath} variant="dark" size="sm" label={t('a11y.language')} />
+          <LangSwitch current={lang} basePath={basePath} variant="dark" size="sm" label={t('a11y.language')} />
         </div>
       </div>
     </div>

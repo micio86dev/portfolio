@@ -1,0 +1,116 @@
+---
+/**
+ * Theme toggle — Astro replacement for the former Vue island.
+ *
+ * Was a `client:idle` Vue component, which pulled the Vue runtime (~32 KiB
+ * gzip) into the home critical chain just for two buttons of state. The
+ * rewrite renders the markup server-side and ships a single inline TS
+ * `<script>` that wires up the click + syncs the icon. Keeps the same
+ * a11y/UX contract (aria-label, aria-pressed, follows the in-page light/dark
+ * bootstrap that already set `data-theme` on `<html>` pre-paint).
+ */
+interface Props {
+  /** label shown when currently dark — action: switch to light */
+  labelToLight?: string;
+  /** label shown when currently light — action: switch to dark */
+  labelToDark?: string;
+  /** visual size in px (square) */
+  size?: number;
+}
+const { labelToLight = 'Switch to light mode', labelToDark = 'Switch to dark mode', size = 32 } = Astro.props;
+---
+
+<button
+  type="button"
+  class="theme-toggle"
+  data-theme-toggle
+  data-label-to-light={labelToLight}
+  data-label-to-dark={labelToDark}
+  aria-label={labelToDark}
+  aria-pressed="false"
+  style={`width:${size}px;height:${size}px;`}
+>
+  <!-- Sun icon (light mode active). Swapped to the moon path by the script
+       below when data-theme="dark". Both paths sit in the same SVG so the
+       toggle never has to instantiate a second element. -->
+  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <g data-theme-icon="light">
+      <circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.4" />
+      {[0, 45, 90, 135, 180, 225, 270, 315].map((a) => (
+        <line
+          x1={(8 + Math.cos((a * Math.PI) / 180) * 5.4).toFixed(3)}
+          y1={(8 + Math.sin((a * Math.PI) / 180) * 5.4).toFixed(3)}
+          x2={(8 + Math.cos((a * Math.PI) / 180) * 7).toFixed(3)}
+          y2={(8 + Math.sin((a * Math.PI) / 180) * 7).toFixed(3)}
+          stroke="currentColor"
+          stroke-width="1.4"
+          stroke-linecap="round"
+        />
+      ))}
+    </g>
+    <g data-theme-icon="dark" style="display:none">
+      <path d="M13.5 9.5A5 5 0 1 1 6.5 2.5a5.5 5.5 0 0 0 7 7Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
+    </g>
+  </svg>
+</button>
+
+<script>
+  // Single script wires up every `[data-theme-toggle]` on the page. The
+  // blocking bootstrap in BaseLayout already set `data-theme` on <html> from
+  // localStorage (with OS fallback) BEFORE first paint — we just sync the
+  // toggle visuals to that decision and persist clicks back.
+  const STORAGE_KEY = 'miciodev-theme';
+  const root = document.documentElement;
+
+  function syncToggle(btn: HTMLButtonElement) {
+    const dark = root.dataset.theme === 'dark';
+    btn.setAttribute('aria-pressed', String(dark));
+    btn.setAttribute('aria-label', dark ? btn.dataset.labelToLight! : btn.dataset.labelToDark!);
+    const lightIcon = btn.querySelector<SVGGElement>('[data-theme-icon="light"]')!;
+    const darkIcon = btn.querySelector<SVGGElement>('[data-theme-icon="dark"]')!;
+    lightIcon.style.display = dark ? 'none' : '';
+    darkIcon.style.display = dark ? '' : 'none';
+  }
+
+  function apply(next: 'light' | 'dark') {
+    root.dataset.theme = next;
+    try {
+      localStorage.setItem(STORAGE_KEY, next);
+    } catch {
+      /* private mode etc — toggle still works for the session */
+    }
+    document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]').forEach(syncToggle);
+  }
+
+  // Follow the OS only when the user hasn't made a manual choice.
+  const mql = window.matchMedia('(prefers-color-scheme: dark)');
+  mql.addEventListener('change', (e) => {
+    let saved: string | null = null;
+    try {
+      saved = localStorage.getItem(STORAGE_KEY);
+    } catch {
+      /* ignore */
+    }
+    if (!saved) apply(e.matches ? 'dark' : 'light');
+  });
+
+  document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]').forEach((btn) => {
+    syncToggle(btn);
+    btn.addEventListener('click', () => apply(root.dataset.theme === 'dark' ? 'light' : 'dark'));
+  });
+</script>
+
+<style>
+  .theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    transition: border-color var(--dur-1) var(--ease), background var(--dur-1) var(--ease);
+  }
+  .theme-toggle:hover { border-color: var(--text); }
+</style>
