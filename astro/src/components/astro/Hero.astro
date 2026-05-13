@@ -104,7 +104,15 @@ const customers = await getCustomers(lang);
             <span class="hero__logo-dot" aria-hidden="true"></span>
             <a class="hero__logo-link" href={path(`/customers/${c.slug}`)}>
               {c.logoUrl ? (
-                <img class="hero__logo-img" src={pbThumb(c.logoUrl, '0x64')} alt={c.name} loading="lazy" decoding="async" />
+                <img
+                  class="hero__logo-img"
+                  src={pbThumb(c.logoUrl, '64x64f')}
+                  alt={c.name}
+                  width="32"
+                  height="32"
+                  loading="lazy"
+                  decoding="async"
+                />
               ) : (
                 <span>{c.name}</span>
               )}

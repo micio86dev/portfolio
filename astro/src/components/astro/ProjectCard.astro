@@ -24,7 +24,17 @@ const isFeatured = variant === 'featured';
           <span class="pcard__urlbar"></span>
         </div>
         {p.coverUrl ? (
-          <img class="pcard__shot" src={pbThumb(p.coverUrl, '1024x640t')} alt="" width="1024" height="640" loading="lazy" decoding="async" />
+          <img
+            class="pcard__shot"
+            src={pbThumb(p.coverUrl, '1024x640t')}
+            srcset={`${pbThumb(p.coverUrl, '720x450t')} 720w, ${pbThumb(p.coverUrl, '1024x640t')} 1024w, ${pbThumb(p.coverUrl, '1280x800t')} 1280w`}
+            sizes="(min-width: 960px) 56vw, 92vw"
+            alt=""
+            width="1024"
+            height="640"
+            loading="lazy"
+            decoding="async"
+          />
         ) : (
           <div class="pcard__stripes">
             <span class="pcard__mockup-label">{mockupLabel}</span>
