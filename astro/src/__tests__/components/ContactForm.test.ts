@@ -104,6 +104,37 @@ describe('ContactForm.vue — markup & a11y', () => {
   });
 });
 
+describe('ContactForm.vue — touched-on-blur gating', () => {
+  // The form only renders an error once a field has been `touched` (either
+  // blurred or via the first submit). Each input wires `@blur` to flip its
+  // touched flag — those handlers are otherwise unreached by the suite, hence
+  // this dedicated case.
+  it('hides errors until each field is blurred, then surfaces them per-field', async () => {
+    const w = mountForm();
+    // Empty form, never touched → no errors visible.
+    expect(w.get('#cf-name-err').text()).toBe('');
+    expect(w.get('#cf-email-err').text()).toBe('');
+    expect(w.get('#cf-subject-err').text()).toBe('');
+    expect(w.get('#cf-message-err').text()).toBe('');
+
+    // Blur the name input → only the name error shows.
+    await w.get('#cf-name').trigger('blur');
+    expect(w.get('#cf-name-err').text()).toBe(messages.errors.name);
+    expect(w.get('#cf-email-err').text()).toBe('');
+
+    // Email: invalid value, then blur → email error appears.
+    await w.get('#cf-email').setValue('not-an-email');
+    await w.get('#cf-email').trigger('blur');
+    expect(w.get('#cf-email-err').text()).toBe(messages.errors.email);
+
+    // Subject + message blur — both surface their respective errors.
+    await w.get('#cf-subject').trigger('blur');
+    await w.get('#cf-message').trigger('blur');
+    expect(w.get('#cf-subject-err').text()).toBe(messages.errors.subject);
+    expect(w.get('#cf-message-err').text()).toBe(messages.errors.messageShort);
+  });
+});
+
 describe('ContactForm.vue — validation', () => {
   it('blocks submission of an empty form and surfaces field errors', async () => {
     const fetchMock = vi.fn();
