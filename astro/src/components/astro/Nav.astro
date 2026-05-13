@@ -163,6 +163,12 @@ const initialActiveId =
   if (rootMaybe) {
     const root = rootMaybe;
     // ── Sticky-state (past 50px scroll, add backdrop blur + shadow) ──
+    // The initial read MUST be inside a rAF — calling `window.scrollY`
+    // synchronously here, right after the sibling inline scripts have
+    // mutated DOM (CookieBar's `hidden=false`, ThemeToggle's icon swap),
+    // forces a layout pass for ~100ms (PageSpeed "Adattamento dinamico
+    // forzato"). Deferring to the next frame lets the browser flush the
+    // pending styles cleanly.
     let rafId = 0;
     const readScroll = () => {
       rafId = 0;
@@ -172,7 +178,7 @@ const initialActiveId =
       if (rafId === 0) rafId = requestAnimationFrame(readScroll);
     };
     addEventListener('scroll', onScroll, { passive: true });
-    readScroll();
+    rafId = requestAnimationFrame(readScroll);
 
     // ── Mobile drawer ─────────────────────────────────────────────────
     const burger = root.querySelector<HTMLButtonElement>('[data-nav-burger]');

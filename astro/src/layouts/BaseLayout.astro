@@ -146,14 +146,13 @@ const csp = [
     <meta name="description" content={description} />
     {(noindex || isStaging) && <meta name="robots" content="noindex, nofollow" />}
 
-    <!-- Preconnect to PocketBase — every <img> on the homepage (hero trust strip
-         logos, project crests, project screenshots) loads from PB. Starting the
-         TLS handshake before the document parser walks the body shaves ~150ms
-         off each first PB request. NB: NO `crossorigin` attribute — `<img>`
-         requests are non-credentialled by default, and a crossorigin preconnect
-         opens a *separate* credentialled connection that the image fetch never
-         reuses (PageSpeed: "Precollegamento non utilizzato" / 300ms LCP miss). -->
-    {PB_ORIGIN && <link rel="preconnect" href={PB_ORIGIN} />}
+    <!-- DNS-prefetch (NOT preconnect) for PocketBase. Every PB <img> on the
+         home is `loading="lazy"`, so by the time the browser actually fires
+         the request the preconnect's idle TCP connection would have been
+         recycled — PageSpeed audit flagged that as "Precollegamento non
+         utilizzato". `dns-prefetch` is cheap (just resolves the IP), doesn't
+         hold a socket open, and still saves the DNS round-trip whenever the
+         lazy image eventually fires. -->
     {PB_ORIGIN && <link rel="dns-prefetch" href={PB_ORIGIN} />}
 
     <!-- Critical fonts — start downloading ASAP, before canonical/OG resolve.
