@@ -401,14 +401,24 @@ textarea.md-input { height: auto; min-height: 140px; padding: 14px; line-height:
 }
 
 /* Path A — CSS-driven reveals on supporting browsers (PageSpeed runs
-   recent Chrome, so this is the active path on the audit). */
+   recent Chrome, so this is the active path on the audit).
+
+   `animation-range` runs the keyframes from the moment the element's top
+   edge appears at the viewport bottom (`entry 0%`) until the element is
+   fully inside the viewport (`cover 0%`, the first instant the element
+   has finished entering). This means: by the time any pixel of the
+   element is anywhere except the bottom slice of the viewport, the
+   animation has hit its end state (opacity 1, no translate). axe-core
+   was flagging contrast violations on partially-faded text otherwise —
+   it samples the rendered pixel after compositing with the parent's
+   reduced opacity. */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
     [data-reveal] {
       transition: none;
       animation: data-reveal linear both;
       animation-timeline: view();
-      animation-range: entry 0% cover 25%;
+      animation-range: entry 0% cover 0%;
     }
     @keyframes data-reveal {
       from { opacity: 0; transform: translateY(24px); }
