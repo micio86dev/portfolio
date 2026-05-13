@@ -156,9 +156,18 @@ const csp = [
     {PB_ORIGIN && <link rel="dns-prefetch" href={PB_ORIGIN} />}
 
     <!-- Critical fonts — start downloading ASAP, before canonical/OG resolve.
-         Place the woff2 files in /public/fonts/ (see README "Fonts"). -->
+         Place the woff2 files in /public/fonts/ (see README "Fonts"). All
+         five preloaded variants are used above the fold on the home page:
+         the italic display face renders the hero headline; geist-regular
+         carries the sub-head + body; geist-medium + geist-mono variants
+         drive the nav, eyebrows, meta labels and headline numerals. Without
+         these preloads the fonts only kick off after CSS parses, which was
+         the dominant chain step in the PageSpeed audit. -->
     <link rel="preload" href="/fonts/instrument-serif-italic.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/geist-regular.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/geist-medium.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/geist-mono-regular.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/geist-mono-medium.woff2" as="font" type="font/woff2" crossorigin />
 
     <link rel="canonical" href={canonicalUrl.toString()} />
     <link rel="sitemap" href="/sitemap.xml" />
@@ -227,5 +236,13 @@ const csp = [
     <Footer lang={lang} />
 
     <CookieBar messages={cookieMessages} privacyHref={cookiePrivacyHref} />
+
+    <!-- Scroll-reveal — single, shared chunk for the whole app. Was split
+         across SectionsHome.astro + ProjectsPage.astro, which created a
+         pointless 2-step chunk chain on the home page (Vite extracted the
+         common module into one chunk and made the other import it). -->
+    <script>
+      import '../scripts/scroll-reveal.ts';
+    </script>
   </body>
 </html>

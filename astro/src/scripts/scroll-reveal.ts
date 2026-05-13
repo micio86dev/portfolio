@@ -90,10 +90,18 @@ function reveal(): void {
 
 export function initScrollReveal(): void {
   if (typeof document === 'undefined') return;
+  // Defer the IO setup off the first-paint frame: registering many observed
+  // targets in one go forces Chrome to compute intersections for all of them
+  // immediately, which PageSpeed counted as an ~80ms unattributed forced
+  // reflow on the home page (many `[data-reveal]` elements live inside
+  // `content-visibility: auto` sections, which are expensive to measure).
+  // A double-rAF runs us safely after the browser has finished its initial
+  // style/layout/paint pass.
+  const run = () => requestAnimationFrame(() => requestAnimationFrame(reveal));
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', reveal, { once: true });
+    document.addEventListener('DOMContentLoaded', run, { once: true });
   } else {
-    reveal();
+    run();
   }
 }
 

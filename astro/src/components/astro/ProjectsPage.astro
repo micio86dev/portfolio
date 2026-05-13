@@ -111,11 +111,3 @@ const [first, ...rest] = projects;
   }
 </style>
 
-<script>
-  // Scroll-reveal for the projects archive. Self-initialising and idempotent.
-  // The home page pulls in the same module through SectionsHome.astro — used to
-  // also ship from ProjectCard.astro, which put it in the home critical chain
-  // for no reason (PageSpeed flagged it). Keeping the import on the archive
-  // page covers the one path that doesn't include SectionsHome.
-  import '../../scripts/scroll-reveal.ts';
-</script>
