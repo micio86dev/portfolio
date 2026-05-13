@@ -1082,7 +1082,7 @@ migrate(
         "key": "notFound.backHome",
         "group": "notFound",
         "en": "Take me home",
-        "it": "Riportami a casa",
+        "it": "Torna alla home",
         "es": "Llévame a casa"
       },
       {
