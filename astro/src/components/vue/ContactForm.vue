@@ -317,7 +317,10 @@ async function onSubmit() {
         :disabled="status === 'submitting'"
       >
         {{ status === 'submitting' ? messages.sending : status === 'success' ? messages.success : messages.submit }}
-        <span class="arrow">→</span>
+        <span
+          class="arrow"
+          aria-hidden="true"
+        >→</span>
       </button>
     </div>
   </form>

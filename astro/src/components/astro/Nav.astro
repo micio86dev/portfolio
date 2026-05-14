@@ -99,7 +99,7 @@ const initialActiveId =
       <LangSwitch current={lang} basePath={basePath} label={messages.language} />
       <span class="nav-divider" aria-hidden="true"></span>
       <ThemeToggle labelToLight={messages.toLight} labelToDark={messages.toDark} />
-      <a href={hireHref} class="md-btn nav-cta">{messages.hireMe} <span class="arrow">→</span></a>
+      <a href={hireHref} class="md-btn nav-cta">{messages.hireMe} <span class="arrow" aria-hidden="true">→</span></a>
     </div>
 
     <!-- Mobile hamburger -->
@@ -152,7 +152,7 @@ const initialActiveId =
       <LangSwitch current={lang} basePath={basePath} label={messages.language} size="sm" />
       <ThemeToggle labelToLight={messages.toLight} labelToDark={messages.toDark} />
     </div>
-    <a href={hireHref} class="md-btn nav-drawer__cta">{messages.hireMe} <span class="arrow">→</span></a>
+    <a href={hireHref} class="md-btn nav-drawer__cta">{messages.hireMe} <span class="arrow" aria-hidden="true">→</span></a>
   </div>
 </header>
 
