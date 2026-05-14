@@ -83,7 +83,7 @@ const ICONS: Record<SocialIcon, string> = {
             {email.split('@')[0]}@<span class="ft__email-accent">{email.split('@')[1].split('.')[0]}</span>.{email.split('.').slice(1).join('.')}
           </>
         ) : email}
-        <span class="ft__email-arrow">↗</span>
+        <span class="ft__email-arrow" aria-hidden="true">↗</span>
       </a>
     </div>
 
@@ -100,18 +100,18 @@ const ICONS: Record<SocialIcon, string> = {
       <div class="ft__col">
         <span class="ft__col-title">{t('footer.colSite.title')}</span>
         <ul>
-          {siteLinks.map((l) => <li><a href={l.href}><span class="ft__col-mark">↳</span>{l.label}</a></li>)}
+          {siteLinks.map((l) => <li><a href={l.href}><span class="ft__col-mark" aria-hidden="true">↳</span>{l.label}</a></li>)}
         </ul>
       </div>
 
       <div class="ft__col">
         <span class="ft__col-title">{t('footer.colMore.title')}</span>
         <ul>
-          {moreLinks.map((l) => <li><a href={l.href}><span class="ft__col-mark">↳</span>{l.label}</a></li>)}
+          {moreLinks.map((l) => <li><a href={l.href}><span class="ft__col-mark" aria-hidden="true">↳</span>{l.label}</a></li>)}
           <li>
             {/* Re-opens the cookie notice (CookieBar island wires up the click on
                 #cookie-settings after mount). With JS off it just goes to /privacy. */}
-            <a id="cookie-settings" href={path('/privacy')}><span class="ft__col-mark">↳</span>{t('cookies.settingsLink')}</a>
+            <a id="cookie-settings" href={path('/privacy')}><span class="ft__col-mark" aria-hidden="true">↳</span>{t('cookies.settingsLink')}</a>
           </li>
         </ul>
       </div>
