@@ -106,28 +106,64 @@ const statusLocation = `${t('status.location')} · ${getCanaryUtcOffset()}`;
         <span class="hero__trust-count">{t('hero.trustedBy.count')}</span>
       </div>
       <hr class="md-hr" />
-      <ul class="hero__logos">
-        {customers.map((c) => (
-          <li class="hero__logo">
-            <span class="hero__logo-dot" aria-hidden="true"></span>
-            <a class="hero__logo-link" href={path(`/customers/${c.slug}`)}>
-              {c.logoUrl ? (
-                <img
-                  class="hero__logo-img"
-                  src={pbThumb(c.logoUrl, '64x64f')}
-                  alt={c.name}
-                  width="32"
-                  height="32"
-                  loading="lazy"
-                  decoding="async"
-                />
-              ) : (
-                <span>{c.name}</span>
-              )}
-            </a>
-          </li>
-        ))}
-      </ul>
+      <!-- Marquee strip — duplicated track for a seamless CSS loop. Pauses on
+           hover/focus so the cards are actually clickable. On mobile and when
+           the user prefers reduced motion, the loop is disabled and the strip
+           becomes a swipeable overflow scroller (the clone is hidden). -->
+      <div class="hero__marquee" aria-label={t('hero.trustedBy.label')}>
+        <div class="hero__marquee-track">
+          <ul class="hero__logos">
+            {customers.map((c) => (
+              <li class="hero__logo-card">
+                <a class="hero__logo-link" href={path(`/customers/${c.slug}`)} aria-label={c.name}>
+                  <span class="hero__logo-imgwrap">
+                    {c.logoUrl ? (
+                      <img
+                        class="hero__logo-img"
+                        src={pbThumb(c.logoUrl, '128x128f')}
+                        alt=""
+                        width="128"
+                        height="128"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    ) : (
+                      <span class="hero__logo-fallback" aria-hidden="true">{c.name.charAt(0)}</span>
+                    )}
+                  </span>
+                  <span class="hero__logo-name">{c.name}</span>
+                  <span class="hero__logo-arrow" aria-hidden="true">↗</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+          <ul class="hero__logos hero__logos--clone" aria-hidden="true">
+            {customers.map((c) => (
+              <li class="hero__logo-card">
+                <a class="hero__logo-link" href={path(`/customers/${c.slug}`)} tabindex="-1">
+                  <span class="hero__logo-imgwrap">
+                    {c.logoUrl ? (
+                      <img
+                        class="hero__logo-img"
+                        src={pbThumb(c.logoUrl, '128x128f')}
+                        alt=""
+                        width="128"
+                        height="128"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    ) : (
+                      <span class="hero__logo-fallback">{c.name.charAt(0)}</span>
+                    )}
+                  </span>
+                  <span class="hero__logo-name">{c.name}</span>
+                  <span class="hero__logo-arrow">↗</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -411,58 +447,156 @@ const statusLocation = `${t('status.location')} · ${getCanaryUtcOffset()}`;
     letter-spacing: 0.12em;
     text-transform: uppercase;
   }
+  /* Marquee. Full-bleed (extends past the grid gutter) with edge-fade masks so
+     cards drift in/out of view instead of clipping. The track is a flex row
+     containing the customer list twice; we animate it -50% for a seamless
+     loop. Pause on hover/focus so cards remain clickable. */
+  .hero__marquee {
+    position: relative;
+    overflow: hidden;
+    margin: 4px -22px 0;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
+  }
+  @media (min-width: 960px) {
+    .hero__marquee {
+      margin: 8px -64px 0;
+      -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 8%, #000 92%, transparent 100%);
+      mask-image: linear-gradient(90deg, transparent 0, #000 8%, #000 92%, transparent 100%);
+    }
+  }
+  .hero__marquee-track {
+    display: flex;
+    width: max-content;
+    will-change: transform;
+    animation: hero-marquee 45s linear infinite;
+  }
+  .hero__marquee:hover .hero__marquee-track,
+  .hero__marquee:focus-within .hero__marquee-track { animation-play-state: paused; }
+  @keyframes hero-marquee {
+    from { transform: translate3d(0, 0, 0); }
+    to   { transform: translate3d(-50%, 0, 0); }
+  }
+  /* Touch + reduced-motion: kill the loop, expose a native swipeable strip
+     (and drop the duplicate set so the user doesn't see the same logos
+     twice). The edge-fade mask stays — it works for both modes. */
+  @media (max-width: 767px), (prefers-reduced-motion: reduce) {
+    .hero__marquee {
+      overflow-x: auto;
+      scroll-snap-type: x proximity;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .hero__marquee::-webkit-scrollbar { display: none; }
+    .hero__marquee-track { animation: none; width: max-content; }
+    .hero__logos--clone { display: none; }
+    .hero__logo-card { scroll-snap-align: start; }
+  }
   .hero__logos {
     list-style: none;
     margin: 0;
-    padding: 0;
+    padding: 6px 22px;
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: clamp(20px, 4vw, 56px);
-    row-gap: 18px;
+    align-items: stretch;
+    gap: clamp(10px, 1.5vw, 18px);
   }
-  .hero__logo {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    color: var(--text-3);
-    filter: grayscale(1);
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    white-space: nowrap;
-    transition: filter var(--dur-1) var(--ease);
-  }
-  /* Hover: dot turns brand-green and the logo image renders in full colour
-     (we just drop the grayscale filter on the whole row, which also affects
-     the brand-tinted dot below). */
-  .hero__logo:hover { filter: none; }
-  .hero__logo:hover .hero__logo-dot { background: var(--brand); opacity: 1; }
-  .hero__logo-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 999px;
-    background: currentColor;
-    flex: 0 0 auto;
-    opacity: 0.7;
-    transition: background var(--dur-1) var(--ease), opacity var(--dur-1) var(--ease);
-  }
+  @media (min-width: 960px) { .hero__logos { padding: 8px 32px; } }
+  .hero__logo-card { display: flex; flex: 0 0 auto; }
+  /* The clickable card. Surface + border + subtle lift = unambiguous
+     affordance: this is interactive, not a static badge. */
   .hero__logo-link {
-    display: inline-flex;
+    position: relative;
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    color: inherit;
+    justify-content: center;
+    gap: 12px;
+    width: clamp(132px, 16vw, 168px);
+    height: clamp(124px, 14vw, 148px);
+    padding: 16px 18px;
     text-decoration: none;
-    transition: color var(--dur-1) var(--ease), opacity var(--dur-1) var(--ease);
+    color: var(--text-2);
+    background: color-mix(in oklab, var(--bg) 88%, transparent);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    transition:
+      transform var(--dur-1) var(--ease),
+      border-color var(--dur-1) var(--ease),
+      background var(--dur-1) var(--ease),
+      box-shadow var(--dur-1) var(--ease),
+      color var(--dur-1) var(--ease);
   }
-  .hero__logo-link:hover { color: var(--text); }
+  .hero__logo-link:hover,
+  .hero__logo-link:focus-visible {
+    transform: translateY(-2px);
+    color: var(--text);
+    border-color: color-mix(in oklab, var(--brand) 55%, var(--line));
+    background: var(--bg);
+    box-shadow: 0 10px 28px -18px color-mix(in oklab, var(--brand) 70%, transparent);
+    outline: none;
+  }
+  .hero__logo-imgwrap {
+    width: 56px;
+    height: 56px;
+    display: grid;
+    place-items: center;
+    filter: grayscale(1);
+    opacity: 0.78;
+    transition: filter var(--dur-1) var(--ease), opacity var(--dur-1) var(--ease);
+  }
+  .hero__logo-link:hover .hero__logo-imgwrap,
+  .hero__logo-link:focus-visible .hero__logo-imgwrap {
+    filter: none;
+    opacity: 1;
+  }
   .hero__logo-img {
-    height: 18px;
-    width: 18px;
-    aspect-ratio: 1 / 1;
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
     object-fit: contain;
-    opacity: 0.85;
-    transition: opacity var(--dur-1) var(--ease);
   }
-  .hero__logo:hover .hero__logo-img { opacity: 1; }
+  .hero__logo-fallback {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    background: color-mix(in oklab, var(--brand) 14%, transparent);
+    color: var(--brand);
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 30px;
+    line-height: 1;
+  }
+  .hero__logo-name {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+  /* Affordance: a small arrow in the top-right corner of each card hints
+     "this opens somewhere". Hidden until hover/focus to keep the strip calm
+     on first read, then revealed as the card lifts. */
+  .hero__logo-arrow {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--brand);
+    opacity: 0;
+    transform: translate(-2px, 2px);
+    transition: opacity var(--dur-1) var(--ease), transform var(--dur-1) var(--ease);
+  }
+  .hero__logo-link:hover .hero__logo-arrow,
+  .hero__logo-link:focus-visible .hero__logo-arrow {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
 </style>
