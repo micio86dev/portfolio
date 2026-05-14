@@ -10,8 +10,12 @@ interface Props {
   mockupLabel: string;
   /** href to the case study / project detail */
   href: string;
+  /** Heading level for the project title — h3 when nested under a section h2 (home),
+   *  h2 when the page already has an h1 (archive). Defaults to h3. */
+  titleLevel?: 'h2' | 'h3';
 }
-const { project: p, variant, featuredBadgeLabel, openCaseStudyLabel, mockupLabel, href } = Astro.props;
+const { project: p, variant, featuredBadgeLabel, openCaseStudyLabel, mockupLabel, href, titleLevel = 'h3' } = Astro.props;
+const TitleTag = titleLevel;
 const isFeatured = variant === 'featured';
 ---
 
@@ -72,7 +76,7 @@ const isFeatured = variant === 'featured';
       )}
     </header>
 
-    <h2 class="pcard__title">{p.title}</h2>
+    <TitleTag class="pcard__title">{p.title}</TitleTag>
 
     <p class="pcard__desc">{p.desc}</p>
 

@@ -76,6 +76,10 @@ export const PB_ORIGIN = (() => {
 /** Singleton client. Server-only; `null` when PUBLIC_PB_URL is not set. */
 export const pb: PocketBase | null = PB_URL ? new PocketBase(PB_URL) : null;
 
+/** Hard deadline for every PocketBase fetch — prevents SSR from hanging
+ *  indefinitely when a connection is stale or the network path is broken. */
+const PB_TIMEOUT_MS = 5_000;
+
 function localize<T extends ServiceRecord | ProjectRecord | CourseRecord>(
   record: T,
   locale: Locale,
@@ -158,6 +162,7 @@ export async function loadTranslations(): Promise<void> {
     const rows = await pb.collection('translations').getFullList<TranslationRow>({
       fields: 'key,en,it,es',
       requestKey: null,
+      signal: AbortSignal.timeout(PB_TIMEOUT_MS),
     });
     const map: Record<string, { en?: string; it?: string; es?: string }> = {};
     for (const r of rows) map[r.key] = { en: r.en, it: r.it, es: r.es };
@@ -179,6 +184,7 @@ export async function getServices(locale: Locale): Promise<Localized<ServiceReco
       const items = await pb.collection('services').getFullList<ServiceRecord>({
         sort: '+order',
         requestKey: null,
+        signal: AbortSignal.timeout(PB_TIMEOUT_MS),
       });
       return [...items].sort((a, b) => a.order - b.order).map((r) => localize(r, locale));
     } catch (err) {
@@ -197,6 +203,7 @@ export async function getProjects(locale: Locale): Promise<Localized<ProjectReco
         sort: '+order',
         expand: 'customer',
         requestKey: null,
+        signal: AbortSignal.timeout(PB_TIMEOUT_MS),
       });
       return byRecencyPersonalLast(items).map((r) => enrichProject(localize(r, locale), r));
     } catch (err) {
@@ -217,10 +224,11 @@ export async function getProject(
         .getFirstListItem<ProjectRecord>(pb.filter('slug = {:slug}', { slug }), {
           expand: 'customer',
           requestKey: null,
+          signal: AbortSignal.timeout(PB_TIMEOUT_MS),
         });
       return enrichProject(localize(r, locale), r);
-    } catch {
-      return null;
+    } catch (err) {
+      console.warn('[pocketbase] getProject failed — using seed data:', (err as Error)?.message);
     }
   }
   const seed = PROJECTS_SEED.find((r) => r.slug === slug);
@@ -235,6 +243,7 @@ export async function getCourses(locale: Locale): Promise<Localized<CourseRecord
       const items = await pb.collection('courses').getFullList<CourseRecord>({
         sort: '+order',
         requestKey: null,
+        signal: AbortSignal.timeout(PB_TIMEOUT_MS),
       });
       return [...items].sort((a, b) => a.order - b.order).map((r) => localize(r, locale));
     } catch (err) {
@@ -273,6 +282,7 @@ export async function getVideos(): Promise<VideoItem[]> {
       const items = await pb.collection('videos').getFullList<VideoRecord>({
         sort: '+order',
         requestKey: null,
+        signal: AbortSignal.timeout(PB_TIMEOUT_MS),
       });
       return [...items].sort((a, b) => a.order - b.order).map(toVideoItem);
     } catch (err) {
@@ -290,6 +300,7 @@ export async function getSkills(): Promise<SkillRecord[]> {
       return await pb.collection('skills').getFullList<SkillRecord>({
         sort: '+group,+order',
         requestKey: null,
+        signal: AbortSignal.timeout(PB_TIMEOUT_MS),
       });
     } catch (err) {
       console.warn('[pocketbase] getSkills failed — using seed data:', (err as Error)?.message);
@@ -317,6 +328,7 @@ export async function getCareer(locale: Locale): Promise<CareerItem[]> {
       const items = await pb.collection('career').getFullList<CareerRecord>({
         sort: '+order',
         requestKey: null,
+        signal: AbortSignal.timeout(PB_TIMEOUT_MS),
       });
       return items.map((r) => toCareerItem(r, locale));
     } catch (err) {
@@ -409,6 +421,7 @@ export async function getNews(locale: Locale): Promise<NewsItem[]> {
       const items = await pb.collection('news').getFullList<NewsRecord>({
         sort: '-date,+order',
         requestKey: null,
+        signal: AbortSignal.timeout(PB_TIMEOUT_MS),
       });
       return items.map((r) => toNewsItem(r, locale));
     } catch (err) {
@@ -423,10 +436,10 @@ export async function getNewsPost(slug: string, locale: Locale): Promise<NewsIte
     try {
       const r = await pb
         .collection('news')
-        .getFirstListItem<NewsRecord>(pb.filter('slug = {:slug}', { slug }), { requestKey: null });
+        .getFirstListItem<NewsRecord>(pb.filter('slug = {:slug}', { slug }), { requestKey: null, signal: AbortSignal.timeout(PB_TIMEOUT_MS) });
       return toNewsItem(r, locale);
-    } catch {
-      return null;
+    } catch (err) {
+      console.warn('[pocketbase] getNewsPost failed — using seed data:', (err as Error)?.message);
     }
   }
   const seed = NEWS_SEED.find((r) => r.slug === slug);
@@ -468,21 +481,22 @@ export async function getCustomer(slug: string, locale: Locale): Promise<Custome
     try {
       const r = await pb
         .collection('customers')
-        .getFirstListItem<CustomerRecord>(pb.filter('slug = {:slug}', { slug }), { requestKey: null });
+        .getFirstListItem<CustomerRecord>(pb.filter('slug = {:slug}', { slug }), { requestKey: null, signal: AbortSignal.timeout(PB_TIMEOUT_MS) });
       let projects: CustomerProjectRef[] = [];
       try {
         const ps = await pb.collection('projects').getFullList<ProjectRecord>({
           filter: pb.filter('customer = {:id}', { id: r.id }),
           sort: '+order',
           requestKey: null,
+          signal: AbortSignal.timeout(PB_TIMEOUT_MS),
         });
         projects = byRecencyPersonalLast(ps).map(projectRef);
       } catch {
         /* leave projects empty */
       }
       return { ...toCustomerItem(r, locale), projects };
-    } catch {
-      return null;
+    } catch (err) {
+      console.warn('[pocketbase] getCustomer failed — using seed data:', (err as Error)?.message);
     }
   }
   const seed = CUSTOMERS_SEED.find((r) => r.slug === slug);
@@ -497,6 +511,7 @@ export async function getCustomers(locale: Locale): Promise<CustomerItem[]> {
       const items = await pb.collection('customers').getFullList<CustomerRecord>({
         sort: '+order',
         requestKey: null,
+        signal: AbortSignal.timeout(PB_TIMEOUT_MS),
       });
       return featuredFirst(items.map((i) => ({ ...i, order: i.order ?? 0 }))).map((r) =>
         toCustomerItem(r, locale),
@@ -527,6 +542,7 @@ export async function getPages(locale: Locale): Promise<PageItem[]> {
         sort: '+order',
         filter: 'published = true',
         requestKey: null,
+        signal: AbortSignal.timeout(PB_TIMEOUT_MS),
       });
       return items.map((r) => toPageItem(r, locale));
     } catch (err) {
@@ -545,10 +561,11 @@ export async function getPage(slug: string, locale: Locale): Promise<PageItem | 
         .collection('pages')
         .getFirstListItem<PageRecord>(pb.filter('slug = {:slug} && published = true', { slug }), {
           requestKey: null,
+          signal: AbortSignal.timeout(PB_TIMEOUT_MS),
         });
       return toPageItem(r, locale);
-    } catch {
-      return null;
+    } catch (err) {
+      console.warn('[pocketbase] getPage failed — using seed data:', (err as Error)?.message);
     }
   }
   const seed = PAGES_SEED.find((r) => r.slug === slug && r.published);
@@ -566,6 +583,7 @@ export async function getSocials(): Promise<SocialRecord[]> {
       const items = await pb.collection('socials').getFullList<SocialRecord>({
         sort: '+order,+created',
         requestKey: null,
+        signal: AbortSignal.timeout(PB_TIMEOUT_MS),
       });
       return [...items].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
     } catch (err) {

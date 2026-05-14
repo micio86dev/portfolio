@@ -36,6 +36,7 @@ const [first, ...rest] = projects;
         openCaseStudyLabel={openCaseStudyLabel}
         mockupLabel={mockupLabel}
         href={path(`/projects/${first.slug}`)}
+        titleLevel="h2"
       />
     )}
     {rest.map((p) => (
@@ -46,6 +47,7 @@ const [first, ...rest] = projects;
         openCaseStudyLabel={openCaseStudyLabel}
         mockupLabel={mockupLabel}
         href={path(`/projects/${p.slug}`)}
+        titleLevel="h2"
       />
     ))}
   </div>
