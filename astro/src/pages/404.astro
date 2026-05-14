@@ -40,7 +40,7 @@ const LOGO_PX = 96;
       <p class="nf__body">{t('notFound.body')}</p>
 
       <a href={path('/')} class="md-btn nf__cta">
-        {t('notFound.backHome')} <span class="arrow">→</span>
+        <span class="arrow" aria-hidden="true">←</span> {t('notFound.backHome')}
       </a>
     </div>
   </section>
@@ -134,7 +134,7 @@ const LOGO_PX = 96;
 
   .nf__cta { margin-top: 10px; }
   .nf__cta .arrow { transition: transform 0.18s ease-out; }
-  .nf__cta:hover .arrow { transform: translateX(3px); }
+  .nf__cta:hover .arrow { transform: translateX(-3px); }
 
   @keyframes nf-float {
     0%, 100% { transform: translateY(0) rotate(-2deg); }

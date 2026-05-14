@@ -1081,9 +1081,9 @@ migrate(
       {
         "key": "notFound.backHome",
         "group": "notFound",
-        "en": "Take me home",
-        "it": "Torna alla home",
-        "es": "Llévame a casa"
+        "en": "Back to homepage",
+        "it": "Torna in homepage",
+        "es": "Volver al inicio"
       },
       {
         "key": "notFound.logoAlt",
