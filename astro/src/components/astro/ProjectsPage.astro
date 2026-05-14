@@ -53,7 +53,9 @@ const [first, ...rest] = projects;
   </div>
 
   <footer class="parchive__foot">
-    <a href={path('/')} class="parchive__back">{t('notFound.backHome')}</a>
+    <a href={path('/')} class="parchive__back">
+      <span class="parchive__back-arrow" aria-hidden="true">←</span> {t('notFound.backHome')}
+    </a>
     <span class="parchive__foot-idx">{t('projects.footerIndex')}</span>
   </footer>
 </section>
@@ -97,6 +99,9 @@ const [first, ...rest] = projects;
   }
   @media (min-width: 960px) { .parchive__foot { margin-top: 56px; } }
   .parchive__back {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
     font-family: var(--font-mono);
     font-size: 12px;
     color: var(--text-2);
@@ -104,6 +109,8 @@ const [first, ...rest] = projects;
     text-decoration: none;
   }
   .parchive__back:hover { color: var(--brand); }
+  .parchive__back-arrow { transition: transform 0.18s ease-out; display: inline-block; }
+  .parchive__back:hover .parchive__back-arrow { transform: translateX(-3px); }
   .parchive__foot-idx {
     font-family: var(--font-mono);
     font-size: 11px;
