@@ -98,6 +98,7 @@ const isFeatured = variant === 'featured';
 </a>
 
 <style>
+  @reference "../../styles/app.css";
   .pcard {
     display: flex;
     flex-direction: column;
@@ -129,7 +130,7 @@ const isFeatured = variant === 'featured';
 
   /* Featured: side-by-side mockup + text on wide screens; spans both grid cols. */
   .pcard--featured { padding: 0; overflow: hidden; }
-  @media (min-width: 960px) {
+  @media (width >= theme(--breakpoint-lg)) {
     .pcard--featured {
       grid-column: span 2;
       display: grid;
@@ -141,7 +142,7 @@ const isFeatured = variant === 'featured';
     background: var(--surface-2);
     border-bottom: 1px solid var(--line);
   }
-  @media (min-width: 960px) {
+  @media (width >= theme(--breakpoint-lg)) {
     .pcard__mockup-pane { border-bottom: 0; border-right: 1px solid var(--line); }
   }
   .pcard__mockup {

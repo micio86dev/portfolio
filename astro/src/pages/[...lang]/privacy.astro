@@ -2,9 +2,10 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageView from '../../components/astro/PageView.astro';
 import { getPage } from '../../lib/pocketbase';
-import { useTranslations } from '../../i18n/utils';
+import { resolveLangParam, useTranslations } from '../../i18n/utils';
 
-const lang = 'it' as const;
+const lang = resolveLangParam(Astro.params.lang);
+if (!lang) return new Response(null, { status: 404 });
 const page = await getPage('privacy', lang);
 if (!page) return new Response(null, { status: 404 });
 const t = useTranslations(lang);

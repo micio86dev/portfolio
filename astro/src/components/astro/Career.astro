@@ -45,12 +45,13 @@ const milestones = await getCareer(lang);
 </section>
 
 <style>
+  @reference "../../styles/app.css";
   .career {
     background: var(--bg);
     color: var(--text);
     padding: 56px 22px 64px;
   }
-  @media (min-width: 960px) { .career { padding: 96px 64px 112px; } }
+  @media (width >= theme(--breakpoint-lg)) { .career { padding: 96px 64px 112px; } }
 
   .career__head {
     display: grid;
@@ -58,7 +59,7 @@ const milestones = await getCareer(lang);
     gap: 16px;
     margin-bottom: 32px;
   }
-  @media (min-width: 960px) {
+  @media (width >= theme(--breakpoint-lg)) {
     .career__head {
       grid-template-columns: repeat(12, 1fr);
       column-gap: 24px;
@@ -79,7 +80,7 @@ const milestones = await getCareer(lang);
     letter-spacing: -0.022em;
     text-wrap: balance;
   }
-  @media (min-width: 960px) { .career__title { font-size: clamp(40px, 4.4vw, 60px); } }
+  @media (width >= theme(--breakpoint-lg)) { .career__title { font-size: clamp(40px, 4.4vw, 60px); } }
   .career__intro {
     margin: 0;
     font-size: 15px;
@@ -88,7 +89,7 @@ const milestones = await getCareer(lang);
     max-width: 60ch;
     text-wrap: pretty;
   }
-  @media (min-width: 960px) { .career__intro { font-size: 17px; } }
+  @media (width >= theme(--breakpoint-lg)) { .career__intro { font-size: 17px; } }
 
   .career__timeline {
     list-style: none;
@@ -107,7 +108,7 @@ const milestones = await getCareer(lang);
     width: 1px;
     background: var(--line-2);
   }
-  @media (min-width: 640px) { .career__timeline::before { left: 6px; } }
+  @media (width >= theme(--breakpoint-sm)) { .career__timeline::before { left: 6px; } }
 
   .career__item {
     position: relative;
@@ -116,7 +117,7 @@ const milestones = await getCareer(lang);
     gap: 20px;
     padding: 28px 0;
   }
-  @media (min-width: 640px) { .career__item { gap: 28px; padding: 32px 0; } }
+  @media (width >= theme(--breakpoint-sm)) { .career__item { gap: 28px; padding: 32px 0; } }
   .career__item + .career__item { border-top: 1px solid var(--line); }
 
   .career__node {
@@ -133,7 +134,7 @@ const milestones = await getCareer(lang);
     border-color: var(--brand);
     box-shadow: 0 0 0 4px var(--brand-tint);
   }
-  @media (min-width: 640px) { .career__node { width: 13px; height: 13px; margin-top: 4px; } }
+  @media (width >= theme(--breakpoint-sm)) { .career__node { width: 13px; height: 13px; margin-top: 4px; } }
 
   .career__entry { display: flex; flex-direction: column; gap: 12px; }
   .career__meta {
@@ -159,7 +160,7 @@ const milestones = await getCareer(lang);
     letter-spacing: -0.015em;
     color: var(--text);
   }
-  @media (min-width: 960px) { .career__company { font-size: 24px; } }
+  @media (width >= theme(--breakpoint-lg)) { .career__company { font-size: 24px; } }
   .career__body {
     margin: 0;
     font-size: 14px;
@@ -168,7 +169,7 @@ const milestones = await getCareer(lang);
     max-width: 68ch;
     text-wrap: pretty;
   }
-  @media (min-width: 960px) { .career__body { font-size: 15px; } }
+  @media (width >= theme(--breakpoint-lg)) { .career__body { font-size: 15px; } }
 
   .career__tech {
     list-style: none;

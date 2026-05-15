@@ -19,6 +19,17 @@ export function isLocale(value: string): value is Locale {
   return (LOCALES as readonly string[]).includes(value);
 }
 
+/**
+ * Resolve the `[...lang]` rest-route param to a `Locale` (or `null` if it
+ * refers to an unknown segment). Pages collapse en/it/es into a single file
+ * via this helper: `undefined` means the default-locale root (`/imprint`),
+ * `'it'`/`'es'` means a prefixed path, and anything else is a 404 signal.
+ */
+export function resolveLangParam(raw: string | undefined): Locale | null {
+  if (!raw) return DEFAULT_LOCALE;
+  return isLocale(raw) ? raw : null;
+}
+
 /** Read the active locale from a URL pathname ("/it/…" → "it", "/" → "en"). */
 export function getLangFromUrl(url: URL): Locale {
   const [, maybeLocale] = url.pathname.split('/');

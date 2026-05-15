@@ -2,8 +2,10 @@
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import NoteDetailPage from '../../../components/astro/NoteDetailPage.astro';
 import { getNewsPost } from '../../../lib/pocketbase';
+import { resolveLangParam } from '../../../i18n/utils';
 
-const lang = 'it' as const;
+const lang = resolveLangParam(Astro.params.lang);
+if (!lang) return new Response(null, { status: 404 });
 const post = await getNewsPost(Astro.params.slug ?? '', lang);
 if (!post) return new Response(null, { status: 404 });
 ---

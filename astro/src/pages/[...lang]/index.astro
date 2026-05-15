@@ -1,8 +1,10 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SectionsHome from '../../components/astro/SectionsHome.astro';
+import { resolveLangParam } from '../../i18n/utils';
 
-const lang = 'it' as const;
+const lang = resolveLangParam(Astro.params.lang);
+if (!lang) return new Response(null, { status: 404 });
 ---
 
 <BaseLayout lang={lang}>

@@ -48,7 +48,7 @@ Trilingual (English · Italian · Spanish), light + dark, mobile-first.
 
 ```bash
 # 1. install dependencies (nothing is installed in the scaffold)
-npm install
+bun install
 
 # 2. (optional for local dev) create your env file
 cp .env.example .env
@@ -57,14 +57,14 @@ cp .env.example .env
 #    form has nowhere to POST.
 
 # 3. run the dev server
-npm run dev          # → http://localhost:4321
+bun run dev          # → http://localhost:4321
 
 # 4. production build + run
-npm run build        # → dist/client/ (static) + dist/server/entry.mjs (Node)
-npm run preview      # serves the build locally
+bun run build        # → dist/client/ (static) + dist/server/entry.mjs (Node)
+bun run preview      # serves the build locally
 
 # 5. type-check
-npm run check        # astro check
+bun run check        # astro check
 ```
 
 Routes available in dev: `/` (English), `/it/`, `/es/`.
@@ -95,7 +95,7 @@ contact form; `SITE_URL` is server-only.
 | `build` | `astro build` | Static pages + Node server entry. |
 | `preview` | `astro preview` | Serve the production build. |
 | `check` | `astro check` | Type-check `.astro` files and their TS imports. |
-| `astro` | `astro` | The Astro CLI passthrough (`npm run astro -- add …`). |
+| `astro` | `astro` | The Astro CLI passthrough (`bun run astro -- add …`). |
 
 ---
 
@@ -376,20 +376,20 @@ renders: `<html lang>`, `<title>`, `<meta name="description">`,
 ## Building & deploying
 
 ```bash
-npm run build
+bun run build
 # → dist/client/   static assets (+ sitemap, robots, any prerendered pages)
 # → dist/server/   entry.mjs — the SSR Node server (standalone; also serves dist/client)
 
 # run the server entry yourself (set PUBLIC_PB_URL / SITE_URL in the env first):
 node ./dist/server/entry.mjs
 # or:
-npm run preview
+bun run preview
 ```
 
 The repo ships a `Dockerfile` (multi-stage → `node:24-alpine` running the
 standalone server) and `../docker-compose*.yml`. For a managed platform,
 replace `@astrojs/node` in `astro.config.mjs` with the matching adapter (e.g.
-`npm run astro -- add vercel` / `npm run astro -- add cloudflare`) and set
+`bun run astro -- add vercel` / `bun run astro -- add cloudflare`) and set
 `PUBLIC_PB_URL` and `SITE_URL` in the platform's env settings. Aim for
 Lighthouse 100 / 100 / 100 / 100 on the `/` route before launching the others.
 
@@ -398,8 +398,8 @@ Lighthouse 100 / 100 / 100 / 100 on the `/` route before launching the others.
 ## Troubleshooting
 
 - **`NoAdapterInstalled` on build** — `output: 'server'` needs an adapter.
-  `@astrojs/node` is already configured; just make sure `npm install` ran.
-- **`Cannot find module 'astro' / '@astrojs/vue' / …`** — run `npm install`;
+  `@astrojs/node` is already configured; just make sure `bun install` ran.
+- **`Cannot find module 'astro' / '@astrojs/vue' / …`** — run `bun install`;
   the scaffold ships `package.json` only.
 - **Theme flashes on load** — the bootstrap script must stay in `<head>` before
   the stylesheet `<link>` and run as `is:inline` (it does in `BaseLayout.astro`).

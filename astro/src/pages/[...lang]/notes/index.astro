@@ -1,9 +1,10 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import NotesPage from '../../../components/astro/NotesPage.astro';
-import { useTranslations } from '../../../i18n/utils';
+import { resolveLangParam, useTranslations } from '../../../i18n/utils';
 
-const lang = 'it' as const;
+const lang = resolveLangParam(Astro.params.lang);
+if (!lang) return new Response(null, { status: 404 });
 const t = useTranslations(lang);
 ---
 

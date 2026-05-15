@@ -14,11 +14,12 @@ const { label } = Astro.props;
 </div>
 
 <style>
+  @reference "../../styles/app.css";
   .divider {
     padding: 0 22px;
     background: var(--bg);
   }
-  @media (min-width: 960px) {
+  @media (width >= theme(--breakpoint-lg)) {
     .divider { padding: 0 64px; }
   }
   .divider__inner {

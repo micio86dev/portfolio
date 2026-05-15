@@ -56,12 +56,13 @@ const ICON_SVG: Record<ServiceIcon, string> = {
 </section>
 
 <style>
+  @reference "../../styles/app.css";
   .services {
     background: var(--bg);
     color: var(--text);
     padding: 64px 22px 80px;
   }
-  @media (min-width: 960px) { .services { padding: 96px 64px 112px; } }
+  @media (width >= theme(--breakpoint-lg)) { .services { padding: 96px 64px 112px; } }
 
   .services__head {
     display: grid;
@@ -69,7 +70,7 @@ const ICON_SVG: Record<ServiceIcon, string> = {
     gap: 20px;
     margin-bottom: 32px;
   }
-  @media (min-width: 960px) {
+  @media (width >= theme(--breakpoint-lg)) {
     .services__head {
       grid-template-columns: repeat(12, 1fr);
       column-gap: 24px;
@@ -90,7 +91,7 @@ const ICON_SVG: Record<ServiceIcon, string> = {
     letter-spacing: -0.025em;
     text-wrap: balance;
   }
-  @media (min-width: 960px) { .services__title { font-size: clamp(56px, 6vw, 92px); } }
+  @media (width >= theme(--breakpoint-lg)) { .services__title { font-size: clamp(56px, 6vw, 92px); } }
   .services__note {
     font-family: var(--font-mono);
     font-size: 11px;
@@ -104,10 +105,10 @@ const ICON_SVG: Record<ServiceIcon, string> = {
     grid-template-columns: 1fr;
     gap: 14px;
   }
-  @media (min-width: 640px) and (max-width: 959px) {
+  @media (width >= theme(--breakpoint-sm)) and (width < theme(--breakpoint-lg)) {
     .services__grid { grid-template-columns: repeat(2, 1fr); }
   }
-  @media (min-width: 960px) {
+  @media (width >= theme(--breakpoint-lg)) {
     .services__grid { grid-template-columns: repeat(6, 1fr); gap: 18px; }
     .services__card { grid-column: span var(--span); }
   }
@@ -187,5 +188,5 @@ const ICON_SVG: Record<ServiceIcon, string> = {
     letter-spacing: 0.12em;
     text-transform: uppercase;
   }
-  @media (min-width: 960px) { .services__foot { margin-top: 56px; } }
+  @media (width >= theme(--breakpoint-lg)) { .services__foot { margin-top: 56px; } }
 </style>

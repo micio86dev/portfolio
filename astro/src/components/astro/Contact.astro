@@ -77,12 +77,13 @@ const pbUrl =
 </section>
 
 <style>
+  @reference "../../styles/app.css";
   .contact {
     background: var(--bg);
     color: var(--text);
     padding: 64px 22px 80px;
   }
-  @media (min-width: 960px) { .contact { padding: 120px 64px 140px; } }
+  @media (width >= theme(--breakpoint-lg)) { .contact { padding: 120px 64px 140px; } }
 
   .contact__head {
     display: grid;
@@ -90,7 +91,7 @@ const pbUrl =
     gap: 16px;
     margin-bottom: 28px;
   }
-  @media (min-width: 960px) {
+  @media (width >= theme(--breakpoint-lg)) {
     .contact__head {
       grid-template-columns: repeat(12, 1fr);
       column-gap: 24px;
@@ -108,14 +109,14 @@ const pbUrl =
     line-height: 0.98;
     letter-spacing: -0.025em;
   }
-  @media (min-width: 960px) { .contact__title { font-size: clamp(56px, 6vw, 84px); } }
+  @media (width >= theme(--breakpoint-lg)) { .contact__title { font-size: clamp(56px, 6vw, 84px); } }
 
   .contact__layout {
     display: grid;
     grid-template-columns: 1fr;
     gap: 28px;
   }
-  @media (min-width: 960px) { .contact__layout { grid-template-columns: 1.6fr 1fr; gap: 32px; } }
+  @media (width >= theme(--breakpoint-lg)) { .contact__layout { grid-template-columns: 1.6fr 1fr; gap: 32px; } }
 
   .contact__panel {
     padding: 22px;
@@ -123,7 +124,7 @@ const pbUrl =
     border: 1px solid var(--line);
     border-radius: var(--r-3);
   }
-  @media (min-width: 960px) { .contact__panel { padding: 36px; } }
+  @media (width >= theme(--breakpoint-lg)) { .contact__panel { padding: 36px; } }
 
   .contact__aside {
     background: var(--surface);
