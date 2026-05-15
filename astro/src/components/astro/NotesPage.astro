@@ -63,6 +63,7 @@ function fmtDate(iso: string): string {
 </section>
 
 <style>
+  @reference "../../styles/app.css";
   .notes {
     background: var(--bg);
     color: var(--text);
@@ -70,10 +71,10 @@ function fmtDate(iso: string): string {
     max-width: 920px;
     margin: 0 auto;
   }
-  @media (min-width: 960px) { .notes { padding: 104px 64px 128px; } }
+  @media (width >= theme(--breakpoint-lg)) { .notes { padding: 104px 64px 128px; } }
 
   .notes__head { display: grid; gap: 18px; margin-bottom: 40px; }
-  @media (min-width: 960px) { .notes__head { margin-bottom: 56px; } }
+  @media (width >= theme(--breakpoint-lg)) { .notes__head { margin-bottom: 56px; } }
   .notes__eyebrow { margin: 0; }
   .notes__title {
     margin: 0;
@@ -85,7 +86,7 @@ function fmtDate(iso: string): string {
     letter-spacing: -0.025em;
     text-wrap: balance;
   }
-  @media (min-width: 960px) { .notes__title { font-size: clamp(56px, 6vw, 88px); } }
+  @media (width >= theme(--breakpoint-lg)) { .notes__title { font-size: clamp(56px, 6vw, 88px); } }
   .notes__intro { font-size: 16px; line-height: 1.6; color: var(--text-2); max-width: 640px; }
 
   .notes__empty {
@@ -139,7 +140,7 @@ function fmtDate(iso: string): string {
     letter-spacing: -0.02em;
     transition: color var(--dur-1) var(--ease);
   }
-  @media (min-width: 960px) { .notes__post-title { font-size: 34px; } }
+  @media (width >= theme(--breakpoint-lg)) { .notes__post-title { font-size: 34px; } }
   .notes__excerpt { margin: 0; font-size: 14px; line-height: 1.6; color: var(--text-2); max-width: 620px; }
   .notes__more {
     font-family: var(--font-mono);
@@ -151,7 +152,7 @@ function fmtDate(iso: string): string {
   }
 
   .notes__foot { margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--line); }
-  @media (min-width: 960px) { .notes__foot { margin-top: 56px; } }
+  @media (width >= theme(--breakpoint-lg)) { .notes__foot { margin-top: 56px; } }
   .notes__back {
     display: inline-flex;
     align-items: baseline;

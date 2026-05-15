@@ -36,7 +36,7 @@
     },
     "meta": {
       "section": "§ 01 / Hero",
-      "version": "v 1.0.0"
+      "version": "v 1.0.1"
     },
     "stamp": "// build 0xA1F · lg\n// region · ic-tenerife\n// uptime · 99.98%"
   },
@@ -188,7 +188,7 @@
     "elsewhere": "En otros sitios",
     "copyright": "© 2010–2026 · Alessandro · MicioDev",
     "location": "Fuerteventura · Islas Canarias · ES",
-    "builtWith": "Hecho con Astro + PocketBase · v1.0.0"
+    "builtWith": "Hecho con Astro + PocketBase · v1.0.1"
   },
   "projectsPage": {
     "eyebrow": "§ Archivo · Trabajos seleccionados",

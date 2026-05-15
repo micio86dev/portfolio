@@ -189,6 +189,7 @@ const statusLocation = `${t('status.location')} · ${getCanaryUtcOffset()}`;
 </script>
 
 <style>
+  @reference "../../styles/app.css";
   .hero {
     position: relative;
     isolation: isolate;
@@ -327,6 +328,18 @@ const statusLocation = `${t('status.location')} · ${getCanaryUtcOffset()}`;
     text-align: right;
     white-space: pre;
   }
+  /* On mobile the trust marquee occupies the bottom of the hero, so the
+     stamp would sit behind the logos. Float it up to the top-right corner
+     where there's no other content (corner marks and meta row are hidden
+     in this breakpoint). */
+  @media (max-width: 767px) {
+    .hero__stamp {
+      bottom: auto;
+      top: 14px;
+      right: 14px;
+      font-size: 9px;
+    }
+  }
 
   /* Corner marks */
   .hero__corner {
@@ -342,7 +355,7 @@ const statusLocation = `${t('status.location')} · ${getCanaryUtcOffset()}`;
   .hero__corner--tr { top: 16px; right: 16px; }
   .hero__corner--bl { bottom: 16px; left: 16px; }
   .hero__corner--br { bottom: 16px; right: 16px; }
-  @media (max-width: 959px) { .hero__corner { display: none; } }
+  @media (width < theme(--breakpoint-lg)) { .hero__corner { display: none; } }
 
   /* Grid */
   .hero__grid {
@@ -353,7 +366,7 @@ const statusLocation = `${t('status.location')} · ${getCanaryUtcOffset()}`;
     row-gap: 32px;
     padding: 88px 22px 28px;
   }
-  @media (min-width: 960px) {
+  @media (width >= theme(--breakpoint-lg)) {
     .hero__grid {
       grid-template-columns: repeat(12, 1fr);
       column-gap: 24px;
@@ -379,7 +392,7 @@ const statusLocation = `${t('status.location')} · ${getCanaryUtcOffset()}`;
     letter-spacing: 0.12em;
     text-transform: uppercase;
   }
-  @media (min-width: 960px) { .hero__meta { display: flex; } }
+  @media (width >= theme(--breakpoint-lg)) { .hero__meta { display: flex; } }
 
   .hero__headline {
     grid-column: 1 / -1;
@@ -392,7 +405,7 @@ const statusLocation = `${t('status.location')} · ${getCanaryUtcOffset()}`;
     letter-spacing: -0.028em;
     text-wrap: pretty;
   }
-  @media (min-width: 960px) {
+  @media (width >= theme(--breakpoint-lg)) {
     .hero__headline { grid-column: 1 / 9; font-size: clamp(72px, 8.4vw, 132px); }
   }
   .hero__line { display: block; }
@@ -405,7 +418,7 @@ const statusLocation = `${t('status.location')} · ${getCanaryUtcOffset()}`;
     flex-direction: column;
     gap: 22px;
   }
-  @media (min-width: 960px) { .hero__side { grid-column: 9 / 13; } }
+  @media (width >= theme(--breakpoint-lg)) { .hero__side { grid-column: 9 / 13; } }
   .hero__subhead {
     margin: 0;
     font-size: 18px;
@@ -438,7 +451,7 @@ const statusLocation = `${t('status.location')} · ${getCanaryUtcOffset()}`;
   }
 
   .hero__trust { grid-column: 1 / -1; margin-top: 16px; display: flex; flex-direction: column; gap: 18px; }
-  @media (min-width: 960px) { .hero__trust { margin-top: 24px; } }
+  @media (width >= theme(--breakpoint-lg)) { .hero__trust { margin-top: 24px; } }
   .hero__trust-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
   .hero__trust-count {
     font-family: var(--font-mono);
@@ -458,7 +471,7 @@ const statusLocation = `${t('status.location')} · ${getCanaryUtcOffset()}`;
     -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
     mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
   }
-  @media (min-width: 960px) {
+  @media (width >= theme(--breakpoint-lg)) {
     .hero__marquee {
       margin: 8px -64px 0;
       -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 8%, #000 92%, transparent 100%);
@@ -477,10 +490,11 @@ const statusLocation = `${t('status.location')} · ${getCanaryUtcOffset()}`;
     from { transform: translate3d(0, 0, 0); }
     to   { transform: translate3d(-50%, 0, 0); }
   }
-  /* Touch + reduced-motion: kill the loop, expose a native swipeable strip
+  /* Reduced-motion only: kill the loop, expose a native swipeable strip
      (and drop the duplicate set so the user doesn't see the same logos
-     twice). The edge-fade mask stays — it works for both modes. */
-  @media (max-width: 767px), (prefers-reduced-motion: reduce) {
+     twice). The edge-fade mask stays — it works for both modes. Touch
+     devices keep the looping marquee — same motion as desktop. */
+  @media (prefers-reduced-motion: reduce) {
     .hero__marquee {
       overflow-x: auto;
       scroll-snap-type: x proximity;
@@ -500,7 +514,7 @@ const statusLocation = `${t('status.location')} · ${getCanaryUtcOffset()}`;
     align-items: stretch;
     gap: clamp(10px, 1.5vw, 18px);
   }
-  @media (min-width: 960px) { .hero__logos { padding: 8px 32px; } }
+  @media (width >= theme(--breakpoint-lg)) { .hero__logos { padding: 8px 32px; } }
   .hero__logo-card { display: flex; flex: 0 0 auto; }
   /* The clickable card. Surface + border + subtle lift = unambiguous
      affordance: this is interactive, not a static badge. */

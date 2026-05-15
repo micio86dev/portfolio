@@ -149,6 +149,7 @@ const ICONS: Record<SocialIcon, string> = {
 </footer>
 
 <style>
+  @reference "../../styles/app.css";
   .ft {
     position: relative;
     overflow: hidden;
@@ -156,7 +157,7 @@ const ICONS: Record<SocialIcon, string> = {
     color: #f1f1ea;
     padding: 56px 22px 32px;
   }
-  @media (min-width: 960px) { .ft { padding: 88px 64px 40px; } }
+  @media (width >= theme(--breakpoint-lg)) { .ft { padding: 88px 64px 40px; } }
   .ft__atmosphere {
     position: absolute;
     inset: 0;
@@ -171,7 +172,7 @@ const ICONS: Record<SocialIcon, string> = {
     padding-bottom: 32px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   }
-  @media (min-width: 960px) { .ft__signoff { padding-bottom: 56px; } }
+  @media (width >= theme(--breakpoint-lg)) { .ft__signoff { padding-bottom: 56px; } }
   .ft__eyebrow {
     margin: 0 0 18px;
     font-family: var(--font-mono);
@@ -200,7 +201,7 @@ const ICONS: Record<SocialIcon, string> = {
     display: inline-block;
     word-break: break-word;
   }
-  @media (min-width: 960px) { .ft__email { font-size: clamp(72px, 8vw, 124px); } }
+  @media (width >= theme(--breakpoint-lg)) { .ft__email { font-size: clamp(72px, 8vw, 124px); } }
   .ft__email-accent { color: var(--brand-glow); }
   .ft__email-arrow {
     font-family: var(--font-mono);
@@ -218,7 +219,7 @@ const ICONS: Record<SocialIcon, string> = {
     grid-template-columns: 1fr;
     gap: 32px;
   }
-  @media (min-width: 960px) {
+  @media (width >= theme(--breakpoint-lg)) {
     .ft__cols { padding-top: 56px; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 24px; }
   }
   .ft__brand { display: flex; flex-direction: column; gap: 14px; }
@@ -278,6 +279,6 @@ const ICONS: Record<SocialIcon, string> = {
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
-  @media (min-width: 960px) { .ft__colophon { margin-top: 56px; } }
+  @media (width >= theme(--breakpoint-lg)) { .ft__colophon { margin-top: 56px; } }
   .ft__colophon-loc { margin-right: 18px; }
 </style>

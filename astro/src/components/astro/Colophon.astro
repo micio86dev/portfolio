@@ -29,12 +29,13 @@ const TECH = ['Astro · Hybrid SSR', 'PocketBase', 'Docker', 'GitHub Actions · 
 </section>
 
 <style>
+  @reference "../../styles/app.css";
   .colophon {
     background: var(--bg);
     color: var(--text);
     padding: 48px 22px 64px;
   }
-  @media (min-width: 960px) { .colophon { padding: 64px 64px 96px; } }
+  @media (width >= theme(--breakpoint-lg)) { .colophon { padding: 64px 64px 96px; } }
 
   .colophon__head {
     display: grid;
@@ -42,7 +43,7 @@ const TECH = ['Astro · Hybrid SSR', 'PocketBase', 'Docker', 'GitHub Actions · 
     gap: 16px;
     margin-bottom: 24px;
   }
-  @media (min-width: 960px) {
+  @media (width >= theme(--breakpoint-lg)) {
     .colophon__head {
       grid-template-columns: repeat(12, 1fr);
       column-gap: 24px;
@@ -61,7 +62,7 @@ const TECH = ['Astro · Hybrid SSR', 'PocketBase', 'Docker', 'GitHub Actions · 
     letter-spacing: -0.022em;
     text-wrap: balance;
   }
-  @media (min-width: 960px) { .colophon__title { font-size: clamp(36px, 4vw, 52px); } }
+  @media (width >= theme(--breakpoint-lg)) { .colophon__title { font-size: clamp(36px, 4vw, 52px); } }
 
   .colophon__body {
     display: grid;

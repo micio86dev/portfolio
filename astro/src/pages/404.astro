@@ -47,6 +47,7 @@ const LOGO_PX = 96;
 </BaseLayout>
 
 <style>
+  @reference "../styles/app.css";
   .nf {
     position: relative;
     overflow: hidden;
@@ -57,7 +58,7 @@ const LOGO_PX = 96;
     place-items: center;
     padding: 72px 22px 96px;
   }
-  @media (min-width: 960px) { .nf { padding: 96px 64px 120px; } }
+  @media (width >= theme(--breakpoint-lg)) { .nf { padding: 96px 64px 120px; } }
 
   /* Soft brand-green halo behind the mark — pure decoration. */
   .nf__glow {
@@ -95,7 +96,7 @@ const LOGO_PX = 96;
     background: var(--surface);
     animation: nf-float 5.5s ease-in-out infinite;
   }
-  @media (min-width: 960px) { .nf__logo { width: 88px; height: 88px; } }
+  @media (width >= theme(--breakpoint-lg)) { .nf__logo { width: 88px; height: 88px; } }
 
   .nf__eyebrow { margin: 4px 0 0; }
 
