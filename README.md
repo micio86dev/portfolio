@@ -454,7 +454,7 @@ docker compose up --build
 `docker-compose.yml` hardcodes `PUBLIC_PB_URL=http://localhost:8090` (browser-
 reachable via the port map). Inside the astro container, SSR-side fetches resolve
 `localhost` to the container itself, so projects/services fall back to seed data;
-for live local PocketBase data in SSR run `npm run dev` in `astro/` on the host
+for live local PocketBase data in SSR run `bun run dev` in `astro/` on the host
 (it reads `astro/.env`).
 
 ## VPS layout

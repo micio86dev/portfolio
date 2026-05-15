@@ -2,10 +2,11 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageView from '../../components/astro/PageView.astro';
 import { getPage } from '../../lib/pocketbase';
-import { useTranslations } from '../../i18n/utils';
+import { resolveLangParam, useTranslations } from '../../i18n/utils';
 import type { PageItem } from '../../lib/seed-data';
 
-const lang = 'es' as const;
+const lang = resolveLangParam(Astro.params.lang);
+if (!lang) return new Response(null, { status: 404 });
 const t = useTranslations(lang);
 
 // Never 404 just because PocketBase is empty: fall back to a polite i18n notice.

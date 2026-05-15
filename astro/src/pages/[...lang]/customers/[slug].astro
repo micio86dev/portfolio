@@ -1,9 +1,11 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import CustomerDetailPage from '../../components/astro/CustomerDetailPage.astro';
-import { getCustomer } from '../../lib/pocketbase';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import CustomerDetailPage from '../../../components/astro/CustomerDetailPage.astro';
+import { getCustomer } from '../../../lib/pocketbase';
+import { resolveLangParam } from '../../../i18n/utils';
 
-const lang = 'en' as const;
+const lang = resolveLangParam(Astro.params.lang);
+if (!lang) return new Response(null, { status: 404 });
 const customer = await getCustomer(Astro.params.slug ?? '', lang);
 if (!customer) return new Response(null, { status: 404 });
 

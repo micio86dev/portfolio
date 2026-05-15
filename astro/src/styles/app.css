@@ -89,6 +89,14 @@
 
   /* Motion */
   --ease-md: cubic-bezier(.2, .7, .3, 1);
+
+  /* Breakpoints — single source of truth for every responsive rule (component
+     `<style>` blocks reference these via `theme(--breakpoint-*)` so layout
+     thresholds change in one place). `sm` matches Tailwind's default; `md` and
+     `lg` are overridden to the values the design actually uses. */
+  --breakpoint-sm: 40rem;  /* 640px */
+  --breakpoint-md: 45rem;  /* 720px */
+  --breakpoint-lg: 60rem;  /* 960px */
 }
 
 /* ──────────────────────────────────────────────────────────────────────

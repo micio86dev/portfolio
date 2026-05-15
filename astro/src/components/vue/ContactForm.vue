@@ -327,6 +327,7 @@ async function onSubmit() {
 </template>
 
 <style scoped>
+  @reference "../../styles/app.css";
 .cf {
   display: grid;
   gap: 18px;
@@ -338,7 +339,7 @@ async function onSubmit() {
 .cf__row--split {
   grid-template-columns: 1fr;
 }
-@media (min-width: 640px) {
+@media (width >= theme(--breakpoint-sm)) {
   .cf__row--split { grid-template-columns: 1fr 1fr; }
 }
 .cf__field {

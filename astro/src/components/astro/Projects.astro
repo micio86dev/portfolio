@@ -71,12 +71,13 @@ const [first, ...rest] = projects;
 </section>
 
 <style>
+  @reference "../../styles/app.css";
   .projects {
     background: var(--bg);
     color: var(--text);
     padding: 64px 22px 80px;
   }
-  @media (min-width: 960px) { .projects { padding: 96px 64px 112px; } }
+  @media (width >= theme(--breakpoint-lg)) { .projects { padding: 96px 64px 112px; } }
 
   .projects__head {
     display: grid;
@@ -84,7 +85,7 @@ const [first, ...rest] = projects;
     gap: 18px;
     margin-bottom: 28px;
   }
-  @media (min-width: 960px) {
+  @media (width >= theme(--breakpoint-lg)) {
     .projects__head {
       grid-template-columns: repeat(12, 1fr);
       column-gap: 24px;
@@ -105,7 +106,7 @@ const [first, ...rest] = projects;
     letter-spacing: -0.025em;
     text-wrap: balance;
   }
-  @media (min-width: 960px) { .projects__title { font-size: clamp(56px, 6vw, 92px); } }
+  @media (width >= theme(--breakpoint-lg)) { .projects__title { font-size: clamp(56px, 6vw, 92px); } }
   .projects__meta {
     font-family: var(--font-mono);
     font-size: 11px;
@@ -125,10 +126,10 @@ const [first, ...rest] = projects;
     border-top: 1px solid var(--line);
     border-bottom: 1px solid var(--line);
   }
-  @media (min-width: 960px) { .projects__filters { margin-bottom: 28px; } }
+  @media (width >= theme(--breakpoint-lg)) { .projects__filters { margin-bottom: 28px; } }
   .projects__filter-group { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
   .projects__filter-group--stack { display: none; }
-  @media (min-width: 960px) { .projects__filter-group--stack { display: flex; } }
+  @media (width >= theme(--breakpoint-lg)) { .projects__filter-group--stack { display: flex; } }
   .projects__filter-label { margin-right: 8px; }
   .projects__chip {
     height: 26px;
@@ -151,7 +152,7 @@ const [first, ...rest] = projects;
     grid-template-columns: 1fr;
     gap: 14px;
   }
-  @media (min-width: 960px) { .projects__grid { grid-template-columns: 1fr 1fr; gap: 20px; } }
+  @media (width >= theme(--breakpoint-lg)) { .projects__grid { grid-template-columns: 1fr 1fr; gap: 20px; } }
 
   .projects__foot {
     margin-top: 32px;
@@ -163,7 +164,7 @@ const [first, ...rest] = projects;
     padding-top: 20px;
     border-top: 1px solid var(--line);
   }
-  @media (min-width: 960px) { .projects__foot { margin-top: 56px; } }
+  @media (width >= theme(--breakpoint-lg)) { .projects__foot { margin-top: 56px; } }
   .projects__archive {
     display: inline-flex;
     align-items: baseline;

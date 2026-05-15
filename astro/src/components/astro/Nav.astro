@@ -257,6 +257,7 @@ const initialActiveId =
 </script>
 
 <style>
+  @reference "../../styles/app.css";
   .nav-root {
     position: sticky;
     top: 0;
@@ -310,7 +311,7 @@ const initialActiveId =
     gap: 24px;
     padding: 16px 22px;
   }
-  @media (min-width: 960px) {
+  @media (width >= theme(--breakpoint-lg)) {
     .nav-bar { padding: 18px 32px; }
   }
 
@@ -464,7 +465,7 @@ const initialActiveId =
     justify-content: center;
   }
 
-  @media (min-width: 960px) {
+  @media (width >= theme(--breakpoint-lg)) {
     .nav-links { display: flex; }
     .nav-controls { display: flex; }
     .nav-burger { display: none; }

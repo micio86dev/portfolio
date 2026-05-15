@@ -2,8 +2,10 @@
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import ProjectDetailPage from '../../../components/astro/ProjectDetailPage.astro';
 import { getProject } from '../../../lib/pocketbase';
+import { resolveLangParam } from '../../../i18n/utils';
 
-const lang = 'it' as const;
+const lang = resolveLangParam(Astro.params.lang);
+if (!lang) return new Response(null, { status: 404 });
 const project = await getProject(Astro.params.slug ?? '', lang);
 if (!project) return new Response(null, { status: 404 });
 

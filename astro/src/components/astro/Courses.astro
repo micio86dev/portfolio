@@ -49,12 +49,13 @@ const platformLabel = (p: string) =>
 </section>
 
 <style>
+  @reference "../../styles/app.css";
   .courses {
     background: var(--bg);
     color: var(--text);
     padding: 56px 22px 64px;
   }
-  @media (min-width: 960px) { .courses { padding: 96px 64px 112px; } }
+  @media (width >= theme(--breakpoint-lg)) { .courses { padding: 96px 64px 112px; } }
 
   .courses__head {
     display: grid;
@@ -62,7 +63,7 @@ const platformLabel = (p: string) =>
     gap: 16px;
     margin-bottom: 28px;
   }
-  @media (min-width: 960px) {
+  @media (width >= theme(--breakpoint-lg)) {
     .courses__head {
       grid-template-columns: repeat(12, 1fr);
       column-gap: 24px;
@@ -83,7 +84,7 @@ const platformLabel = (p: string) =>
     letter-spacing: -0.022em;
     text-wrap: balance;
   }
-  @media (min-width: 960px) { .courses__title { font-size: clamp(40px, 4.4vw, 60px); } }
+  @media (width >= theme(--breakpoint-lg)) { .courses__title { font-size: clamp(40px, 4.4vw, 60px); } }
   .courses__note {
     font-family: var(--font-mono);
     font-size: 11px;
@@ -97,8 +98,8 @@ const platformLabel = (p: string) =>
     grid-template-columns: 1fr;
     gap: 14px;
   }
-  @media (min-width: 640px) { .courses__grid { grid-template-columns: repeat(2, 1fr); gap: 16px; } }
-  @media (min-width: 960px) { .courses__grid { grid-template-columns: repeat(3, 1fr); gap: 18px; } }
+  @media (width >= theme(--breakpoint-sm)) { .courses__grid { grid-template-columns: repeat(2, 1fr); gap: 16px; } }
+  @media (width >= theme(--breakpoint-lg)) { .courses__grid { grid-template-columns: repeat(3, 1fr); gap: 18px; } }
 
   .courses__card {
     background: var(--surface);
