@@ -165,7 +165,7 @@ Base body: `font-feature-settings: "ss01","ss02","cv11"`,
 | `m` | 11 / 14 | mono micro-labels |
 
 **Fluid headline sizes used in sections** (not in the token scale):
-- Hero H1: `clamp(48px, 11vw, 72px)` mobile → `clamp(72px, 8.4vw, 124px)` ≥ 960 px;
+- Hero H1: `clamp(48px, 11vw, 72px)` mobile → `clamp(72px, 8.4vw, 100px)` ≥ 960 px;
   `line-height: .96`, `letter-spacing: -.028em`, `text-wrap: pretty`.
 - Section H2 (Services / Projects): `42px` mobile → `clamp(56px, 6vw, 92px)`;
   `line-height: .98`, `letter-spacing: -.025em`, `text-wrap: balance`.
