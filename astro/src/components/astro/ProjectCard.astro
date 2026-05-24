@@ -1,7 +1,7 @@
 ---
 import type { ProjectRecord, Localized } from '../../lib/seed-data';
 import { pbThumb } from '../../lib/img';
-import { mdInline } from '../../lib/markdown';
+import { renderRichTextInline } from '../../lib/markdown';
 
 interface Props {
   project: Localized<ProjectRecord>;
@@ -18,8 +18,10 @@ interface Props {
 const { project: p, variant, featuredBadgeLabel, openCaseStudyLabel, mockupLabel, href, titleLevel = 'h3' } = Astro.props;
 const TitleTag = titleLevel;
 const isFeatured = variant === 'featured';
-// Inline-only: paragraph breaks would look wrong on a card; bold still anchors the eye.
-const descHtml = mdInline(p.desc);
+// `p.desc` is editor HTML in production and Markdown in the seed-data
+// fallback — `renderRichTextInline` flattens either to a single inline run so
+// the card stays single-block; inline tags (strong/em/a) are preserved.
+const descHtml = renderRichTextInline(p.desc);
 ---
 
 <a href={href} class:list={['pcard', `pcard--${variant}`]} aria-label={`${p.title} — ${openCaseStudyLabel}`} data-reveal>
