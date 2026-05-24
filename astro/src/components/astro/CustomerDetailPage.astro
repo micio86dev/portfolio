@@ -6,6 +6,7 @@ import { useTranslations, useTranslatedPath, type Locale } from '../../i18n/util
 import PbImage from '../vue/PbImage.vue';
 import Lightbox from './Lightbox.astro';
 import { pbThumb } from '../../lib/img';
+import { renderRichText } from '../../lib/markdown';
 import type { CustomerDetail } from '../../lib/seed-data';
 
 interface Props {
@@ -39,8 +40,11 @@ const periodLabel = fromYear
       : `${fromYear} — ${t('customersPage.ongoing')}`
   : '';
 
-// PB `description` is plain text; treat blank lines as paragraph breaks.
-const paragraphs = c.description.split(/\n\s*\n/).map((s) => s.trim()).filter(Boolean);
+// PB `description` and `testimonial` are PB editor (HTML) fields — see
+// migration 1778618000. The seed-data fallback (lib/seed-data.ts) still holds
+// Markdown, so route through `renderRichText` which detects format.
+const descriptionHtml = renderRichText(c.description);
+const testimonialHtml = renderRichText(c.testimonial);
 
 // `primaryImageUrl` is the hero shot; `imageUrls` is the full gallery (primary
 // first), so the extra screenshots are everything after index 0.
@@ -80,15 +84,13 @@ const galleryUrls = c.imageUrls.slice(1);
     </figure>
   )}
 
-  {paragraphs.length > 0 && (
-    <div class="cdetail__body">
-      {paragraphs.map((para) => <p>{para}</p>)}
-    </div>
+  {descriptionHtml && (
+    <div class="cdetail__body" set:html={descriptionHtml}></div>
   )}
 
-  {c.testimonial && (
+  {testimonialHtml && (
     <blockquote class="cdetail__quote">
-      <p>{c.testimonial}</p>
+      <div set:html={testimonialHtml}></div>
       {c.testimonialAuthor && <footer>— {c.testimonialAuthor}</footer>}
     </blockquote>
   )}
@@ -174,7 +176,6 @@ const galleryUrls = c.imageUrls.slice(1);
   .cdetail__title {
     margin: 0;
     font-family: var(--font-display);
-    font-style: italic;
     font-weight: 400;
     font-size: 40px;
     line-height: 1.0;
@@ -207,7 +208,6 @@ const galleryUrls = c.imageUrls.slice(1);
   .cdetail__quote p {
     margin: 0 0 10px;
     font-family: var(--font-display);
-    font-style: italic;
     font-size: 20px;
     line-height: 1.4;
     color: var(--text);
@@ -239,7 +239,7 @@ const galleryUrls = c.imageUrls.slice(1);
   }
   .cdetail__work-list li:first-child .cdetail__work-item { border-top: 1px solid var(--line); }
   .cdetail__work-item:hover { color: var(--brand); }
-  .cdetail__work-title { font-family: var(--font-display); font-style: italic; font-size: 22px; }
+  .cdetail__work-title { font-family: var(--font-display); font-size: 22px; }
   .cdetail__work-tail {
     font-family: var(--font-mono); font-size: 11px; color: var(--text-3);
     letter-spacing: 0.08em; white-space: nowrap;

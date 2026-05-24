@@ -48,7 +48,7 @@
   --color-brand:   var(--brand);
 
   /* Type */
-  --font-display: "Instrument Serif", "Times New Roman", serif;
+  --font-display: "Geist", ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-body:    "Geist", ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono:    "Geist Mono", ui-monospace, "JetBrains Mono", monospace;
 
@@ -102,23 +102,9 @@
 /* ──────────────────────────────────────────────────────────────────────
    Self-hosted fonts — the woff2 files live in /public/fonts/ (see the
    README "Fonts" section and public/fonts/.gitkeep). If a file is missing
-   the system fallbacks render (Times New Roman / system-ui); `font-display:
+   the system fallbacks render (ui-sans-serif / system-ui); `font-display:
    swap` + size-adjust keeps layout shift to a minimum until the webfont loads.
    ────────────────────────────────────────────────────────────────────── */
-@font-face {
-  font-family: "Instrument Serif";
-  src: url("/fonts/instrument-serif-regular.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Instrument Serif";
-  src: url("/fonts/instrument-serif-italic.woff2") format("woff2");
-  font-weight: 400;
-  font-style: italic;
-  font-display: swap;
-}
 @font-face {
   font-family: "Geist";
   src: url("/fonts/geist-regular.woff2") format("woff2");

@@ -5,8 +5,6 @@
 # Present here (Latin subset — covers en/it/es), pulled from the Fontsource CDN
 # (https://cdn.jsdelivr.net/fontsource/fonts/<id>@latest/latin-<wght>-<style>.woff2):
 #
-#   instrument-serif-regular.woff2    (instrument-serif, 400 normal)
-#   instrument-serif-italic.woff2     (instrument-serif, 400 italic)   ← preloaded
 #   geist-regular.woff2               (geist, 400 normal)              ← preloaded
 #   geist-medium.woff2                (geist, 500 normal)
 #   geist-semibold.woff2              (geist, 600 normal)

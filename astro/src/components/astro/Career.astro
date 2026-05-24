@@ -1,6 +1,7 @@
 ---
 import { useTranslations, type Locale } from '../../i18n/utils';
 import { getCareer } from '../../lib/pocketbase';
+import { mdInline } from '../../lib/markdown';
 
 interface Props {
   lang: Locale;
@@ -32,7 +33,7 @@ const milestones = await getCareer(lang);
             <span class="career__period">{m.period}</span>
             {m.company && <span class="career__company">{m.company}</span>}
           </div>
-          <p class="career__body">{m.body}</p>
+          <p class="career__body" set:html={mdInline(m.body)}></p>
           {m.tech.length > 0 && (
             <ul class="career__tech">
               {m.tech.map((tag: string) => <li class="career__chip">{tag}</li>)}
@@ -73,7 +74,6 @@ const milestones = await getCareer(lang);
   .career__title {
     margin: 0;
     font-family: var(--font-display);
-    font-style: italic;
     font-weight: 400;
     font-size: 36px;
     line-height: 1.02;
@@ -153,7 +153,6 @@ const milestones = await getCareer(lang);
   }
   .career__company {
     font-family: var(--font-display);
-    font-style: italic;
     font-weight: 400;
     font-size: 20px;
     line-height: 1.15;

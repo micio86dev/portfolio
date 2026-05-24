@@ -158,13 +158,12 @@ const csp = [
 
     <!-- Critical fonts — start downloading ASAP, before canonical/OG resolve.
          Place the woff2 files in /public/fonts/ (see README "Fonts"). All
-         five preloaded variants are used above the fold on the home page:
-         the italic display face renders the hero headline; geist-regular
-         carries the sub-head + body; geist-medium + geist-mono variants
-         drive the nav, eyebrows, meta labels and headline numerals. Without
-         these preloads the fonts only kick off after CSS parses, which was
-         the dominant chain step in the PageSpeed audit. -->
-    <link rel="preload" href="/fonts/instrument-serif-italic.woff2" as="font" type="font/woff2" crossorigin />
+         four preloaded variants are used above the fold on the home page:
+         geist-regular carries the headlines, sub-head + body; geist-medium
+         + geist-mono variants drive the nav, eyebrows, meta labels and
+         headline numerals. Without these preloads the fonts only kick off
+         after CSS parses, which was the dominant chain step in the
+         PageSpeed audit. -->
     <link rel="preload" href="/fonts/geist-regular.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/geist-medium.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/geist-mono-regular.woff2" as="font" type="font/woff2" crossorigin />

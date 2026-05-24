@@ -6,6 +6,7 @@ import { useTranslations, useTranslatedPath, type Locale } from '../../i18n/util
 import PbImage from '../vue/PbImage.vue';
 import Lightbox from './Lightbox.astro';
 import { pbThumb } from '../../lib/img';
+import { renderRichText } from '../../lib/markdown';
 import type { ProjectRecord, Localized } from '../../lib/seed-data';
 
 interface Props {
@@ -16,8 +17,10 @@ const { lang, project: p } = Astro.props;
 const t = useTranslations(lang);
 const path = useTranslatedPath(lang);
 
-// PB `desc` is plain text; treat blank lines as paragraph breaks.
-const paragraphs = p.desc.split(/\n\s*\n/).map((s) => s.trim()).filter(Boolean);
+// PB `desc` is a PB editor (HTML) field — see migration 1778618100. The
+// seed-data fallback still holds Markdown, so route through `renderRichText`
+// which detects format and converts only when needed.
+const descHtml = renderRichText(p.desc);
 
 // `coverUrl` is the project's hero shot; `imageUrls` is the full gallery (cover
 // first), so the "extra" shots are everything after index 0.
@@ -71,9 +74,7 @@ const galleryUrls = (p.imageUrls ?? []).slice(1);
     </div>
   )}
 
-  <div class="pdetail__body">
-    {paragraphs.map((para) => <p>{para}</p>)}
-  </div>
+  <div class="pdetail__body" set:html={descHtml}></div>
 
   {galleryUrls.length > 0 && (
     <div class="pdetail__gallery">
@@ -208,7 +209,6 @@ const galleryUrls = (p.imageUrls ?? []).slice(1);
   .pdetail__title {
     margin: 0;
     font-family: var(--font-display);
-    font-style: italic;
     font-weight: 400;
     font-size: 40px;
     line-height: 1.0;
@@ -234,7 +234,6 @@ const galleryUrls = (p.imageUrls ?? []).slice(1);
   .pdetail__kpi { display: grid; gap: 4px; }
   .pdetail__kpi-value {
     font-family: var(--font-display);
-    font-style: italic;
     font-size: 28px;
     line-height: 1;
     color: var(--text);

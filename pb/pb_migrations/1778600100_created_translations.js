@@ -227,9 +227,9 @@ migrate(
       {
         "key": "hero.meta.version",
         "group": "hero",
-        "en": "v 1.0.1",
-        "it": "v 1.0.1",
-        "es": "v 1.0.1"
+        "en": "v 1.1.0",
+        "it": "v 1.1.0",
+        "es": "v 1.1.0"
       },
       {
         "key": "hero.stamp",
@@ -927,9 +927,9 @@ migrate(
       {
         "key": "footer.builtWith",
         "group": "footer",
-        "en": "Built with Astro + PocketBase · v1.0.1",
-        "it": "Realizzato con Astro + PocketBase · v1.0.1",
-        "es": "Hecho con Astro + PocketBase · v1.0.1"
+        "en": "Built with Astro + PocketBase · v1.1.0",
+        "it": "Realizzato con Astro + PocketBase · v1.1.0",
+        "es": "Hecho con Astro + PocketBase · v1.1.0"
       },
       {
         "key": "projectsPage.eyebrow",

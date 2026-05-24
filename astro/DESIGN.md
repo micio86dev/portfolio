@@ -165,7 +165,7 @@ Base body: `font-feature-settings: "ss01","ss02","cv11"`,
 | `m` | 11 / 14 | mono micro-labels |
 
 **Fluid headline sizes used in sections** (not in the token scale):
-- Hero H1: `clamp(48px, 11vw, 72px)` mobile → `clamp(72px, 8.4vw, 132px)` ≥ 960 px;
+- Hero H1: `clamp(48px, 11vw, 72px)` mobile → `clamp(72px, 8.4vw, 124px)` ≥ 960 px;
   `line-height: .96`, `letter-spacing: -.028em`, `text-wrap: pretty`.
 - Section H2 (Services / Projects): `42px` mobile → `clamp(56px, 6vw, 92px)`;
   `line-height: .98`, `letter-spacing: -.025em`, `text-wrap: balance`.
@@ -352,7 +352,7 @@ cards to separate head ↔ body, and after copy blocks.
 
 ### Mono meta strings
 
-Status/availability lines, `§ NN` counters, `↳ index · §0N`, "v 1.0.1", etc.:
+Status/availability lines, `§ NN` counters, `↳ index · §0N`, "v 1.1.0", etc.:
 mono 10–11, `--text-3`, `letter-spacing:.08–.18em`, often uppercase. Brand
 "live" dot: 6 px circle, `--brand`, with `box-shadow:0 0 0 3px color-mix(in
 oklab, var(--brand) 22–25%, transparent)`.
@@ -449,7 +449,7 @@ flips `document.documentElement.dataset.theme` and persists to
   only) and the mono build stamp in both modes.
 - Header row (full width): eyebrow (".dot" + "Freelance · Full-stack · Since
   2010"); on desktop a mono meta cluster on the right ("§ 01 / Hero" · "Fuerteventura
-  · UTC+0" · "v 1.0.1").
+  · UTC+0" · "v 1.1.0").
 - **H1** (the page's only `<h1>`): three `<span class="hero__line">` lines —
   line 1 prefixed with the `[LANG]` mono tag, line 2 contains the brand-green
   accent word + a comma, line 3 plain. Fluid sizing per §3.
