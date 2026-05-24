@@ -1,6 +1,6 @@
 ---
 // Shared layout for long-form / article content pages: a mono eyebrow with the
-// brand dot, the italic serif headline, an optional sub-line, then a styled
+// brand dot, the display headline, an optional sub-line, then a styled
 // article wrapper for the body (<slot />). Used by /privacy, /imprint and
 // /notes/[slug].
 interface Props {
@@ -48,7 +48,6 @@ const { eyebrow, title, meta, intro } = Astro.props;
   .cpage__title {
     margin: 0;
     font-family: var(--font-display);
-    font-style: italic;
     font-weight: 400;
     font-size: 40px;
     line-height: 1.0;
@@ -76,7 +75,6 @@ const { eyebrow, title, meta, intro } = Astro.props;
   .cpage__body :global(h2),
   .cpage__body :global(h3) {
     font-family: var(--font-display);
-    font-style: italic;
     font-weight: 400;
     letter-spacing: -0.02em;
     line-height: 1.1;

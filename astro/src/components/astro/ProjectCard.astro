@@ -1,6 +1,7 @@
 ---
 import type { ProjectRecord, Localized } from '../../lib/seed-data';
 import { pbThumb } from '../../lib/img';
+import { mdInline } from '../../lib/markdown';
 
 interface Props {
   project: Localized<ProjectRecord>;
@@ -17,6 +18,8 @@ interface Props {
 const { project: p, variant, featuredBadgeLabel, openCaseStudyLabel, mockupLabel, href, titleLevel = 'h3' } = Astro.props;
 const TitleTag = titleLevel;
 const isFeatured = variant === 'featured';
+// Inline-only: paragraph breaks would look wrong on a card; bold still anchors the eye.
+const descHtml = mdInline(p.desc);
 ---
 
 <a href={href} class:list={['pcard', `pcard--${variant}`]} aria-label={`${p.title} — ${openCaseStudyLabel}`} data-reveal>
@@ -78,7 +81,7 @@ const isFeatured = variant === 'featured';
 
     <TitleTag class="pcard__title">{p.title}</TitleTag>
 
-    <p class="pcard__desc">{p.desc}</p>
+    <p class="pcard__desc" set:html={descHtml}></p>
 
     <hr class="md-hr" />
 
@@ -203,7 +206,6 @@ const isFeatured = variant === 'featured';
   }
   .pcard__kpi-value {
     font-family: var(--font-display);
-    font-style: italic;
     font-size: 22px;
     line-height: 1;
     color: var(--text);
@@ -281,7 +283,6 @@ const isFeatured = variant === 'featured';
   .pcard__title {
     margin: 0;
     font-family: var(--font-display);
-    font-style: italic;
     font-weight: 400;
     font-size: 30px;
     line-height: 1.05;

@@ -12,8 +12,18 @@ FROM oven/bun:1-alpine AS builder
 WORKDIR /app
 
 # Install full deps first (cached unless the lockfile changes).
+# - BuildKit cache mount: keep already-downloaded tarballs across rebuilds and
+#   retries (otherwise a flaky network on @img/sharp-libvips-linux-arm64 forces
+#   a full re-download every attempt).
+# - Retry loop: bun has no built-in retry; sharp's native binaries are big and
+#   the npm registry occasionally times them out, so try up to 3× before failing.
 COPY package.json bun.lock ./
-RUN bun install --frozen-lockfile
+RUN --mount=type=cache,target=/root/.bun/install/cache,sharing=locked \
+    for i in 1 2 3; do \
+      bun install --frozen-lockfile && break; \
+      echo "bun install failed (attempt $i), retrying in 10s…"; \
+      sleep 10; \
+    done
 
 # Build-time config: canonical origin for <link rel="canonical">, hreflang, sitemap.
 ARG SITE_URL="http://localhost:4321"
@@ -26,7 +36,12 @@ RUN bun run build
 FROM oven/bun:1-alpine AS deps
 WORKDIR /app
 COPY package.json bun.lock ./
-RUN bun install --frozen-lockfile --production
+RUN --mount=type=cache,target=/root/.bun/install/cache,sharing=locked \
+    for i in 1 2 3; do \
+      bun install --frozen-lockfile --production && break; \
+      echo "bun install failed (attempt $i), retrying in 10s…"; \
+      sleep 10; \
+    done
 
 # ── Stage 3: runtime ──────────────────────────────────────────────────
 FROM oven/bun:1-alpine AS runtime

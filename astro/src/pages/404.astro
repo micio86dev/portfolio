@@ -1,6 +1,6 @@
 ---
 // Custom 404 — playful, on-brand: the MicioDev mark over a soft brand-green
-// glow, a big italic-serif "404", a friendly line, and a button back home.
+// glow, a big display "404", a friendly line, and a button back home.
 // Locale is read from the URL so `/it/<bad>` and `/es/<bad>` get the right copy
 // (Astro serves this for any unmatched route). Copy comes from the
 // `translations` overlay / bundled i18n JSON like everything else.
@@ -103,7 +103,6 @@ const LOGO_PX = 96;
   .nf__code {
     margin: 4px 0 0;
     font-family: var(--font-display);
-    font-style: italic;
     font-weight: 400;
     line-height: 0.9;
     letter-spacing: -0.04em;
@@ -117,7 +116,6 @@ const LOGO_PX = 96;
   .nf__title {
     margin: 0;
     font-family: var(--font-display);
-    font-style: italic;
     font-weight: 400;
     font-size: clamp(28px, 5.4vw, 44px);
     line-height: 1.02;
