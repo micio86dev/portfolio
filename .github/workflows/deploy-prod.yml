@@ -89,12 +89,21 @@ jobs:
               'umask 077 && cat > /var/www/html/micio86dev.it/.env'
 
       - name: Deploy on VPS
+        # The VPS docker daemon needs GHCR creds to pull the private :latest
+        # images. We reuse the runner's ephemeral GITHUB_TOKEN (same one used
+        # for the push above) — piped over stdin so it never lands in `ps`,
+        # and logged out at the end so no creds linger on the box.
         env:
           SSH_TARGET: ${{ secrets.VPS_SSH_USER }}@${{ secrets.VPS_SSH_HOST }}
+          GHCR_USER: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          printf '%s' "$GHCR_TOKEN" | ssh -o StrictHostKeyChecking=accept-new "${SSH_TARGET}" \
+            "docker login ghcr.io -u '${GHCR_USER}' --password-stdin >/dev/null"
           ssh -o StrictHostKeyChecking=accept-new "${SSH_TARGET}" 'bash -se' <<'REMOTE'
           set -euo pipefail
           cd /var/www/html/micio86dev.it
+          trap 'docker logout ghcr.io >/dev/null 2>&1 || true' EXIT
           docker compose -f docker-compose.prod.yml pull
           docker compose -f docker-compose.prod.yml up -d --remove-orphans
           docker exec portfolio-pocketbase \

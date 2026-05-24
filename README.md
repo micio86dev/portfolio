@@ -581,7 +581,9 @@ collection, viewable in the admin dashboard at `/_/` — no email service, so
 there are no Resend / SMTP credentials anywhere.
 
 **`GITHUB_TOKEN` is automatic** — the deploy workflows log in to `ghcr.io` with
-the built-in `${{ secrets.GITHUB_TOKEN }}` (`permissions: packages: write`). No
+the built-in `${{ secrets.GITHUB_TOKEN }}` (`permissions: packages: write`) both
+on the runner (to push) and on the VPS (to pull the private images — the token
+is piped over SSH via stdin and `docker logout`-ed at the end of the job). No
 PAT to create or store.
 
 ### Generating the CI SSH key
