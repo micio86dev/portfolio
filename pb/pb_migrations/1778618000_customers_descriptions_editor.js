@@ -5,29 +5,32 @@
 //   - description_en / description_it / description_es
 //   - testimonial_en / testimonial_it / testimonial_es
 //
+// PocketBase explicitly disallows changing a field's `type` in place ("Field
+// type cannot be changed."), so we drop each field and re-add it under the
+// same name with the new type. PB assigns the new field a fresh id, and the
+// underlying SQLite column is dropped+recreated by `app.save(collection)`. We
+// snapshot the row data BEFORE the schema swap and write it back AFTER, so
+// existing content survives.
+//
 // The `editor` field stores **HTML**, but existing `description_*` rows hold
 // lightweight Markdown (`**bold**`, `*italic*` / `_italic_`, `[txt](url)`,
-// blank-line paragraphs) — see astro/src/lib/markdown.ts. So up() also rewrites
-// the existing description data through an inline Markdown→HTML converter
-// (same rules as mdParagraphs) so the WYSIWYG opens them as proper rich-text
-// instead of literal asterisks. Testimonials are seeded empty by
-// 1778602000_seed_projects_customers.js, so they need no data conversion.
+// blank-line paragraphs) — see astro/src/lib/markdown.ts. The write-back step
+// routes Markdown through an inline Markdown→HTML converter (same rules as
+// `mdParagraphs`) so the WYSIWYG opens them as proper rich text instead of
+// literal asterisks. Testimonials are seeded empty by
+// 1778602000_seed_projects_customers.js, so they need no conversion — only
+// preservation of whatever an admin may have added by hand.
 //
-// The frontend renderers (CustomerDetailPage.astro for description, and the
-// testimonial block) have been switched in the same change-set from
-// mdParagraphs() to `set:html` directly — so post-migration the page renders
-// the stored HTML as-is.
+// The frontend renderers (CustomerDetailPage.astro) have been switched in the
+// same change-set to render through `renderRichText` / `renderRichTextInline`,
+// which auto-detect HTML vs Markdown so the lib/seed-data.ts fallback
+// (still Markdown) keeps working when PB is unreachable.
 //
-// `fields.add(new Field({...}))` REPLACES a same-named field; the underlying
-// SQLite TEXT column is shared between `text` and `editor` types, so row data
-// survives the schema swap untouched (we still rewrite descriptions inside the
-// same transaction, after the field replace, with the HTML form).
-//
-// down() flips the fields back to `text` (with the original max=2000 cap) and
-// rewinds `description_*` from HTML to a best-effort Markdown form. The
-// reverse is lossy: anything richer than bold/italic/links/paragraphs that an
-// admin may have introduced via the WYSIWYG after the up() will be stripped to
-// plain text. Acceptable for a forward-only content schema.
+// down() reverses the schema swap (editor → text, max=2000) and rewinds
+// existing HTML back to a best-effort Markdown using the same drop/re-add
+// pattern. The reverse is lossy: anything richer than bold/italic/links/
+// paragraphs that an admin may have introduced via the WYSIWYG after the up()
+// will be stripped to plain text.
 
 const ESCAPE_HTML_MAP = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' };
 const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ESCAPE_HTML_MAP[c]);
@@ -73,33 +76,44 @@ const htmlToMd = (html) => {
   return s.trim();
 };
 
+const FIELD_NAMES = [
+  'description_en', 'description_it', 'description_es',
+  'testimonial_en', 'testimonial_it', 'testimonial_es',
+];
 const DESCRIPTION_FIELDS = ['description_en', 'description_it', 'description_es'];
-const TESTIMONIAL_FIELDS = ['testimonial_en', 'testimonial_it', 'testimonial_es'];
 
 migrate(
   (app) => {
     const customers = app.findCollectionByNameOrId('customers');
 
-    for (const name of DESCRIPTION_FIELDS) {
-      customers.fields.add(new Field({ type: 'editor', name }));
+    // 1. Snapshot the existing row data before the schema swap drops the
+    //    column data with it.
+    const snapshot = {};
+    for (const rec of app.findAllRecords('customers')) {
+      const row = {};
+      for (const name of FIELD_NAMES) row[name] = rec.getString(name);
+      snapshot[rec.id] = row;
     }
-    for (const name of TESTIMONIAL_FIELDS) {
-      customers.fields.add(new Field({ type: 'editor', name }));
-    }
+
+    // 2. Drop the text fields and re-add as editor (PB disallows in-place
+    //    type change). Done in one save so PB drops+creates columns once.
+    for (const name of FIELD_NAMES) customers.fields.removeByName(name);
+    for (const name of FIELD_NAMES) customers.fields.add(new Field({ type: 'editor', name }));
     app.save(customers);
 
-    // Convert existing description Markdown → HTML in place. Testimonials are
-    // empty in the seed and the editor will treat any stray plain text as a
-    // single paragraph at first edit, so no rewrite needed there.
-    const rows = app.findAllRecords('customers');
-    for (const rec of rows) {
+    // 3. Restore the data, converting Markdown descriptions to HTML so the
+    //    WYSIWYG opens them as rich text rather than literal asterisks.
+    for (const rec of app.findAllRecords('customers')) {
+      const saved = snapshot[rec.id];
+      if (!saved) continue;
       let touched = false;
-      for (const name of DESCRIPTION_FIELDS) {
-        const raw = rec.getString(name);
-        if (raw && raw.indexOf('<') === -1) {
-          rec.set(name, mdToHtml(raw));
-          touched = true;
-        }
+      for (const name of FIELD_NAMES) {
+        const raw = saved[name] || '';
+        if (!raw) continue;
+        const isDescription = DESCRIPTION_FIELDS.indexOf(name) !== -1;
+        const value = isDescription && raw.indexOf('<') === -1 ? mdToHtml(raw) : raw;
+        rec.set(name, value);
+        touched = true;
       }
       if (touched) app.save(rec);
     }
@@ -107,23 +121,30 @@ migrate(
   (app) => {
     const customers = app.findCollectionByNameOrId('customers');
 
-    for (const name of DESCRIPTION_FIELDS) {
-      customers.fields.add(new Field({ type: 'text', name, max: 2000 }));
+    const snapshot = {};
+    for (const rec of app.findAllRecords('customers')) {
+      const row = {};
+      for (const name of FIELD_NAMES) row[name] = rec.getString(name);
+      snapshot[rec.id] = row;
     }
-    for (const name of TESTIMONIAL_FIELDS) {
+
+    for (const name of FIELD_NAMES) customers.fields.removeByName(name);
+    for (const name of FIELD_NAMES) {
       customers.fields.add(new Field({ type: 'text', name, max: 2000 }));
     }
     app.save(customers);
 
-    const rows = app.findAllRecords('customers');
-    for (const rec of rows) {
+    for (const rec of app.findAllRecords('customers')) {
+      const saved = snapshot[rec.id];
+      if (!saved) continue;
       let touched = false;
-      for (const name of DESCRIPTION_FIELDS) {
-        const raw = rec.getString(name);
-        if (raw && raw.indexOf('<') !== -1) {
-          rec.set(name, htmlToMd(raw));
-          touched = true;
-        }
+      for (const name of FIELD_NAMES) {
+        const raw = saved[name] || '';
+        if (!raw) continue;
+        const isDescription = DESCRIPTION_FIELDS.indexOf(name) !== -1;
+        const value = isDescription && raw.indexOf('<') !== -1 ? htmlToMd(raw) : raw;
+        rec.set(name, value);
+        touched = true;
       }
       if (touched) app.save(rec);
     }

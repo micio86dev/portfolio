@@ -2,12 +2,14 @@
 
 // Flip `projects.desc_en` / `desc_it` / `desc_es` from `text` → `editor` so the
 // PB admin shows the same WYSIWYG used by `pages.body_*`. See the companion
-// migration 1778618000_customers_descriptions_editor.js for the broader
-// rationale, the Markdown→HTML conversion approach, and the frontend renderer
-// switch (set:html instead of mdParagraphs()).
+// migration 1778618000_customers_descriptions_editor.js for the full rationale
+// — including why PB's "Field type cannot be changed" rule forces a drop /
+// re-add + data snapshot pattern, and how the frontend renderer was switched
+// (`renderRichText` / `renderRichTextInline`) to handle both HTML (DB) and
+// Markdown (lib/seed-data.ts fallback).
 //
 // `desc_en` keeps `required: true` (carried over from the original
-// 1778600300_created_projects.js). The other two locales are optional.
+// 1778600300_created_projects.js). The other two locales remain optional.
 
 const ESCAPE_HTML_MAP = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' };
 const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ESCAPE_HTML_MAP[c]);
@@ -49,24 +51,45 @@ const htmlToMd = (html) => {
   return s.trim();
 };
 
+const FIELD_NAMES = ['desc_en', 'desc_it', 'desc_es'];
+const EDITOR_DEFS = [
+  { name: 'desc_en', required: true },
+  { name: 'desc_it' },
+  { name: 'desc_es' },
+];
+const TEXT_DEFS = [
+  { name: 'desc_en', required: true, max: 4000 },
+  { name: 'desc_it', max: 4000 },
+  { name: 'desc_es', max: 4000 },
+];
+
 migrate(
   (app) => {
     const projects = app.findCollectionByNameOrId('projects');
 
-    projects.fields.add(new Field({ type: 'editor', name: 'desc_en', required: true }));
-    projects.fields.add(new Field({ type: 'editor', name: 'desc_it' }));
-    projects.fields.add(new Field({ type: 'editor', name: 'desc_es' }));
+    const snapshot = {};
+    for (const rec of app.findAllRecords('projects')) {
+      const row = {};
+      for (const name of FIELD_NAMES) row[name] = rec.getString(name);
+      snapshot[rec.id] = row;
+    }
+
+    for (const name of FIELD_NAMES) projects.fields.removeByName(name);
+    for (const def of EDITOR_DEFS) {
+      projects.fields.add(new Field(Object.assign({ type: 'editor' }, def)));
+    }
     app.save(projects);
 
-    const rows = app.findAllRecords('projects');
-    for (const rec of rows) {
+    for (const rec of app.findAllRecords('projects')) {
+      const saved = snapshot[rec.id];
+      if (!saved) continue;
       let touched = false;
-      for (const name of ['desc_en', 'desc_it', 'desc_es']) {
-        const raw = rec.getString(name);
-        if (raw && raw.indexOf('<') === -1) {
-          rec.set(name, mdToHtml(raw));
-          touched = true;
-        }
+      for (const name of FIELD_NAMES) {
+        const raw = saved[name] || '';
+        if (!raw) continue;
+        const value = raw.indexOf('<') === -1 ? mdToHtml(raw) : raw;
+        rec.set(name, value);
+        touched = true;
       }
       if (touched) app.save(rec);
     }
@@ -74,20 +97,29 @@ migrate(
   (app) => {
     const projects = app.findCollectionByNameOrId('projects');
 
-    projects.fields.add(new Field({ type: 'text', name: 'desc_en', required: true, max: 4000 }));
-    projects.fields.add(new Field({ type: 'text', name: 'desc_it', max: 4000 }));
-    projects.fields.add(new Field({ type: 'text', name: 'desc_es', max: 4000 }));
+    const snapshot = {};
+    for (const rec of app.findAllRecords('projects')) {
+      const row = {};
+      for (const name of FIELD_NAMES) row[name] = rec.getString(name);
+      snapshot[rec.id] = row;
+    }
+
+    for (const name of FIELD_NAMES) projects.fields.removeByName(name);
+    for (const def of TEXT_DEFS) {
+      projects.fields.add(new Field(Object.assign({ type: 'text' }, def)));
+    }
     app.save(projects);
 
-    const rows = app.findAllRecords('projects');
-    for (const rec of rows) {
+    for (const rec of app.findAllRecords('projects')) {
+      const saved = snapshot[rec.id];
+      if (!saved) continue;
       let touched = false;
-      for (const name of ['desc_en', 'desc_it', 'desc_es']) {
-        const raw = rec.getString(name);
-        if (raw && raw.indexOf('<') !== -1) {
-          rec.set(name, htmlToMd(raw));
-          touched = true;
-        }
+      for (const name of FIELD_NAMES) {
+        const raw = saved[name] || '';
+        if (!raw) continue;
+        const value = raw.indexOf('<') !== -1 ? htmlToMd(raw) : raw;
+        rec.set(name, value);
+        touched = true;
       }
       if (touched) app.save(rec);
     }
