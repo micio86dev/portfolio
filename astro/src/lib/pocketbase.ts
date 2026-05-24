@@ -58,13 +58,25 @@ import {
   type Localized,
 } from './seed-data';
 
+/** Browser-facing PB URL — also baked into CSP `img-src` / `connect-src` so the
+ *  contact form and any client-side fetches can reach it. */
 const PB_URL =
   (typeof process !== 'undefined' ? process.env.PUBLIC_PB_URL : undefined) ||
   (import.meta.env.PUBLIC_PB_URL as string | undefined);
 
+/** SSR-side PB URL. Used only by this file's server-side fetches. In Docker the
+ *  astro container can't reach `localhost:8090` (that's its own loopback), so
+ *  the compose file passes `PB_URL_INTERNAL=http://pocketbase:8090` here. Falls
+ *  back to `PUBLIC_PB_URL` when not set (e.g. `astro dev` on the host). */
+const PB_URL_SSR =
+  (typeof process !== 'undefined' ? process.env.PB_URL_INTERNAL : undefined) ||
+  (import.meta.env.PB_URL_INTERNAL as string | undefined) ||
+  PB_URL;
+
 /** Origin of the PocketBase instance (e.g. `https://pb.micio86dev.it`), or '' when
  *  unset. The page CSP whitelists this for `img-src` (file URLs minted by `fileUrl()`)
- *  and `connect-src` (the contact-form POST in ContactForm.vue). */
+ *  and `connect-src` (the contact-form POST in ContactForm.vue). Always the
+ *  browser-facing URL — never the internal SSR override. */
 export const PB_ORIGIN = (() => {
   try {
     return PB_URL ? new URL(PB_URL).origin : '';
@@ -73,8 +85,8 @@ export const PB_ORIGIN = (() => {
   }
 })();
 
-/** Singleton client. Server-only; `null` when PUBLIC_PB_URL is not set. */
-export const pb: PocketBase | null = PB_URL ? new PocketBase(PB_URL) : null;
+/** Singleton client. Server-only; `null` when no PB URL is configured at all. */
+export const pb: PocketBase | null = PB_URL_SSR ? new PocketBase(PB_URL_SSR) : null;
 
 /** Hard deadline for every PocketBase fetch — prevents SSR from hanging
  *  indefinitely when a connection is stale or the network path is broken. */

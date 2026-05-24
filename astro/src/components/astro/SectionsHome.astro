@@ -1,7 +1,6 @@
 ---
 // The full landing-page section stack — shared across all locale routes.
 import Hero from './Hero.astro';
-import SectionDivider from './SectionDivider.astro';
 import Services from './Services.astro';
 import Projects from './Projects.astro';
 import Career from './Career.astro';
@@ -10,38 +9,29 @@ import Courses from './Courses.astro';
 import Videos from './Videos.astro';
 import Contact from './Contact.astro';
 import Colophon from './Colophon.astro';
-import { useTranslations, type Locale } from '../../i18n/utils';
+import { type Locale } from '../../i18n/utils';
 
 interface Props {
   lang: Locale;
 }
 const { lang } = Astro.props;
-const t = useTranslations(lang);
 ---
 
 <Hero lang={lang} />
 
-<SectionDivider label={t('dividers.services')} />
 <Services lang={lang} />
 
-<SectionDivider label={t('dividers.work')} />
 <Projects lang={lang} />
 
-<SectionDivider label={t('dividers.career')} />
-<Career lang={lang} />
-
-<SectionDivider label={t('dividers.skills')} />
 <Skills lang={lang} />
 
-<SectionDivider label={t('dividers.courses')} />
 <Courses lang={lang} />
 
-<SectionDivider label={t('dividers.videos')} />
 <Videos lang={lang} />
 
-<SectionDivider label={t('dividers.contact')} />
 <Contact lang={lang} />
 
-<SectionDivider label={t('dividers.colophon')} />
+<Career lang={lang} />
+
 <Colophon lang={lang} />
 

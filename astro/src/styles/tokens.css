@@ -56,7 +56,7 @@
   --danger:       #B4321F;
 
   /* ── Type ────────────────────────────────────────────────── */
-  --font-display: "Instrument Serif", "Times New Roman", serif;
+  --font-display: "Geist", ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-body:    "Geist", ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono:    "Geist Mono", ui-monospace, "JetBrains Mono", monospace;
 
