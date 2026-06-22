@@ -22,7 +22,17 @@ services:
       - PUBLIC_PB_URL=${PROD_PB_URL}
       # Runtime origin for the /sitemap.xml and /robots.txt SSR endpoints.
       - PUBLIC_SITE_URL=https://micio86dev.it
-    restart: unless-stopped
+    # `always` (not `unless-stopped`): on a memory-starved host the SSR process
+    # can die with SIGSEGV (exit 139) when sharp/libvips spikes — auto-recover.
+    restart: always
+    # Hard cap so a runtime sharp/libvips spike can never again consume GBs and
+    # starve the whole VPS (the June 2026 outage: astro segfaulted, swap filled,
+    # nothing else could fork → site-wide 502). At 512m a worst-case spike gets
+    # cgroup-OOM-killed and `restart: always` brings it straight back, instead of
+    # taking the host down. Idle footprint is ~50–150 MB; tune up if legit image
+    # processing under load gets killed.
+    mem_limit: 512m
+    mem_reservation: 256m
     depends_on:
       - pocketbase
 
