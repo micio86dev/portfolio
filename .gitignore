@@ -19,6 +19,10 @@ dist/
 # the pinned Linux build at build time. Never commit either binary or data.
 pb/pocketbase
 pb/pb_data/
+# PocketBase backup archives (Settings → Backups) — contain live records incl.
+# contact-form submissions (emails/PII). NEVER commit to this public repo.
+pb_backup*.zip
+**/pb_backup*.zip
 
 # ── Logs ───────────────────────────────────────────────────────────────
 *.log
