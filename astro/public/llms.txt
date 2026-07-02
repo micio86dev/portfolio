@@ -3,30 +3,28 @@
 > Senior full-stack web developer with 15+ years of experience.
 > Specializing in Laravel, Vue, Nuxt, TypeScript. Remote, based in Canary Islands.
 
-## Services
+Services: Full-Stack Web Development (Laravel + Vue/Nuxt), API Design & Backend
+Architecture, VPS Infrastructure & DevOps, Technical Consulting for Digital
+Agencies, Code Review & Legacy Refactoring.
 
-- Full-Stack Web Development (Laravel + Vue/Nuxt)
-- API Design & Backend Architecture
-- VPS Infrastructure & DevOps
-- Technical Consulting for Digital Agencies
-- Code Review & Legacy Refactoring
+Tech stack: PHP, Laravel, TypeScript, Vue 3, Nuxt 4, Astro, Node.js,
+MySQL, PostgreSQL, Redis, Docker, nginx, DigitalOcean, GitHub Actions.
 
-## Tech Stack
+Open to freelance projects and consulting engagements. Preferred contact:
+the contact form at https://micio86dev.it/#contact
 
-PHP, Laravel, TypeScript, Vue 3, Nuxt 4, Astro, Node.js,
-MySQL, PostgreSQL, Redis, Docker, nginx, DigitalOcean, GitHub Actions
+## Site
 
-## Projects
+- [Home](https://micio86dev.it/): profile, services and contact form
+- [Projects](https://micio86dev.it/projects): portfolio of selected projects
+- [Notes](https://micio86dev.it/notes): technical notes and news
+- [Sitemap](https://micio86dev.it/sitemap.xml): all page URLs, including every project
 
-See /sitemap.xml for all project URLs.
+## Profiles
 
-## Contact
+- [GitHub](https://github.com/micio86dev): open-source work and code samples
+- [YouTube](https://youtube.com/@miciodev): dev videos
 
-Website: https://micio86dev.it
-GitHub: https://github.com/micio86dev
-YouTube: https://youtube.com/@miciodev
+## Optional
 
-## Availability
-
-Open to freelance projects and consulting engagements.
-Preferred contact: via contact form at https://micio86dev.it/#contact
+- [llms-full.txt](https://micio86dev.it/llms-full.txt): extended version with project links and REST API details

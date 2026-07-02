@@ -3,38 +3,40 @@
 > Senior full-stack web developer with 15+ years of experience.
 > Specializing in Laravel, Vue, Nuxt, TypeScript. Remote, based in Canary Islands.
 
-## Services
+Services: Full-Stack Web Development (Laravel + Vue/Nuxt), API Design & Backend
+Architecture, VPS Infrastructure & DevOps, Technical Consulting for Digital
+Agencies, Code Review & Legacy Refactoring.
 
-- Full-Stack Web Development (Laravel + Vue/Nuxt)
-- API Design & Backend Architecture
-- VPS Infrastructure & DevOps
-- Technical Consulting for Digital Agencies
-- Code Review & Legacy Refactoring
+Tech stack: PHP, Laravel, TypeScript, Vue 3, Nuxt 4, Astro, Node.js,
+MySQL, PostgreSQL, Redis, Docker, nginx, DigitalOcean, GitHub Actions.
 
-## Tech Stack
+Open to freelance projects and consulting engagements. Preferred contact:
+the contact form at https://micio86dev.it/#contact
 
-PHP, Laravel, TypeScript, Vue 3, Nuxt 4, Astro, Node.js,
-MySQL, PostgreSQL, Redis, Docker, nginx, DigitalOcean, GitHub Actions
+Projects data is also available via the PocketBase REST API:
+GET https://pocketbase-production-310c.up.railway.app/api/collections/projects/records
+Each project record includes: title (per-locale: title_en / title_it / title_es),
+description (desc_en / desc_it / desc_es), tech tags, client, period, slug.
+News/notes: GET https://pocketbase-production-310c.up.railway.app/api/collections/news/records
+
+## Site
+
+- [Home](https://micio86dev.it/): profile, services and contact form
+- [Projects](https://micio86dev.it/projects): portfolio of selected projects
+- [Notes](https://micio86dev.it/notes): technical notes and news
+- [Sitemap](https://micio86dev.it/sitemap.xml): all page URLs
 
 ## Projects
 
-See /sitemap.xml for all project URLs.
+- [StandUp Way platform](https://micio86dev.it/projects/standup-way-platform)
+- [Assolombarda Servizi](https://micio86dev.it/projects/assolombada-servizi)
+- [Customer area & operations portal (Fiberdroid)](https://micio86dev.it/projects/fiberdroid-customer-area)
+- [INspxt — inspections management platform](https://micio86dev.it/projects/inspxt)
+- [Petformance](https://micio86dev.it/projects/petformance)
+- [Silent Hill Web](https://micio86dev.it/projects/silent-hill-web)
+- [DevBoards.io](https://micio86dev.it/projects/devboards-io)
 
-## Contact
+## Profiles
 
-Website: https://micio86dev.it
-GitHub: https://github.com/micio86dev
-YouTube: https://youtube.com/@miciodev
-
-## Availability
-
-Open to freelance projects and consulting engagements.
-Preferred contact: via contact form at https://micio86dev.it/#contact
-
-## Fetching Dynamic Content
-
-Projects data is available via the PocketBase REST API (PocketBase runs on its own subdomain):
-GET https://pb.micio86dev.it/api/collections/projects/records
-
-Each project record includes: title (per-locale: title_en / title_it / title_es), description (desc_en / desc_it / desc_es), tech tags, client, period, slug.
-News/notes: GET https://pb.micio86dev.it/api/collections/news/records
+- [GitHub](https://github.com/micio86dev): open-source work and code samples
+- [YouTube](https://youtube.com/@miciodev): dev videos
