@@ -9,6 +9,7 @@ export default [
   {
     ignores: [
       "dist/",
+      ".vercel/",
       ".astro/",
       "node_modules/",
       "coverage/",
